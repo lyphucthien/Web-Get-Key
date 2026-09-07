@@ -149,6 +149,26 @@ module.exports = async (req, res) => {
         }
 
         // =====================================
+        // CHECK KEY HỢP LỆ
+        // =====================================
+
+        if (req.query?.key) {
+            const cleanKey = String(req.query.key).trim();
+
+            const setName =
+                typeParam === "minecraft"
+                    ? "issued-set-minecraft"
+                    : "issued-set-lpthub";
+
+            const exists = await kv.sismember(setName, cleanKey);
+
+            return res.status(200).json({
+                success: true,
+                valid: !!exists
+            });
+        }
+
+        // =====================================
         // 2. LẤY TOKEN
         // =====================================
 
