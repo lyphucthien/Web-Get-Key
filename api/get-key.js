@@ -25,26 +25,24 @@ const KEY_TYPES = {
     }
 };
 
-// Sinh 1 key dạng LPTHUB-XXXXXXXXXX (5 chữ IN HOA + 5 số, xen ngẫu nhiên)
 function generateLpthubKey() {
     const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const digits = "0123456789";
 
     const chars = [];
 
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 8; i++) {
         chars.push(
             letters[Math.floor(Math.random() * letters.length)]
         );
     }
 
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 7; i++) {
         chars.push(
             digits[Math.floor(Math.random() * digits.length)]
         );
     }
 
-    // Xáo trộn vị trí (Fisher-Yates)
     for (let i = chars.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [chars[i], chars[j]] = [chars[j], chars[i]];
@@ -130,10 +128,6 @@ function getCookie(req, name) {
 module.exports = async (req, res) => {
     try {
 
-        // =====================================
-        // 1. LẤY LOẠI KEY (type)
-        // =====================================
-
         const typeParam =
             (req.query?.type || "minecraft")
                 .toString()
@@ -147,10 +141,6 @@ module.exports = async (req, res) => {
                 error: "Loại key không hợp lệ"
             });
         }
-
-        // =====================================
-        // CHECK KEY HỢP LỆ
-        // =====================================
 
         if (req.query?.key) {
             const cleanKey = String(req.query.key).trim();
@@ -168,21 +158,11 @@ module.exports = async (req, res) => {
             });
         }
 
-        // =====================================
-        // 2. LẤY TOKEN
-        // =====================================
-
         let token = req.query?.token;
 
-        // Nếu không có token trên URL,
-        // lấy token từ cookie
         if (!token) {
             token = getCookie(req, "verify_token");
         }
-
-        // =====================================
-        // 3. KIỂM TRA TOKEN
-        // =====================================
 
         if (!isValidToken(token)) {
             return res.status(403).json({
@@ -191,15 +171,7 @@ module.exports = async (req, res) => {
             });
         }
 
-        // =====================================
-        // 4. LẤY IP
-        // =====================================
-
         const ip = getClientIp(req);
-
-        // =====================================
-        // 5. TOKEN ĐÃ DÙNG?
-        // =====================================
 
         const tokenKey = `used-token:${typeParam}:${token}`;
 
@@ -212,14 +184,9 @@ module.exports = async (req, res) => {
             });
         }
 
-        // =====================================
-        // 6. IP ĐÃ NHẬN KEY LOẠI NÀY?
-        // =====================================
-
         const ipKey = `${typeConfig.ipPrefix}:${ip}`;
 
-        const alreadyClaimedByIp =
-            await kv.get(ipKey);
+        const alreadyClaimedByIp = await kv.get(ipKey);
 
         if (alreadyClaimedByIp) {
             return res.status(200).json({
@@ -227,10 +194,6 @@ module.exports = async (req, res) => {
                 error: "IP này đã nhận KEY rồi"
             });
         }
-
-        // =====================================
-        // 7. LOẠI KEY TỰ SINH (VD: LPTHUB)
-        // =====================================
 
         if (typeConfig.generated) {
 
@@ -240,8 +203,6 @@ module.exports = async (req, res) => {
 
                 const candidate = generateLpthubKey();
 
-                // sadd trả về 1 nếu key MỚI được thêm,
-                // 0 nếu key đã tồn tại (trùng) -> thử lại
                 const added = await kv.sadd(
                     typeConfig.kvIssuedSet,
                     candidate
@@ -263,17 +224,13 @@ module.exports = async (req, res) => {
             await kv.set(
                 ipKey,
                 issuedKey,
-                {
-                    ex: IP_LOCK_SECONDS
-                }
+                {ex: IP_LOCK_SECONDS}
             );
 
             await kv.set(
                 tokenKey,
                 true,
-                {
-                    ex: 15 * 60
-                }
+                {ex: 15 * 60}
             );
 
             res.setHeader(
@@ -286,11 +243,6 @@ module.exports = async (req, res) => {
                 key: issuedKey
             });
         }
-
-        // =====================================
-        // 8. LẤY DANH SÁCH KEY CÒN LẠI TỪ KV
-        //    (nạp từ file json nếu KV chưa có)
-        // =====================================
 
         let keys = await kv.get(typeConfig.kvList);
 
@@ -324,10 +276,6 @@ module.exports = async (req, res) => {
             });
         }
 
-        // =====================================
-        // 9. LẤY KEY ĐẦU TIÊN VÀ XOÁ KHỎI DANH SÁCH
-        // =====================================
-
         for (let attempt = 0; attempt < 10; attempt++) {
 
             const currentKeys =
@@ -343,10 +291,6 @@ module.exports = async (req, res) => {
             }
 
             const updatedKeys = currentKeys.slice(1);
-
-            // =====================================
-            // 9. LƯU DỮ LIỆU
-            // =====================================
 
             await kv.set(
                 typeConfig.kvList,
@@ -366,7 +310,6 @@ module.exports = async (req, res) => {
                 }
             );
 
-            // Token chỉ được sử dụng 1 lần
             await kv.set(
                 tokenKey,
                 true,
@@ -375,15 +318,10 @@ module.exports = async (req, res) => {
                 }
             );
 
-            // Xóa cookie sau khi nhận KEY
             res.setHeader(
                 "Set-Cookie",
                 "verify_token=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=Lax"
             );
-
-            // =====================================
-            // 9. TRẢ KEY
-            // =====================================
 
             return res.status(200).json({
                 success: true,
