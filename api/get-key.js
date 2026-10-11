@@ -1,4 +1,3 @@
-
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
@@ -135,30 +134,21 @@ function parseActivationRecord(value) {
         }
     }
 
-    return value && typeof value === "object"
-        ? value
-        : null;
+    return value && typeof value === "object" ? value : null;
 }
 
-async function isLptHubKeyWithinLifetime(key) {
-    const keyHash = crypto
-        .createHash("sha256")
-        .update(key)
-        .digest("hex");
-
+async function getLptHubKeyLifetime(key) {
+    const keyHash = crypto.createHash("sha256").update(key).digest("hex");
     const activationKey = `lpthub:activation:${keyHash}`;
+
     let stored = await kv.get(activationKey);
 
     if (stored === null || stored === undefined) {
         const activatedAt = Date.now();
-
-        const newRecord = {
-            activatedAt,
-            expiresAt: activatedAt + LPTHUB_KEY_DURATION_MS
-        };
+        const newRecord = {activatedAt,expiresAt: activatedAt + LPTHUB_KEY_DURATION_MS};
 
         await kv.set(activationKey, newRecord, { nx: true });
-    
+
         stored = await kv.get(activationKey);
     }
 
@@ -171,26 +161,34 @@ async function isLptHubKeyWithinLifetime(key) {
         !Number.isFinite(expiresAt) ||
         expiresAt - activatedAt !== LPTHUB_KEY_DURATION_MS
     ) {
-        return false;
+        return {
+            valid: false,
+            expired: false,
+            expiresAt: null,
+            remainingSeconds: 0
+        };
     }
 
-    return Date.now() < expiresAt;
+    const remainingMs = expiresAt - Date.now();
+
+    return {
+        valid: remainingMs > 0,
+        expired: remainingMs <= 0,
+        expiresAt,
+        remainingSeconds: Math.max(0,Math.ceil(remainingMs / 1000))
+    };
 }
+
+// =====================================
+// API HANDLER
+// =====================================
 
 module.exports = async (req, res) => {
     try {
-        const typeParam = (req.query?.type || "minecraft")
-            .toString()
-            .toLowerCase();
-
+        const typeParam = (req.query?.type || "minecraft").toString().toLowerCase();
         const typeConfig = KEY_TYPES[typeParam];
 
-        if (!typeConfig) {
-            return res.status(400).json({
-                success: false,
-                error: "Loại key không hợp lệ"
-            });
-        }
+        if (!typeConfig) {return res.status(400).json({success: false,error: "Loại key không hợp lệ"});}
 
         // =====================================
         // KIỂM TRA KEY
@@ -198,35 +196,22 @@ module.exports = async (req, res) => {
 
         if (req.query?.key) {
             const cleanKey = String(req.query.key).trim();
+            const setName = typeParam === "minecraft" ? "issued-set-minecraft" : "issued-set-lpthub";
+            const exists = await kv.sismember(setName,cleanKey);
 
-            const setName = typeParam === "minecraft"
-                ? "issued-set-minecraft"
-                : "issued-set-lpthub";
+            if (!exists) {return res.status(200).json({success: true,valid: false});}
+            if (typeParam !== "lpthub") {return res.status(200).json({success: true,valid: true});}
 
-            const exists = await kv.sismember(setName, cleanKey);
-
-            if (!exists) {
-                return res.status(200).json({
-                    success: true,
-                    valid: false
-                });
-            }
-
-            // Minecraft giữ nguyên cách xác thực cũ.
-            if (typeParam !== "lpthub") {
-                return res.status(200).json({
-                    success: true,
-                    valid: true
-                });
-            }
-
-            // LPT Hub: kích hoạt hoặc kiểm tra hạn 3 giờ.
-            const valid = await isLptHubKeyWithinLifetime(cleanKey);
+            const lifetime = await getLptHubKeyLifetime(
+                cleanKey
+            );
 
             return res.status(200).json({
                 success: true,
-                valid,
-                expired: !valid
+                valid: lifetime.valid,
+                expired: lifetime.expired,
+                expiresAt: lifetime.expiresAt,
+                remainingSeconds: lifetime.remainingSeconds
             });
         }
 
@@ -236,38 +221,19 @@ module.exports = async (req, res) => {
 
         let token = req.query?.token;
 
-        if (!token) {
-            token = getCookie(req, "verify_token");
-        }
-
-        if (!isValidToken(token)) {
-            return res.status(403).json({
-                success: false,
-                error: "Token không hợp lệ hoặc đã hết hạn"
-            });
-        }
+        if (!token) {token = getCookie(req, "verify_token");}
+        if (!isValidToken(token)) {return res.status(403).json({success: false,error: "Token không hợp lệ hoặc đã hết hạn"});}
 
         const ip = getClientIp(req);
         const tokenKey = `used-token:${typeParam}:${token}`;
-
         const alreadyUsed = await kv.get(tokenKey);
 
-        if (alreadyUsed) {
-            return res.status(403).json({
-                success: false,
-                error: "Token này đã được sử dụng"
-            });
-        }
+        if (alreadyUsed) {return res.status(403).json({success: false,error: "Token này đã được sử dụng"});}
 
         const ipKey = `${typeConfig.ipPrefix}:${ip}`;
         const alreadyClaimedByIp = await kv.get(ipKey);
 
-        if (alreadyClaimedByIp) {
-            return res.status(200).json({
-                success: false,
-                error: "IP này đã nhận KEY rồi"
-            });
-        }
+        if (alreadyClaimedByIp) {return res.status(200).json({success: false,error: "Bạn này đã nhận KEY rồi"});}
 
         // =====================================
         // TẠO KEY LPTHUB
@@ -278,16 +244,9 @@ module.exports = async (req, res) => {
 
             for (let attempt = 0; attempt < 10; attempt++) {
                 const candidate = generateLpthubKey();
+                const added = await kv.sadd(typeConfig.kvIssuedSet,candidate);
 
-                const added = await kv.sadd(
-                    typeConfig.kvIssuedSet,
-                    candidate
-                );
-
-                if (added === 1) {
-                    issuedKey = candidate;
-                    break;
-                }
+                if (added === 1) {issuedKey = candidate;break;}
             }
 
             if (!issuedKey) {
@@ -297,23 +256,12 @@ module.exports = async (req, res) => {
                 });
             }
 
-            await kv.set(ipKey, issuedKey, {
-                ex: IP_LOCK_SECONDS
-            });
+            await kv.set(ipKey, issuedKey, {ex: IP_LOCK_SECONDS});
+            await kv.set(tokenKey, true, {ex: 15 * 60});
 
-            await kv.set(tokenKey, true, {
-                ex: 15 * 60
-            });
+            res.setHeader("Set-Cookie","verify_token=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=Lax");
 
-            res.setHeader(
-                "Set-Cookie",
-                "verify_token=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=Lax"
-            );
-
-            return res.status(200).json({
-                success: true,
-                key: issuedKey
-            });
+            return res.status(200).json({success: true,key: issuedKey});
         }
 
         // =====================================
@@ -323,20 +271,10 @@ module.exports = async (req, res) => {
         let keys = await kv.get(typeConfig.kvList);
 
         if (!keys) {
-            const keysPath = path.join(
-                process.cwd(),
-                typeConfig.file
-            );
+            const keysPath = path.join(process.cwd(),typeConfig.file);
+            const keysData = JSON.parse(fs.readFileSync(keysPath, "utf8"));
 
-            const keysData = JSON.parse(
-                fs.readFileSync(keysPath, "utf8")
-            );
-
-            if (!Array.isArray(keysData)) {
-                throw new Error(
-                    typeConfig.file + " must contain an array of keys"
-                );
-            }
+            if (!Array.isArray(keysData)) {throw new Error(typeConfig.file +" must contain an array of keys");}
 
             keys = keysData
                 .map(key => String(key).trim())
@@ -345,60 +283,33 @@ module.exports = async (req, res) => {
             await kv.set(typeConfig.kvList, keys);
         }
 
-        if (keys.length === 0) {
-            return res.status(404).json({
-                success: false,
-                error: "All keys have been claimed"
-            });
-        }
+        if (keys.length === 0) {return res.status(404).json({success: false,error: "All keys have been claimed"});}
 
         for (let attempt = 0; attempt < 10; attempt++) {
-            const currentKeys =
-                (await kv.get(typeConfig.kvList)) || [];
+            const currentKeys = (await kv.get(typeConfig.kvList)) || [];
 
             const availableKey = currentKeys[0];
 
             if (!availableKey) {
-                return res.status(404).json({
-                    success: false,
-                    error: "All keys have been claimed"
-                });
+                return res.status(404).json({success: false,error: "All keys have been claimed"});
             }
 
             const updatedKeys = currentKeys.slice(1);
 
-            await kv.set(typeConfig.kvList, updatedKeys);
-            await kv.sadd("issued-set-minecraft", availableKey);
+            await kv.set(typeConfig.kvList,updatedKeys);
+            await kv.sadd("issued-set-minecraft",availableKey);
+            await kv.set(ipKey, availableKey, {ex: IP_LOCK_SECONDS});
+            await kv.set(tokenKey, true, {ex: 15 * 60});
+            res.setHeader("Set-Cookie","verify_token=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=Lax");
 
-            await kv.set(ipKey, availableKey, {
-                ex: IP_LOCK_SECONDS
-            });
-
-            await kv.set(tokenKey, true, {
-                ex: 15 * 60
-            });
-
-            res.setHeader(
-                "Set-Cookie",
-                "verify_token=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=Lax"
-            );
-
-            return res.status(200).json({
-                success: true,
-                key: availableKey
-            });
+            return res.status(200).json({success: true,key: availableKey});
         }
 
-        return res.status(503).json({
-            success: false,
-            error: "Server is busy, please try again"
-        });
+        return res.status(503).json({success: false,error: "Server is busy, please try again"});
+
     } catch (error) {
         console.error("Get key error:", error);
 
-        return res.status(500).json({
-            success: false,
-            error: "Lỗi máy chủ khi xử lý KEY"
-        });
+        return res.status(500).json({success: false,error: "Lỗi máy chủ khi xử lý KEY"});
     }
 };
