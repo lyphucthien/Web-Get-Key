@@ -7,17 +7,9 @@ if (!SECRET) {
     throw new Error("VERIFY_SECRET is not configured");
 }
 
-// Các key trong KV ứng với từng loại
 const RESET_TARGETS = {
-    minecraft: {
-        kvList: "remaining-keys"
-        // Không xoá "keys.json" gốc, chỉ xoá bản nạp trong KV
-        // -> lần gọi get-key tiếp theo sẽ nạp lại full từ keys.json
-    },
-    lpthub: {
-        kvIssuedSet: "issued-set-lpthub"
-        // Xoá tập key đã phát -> các key cũ có thể được sinh/dùng lại
-    }
+    minecraft: {kvList: "remaining-keys"},
+    lpthub: {kvIssuedSet: "issued-set-lpthub"}
 };
 
 function safeEqual(a, b) {
@@ -34,10 +26,6 @@ function safeEqual(a, b) {
 module.exports = async (req, res) => {
     try {
 
-        // =====================================
-        // 1. KIỂM TRA MẬT KHẨU ADMIN
-        // =====================================
-
         const secret = req.query?.secret;
 
         if (!secret || !safeEqual(secret, SECRET)) {
@@ -47,15 +35,7 @@ module.exports = async (req, res) => {
             });
         }
 
-        // =====================================
-        // 2. LOẠI CẦN RESET
-        // =====================================
-
-        const typeParam =
-            (req.query?.type || "")
-                .toString()
-                .toLowerCase();
-
+        const typeParam = (req.query?.type || "").toString().toLowerCase();
         const target = RESET_TARGETS[typeParam];
 
         if (!target) {
@@ -65,33 +45,14 @@ module.exports = async (req, res) => {
             });
         }
 
-        // =====================================
-        // 3. TUỲ CHỌN: RESET LUÔN KHOÁ IP
-        //    ?resetIp=1
-        // =====================================
-
         const resetIp = req.query?.resetIp === "1";
 
-        // =====================================
-        // 4. XOÁ DỮ LIỆU TRONG KV
-        // =====================================
-
-        if (target.kvList) {
-            await kv.del(target.kvList);
-        }
-
-        if (target.kvIssuedSet) {
-            await kv.del(target.kvIssuedSet);
-        }
+        if (target.kvList) {await kv.del(target.kvList);}
+        if (target.kvIssuedSet) {await kv.del(target.kvIssuedSet);}
 
         let ipNote = "Không đụng tới khoá IP";
 
         if (resetIp) {
-            // Lưu ý: KV không hỗ trợ xoá theo prefix trực tiếp
-            // qua REST API miễn phí một cách đơn giản, nên phần
-            // khoá IP cần xoá thủ công trong Upstash Data Browser
-            // (gõ: KEYS ip-lpthub:* hoặc ip:*  rồi xoá từng key),
-            // hoặc đợi tự hết hạn (3 tiếng).
             ipNote =
                 "Muốn xoá khoá IP, vào Upstash Data Browser " +
                 "tìm theo prefix tương ứng và xoá thủ công " +
