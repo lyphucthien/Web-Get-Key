@@ -19,7 +19,6 @@ function safeEqual(a, b) {
     if (bufA.length !== bufB.length) {
         return false;
     }
-
     return crypto.timingSafeEqual(bufA, bufB);
 }
 
