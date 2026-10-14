@@ -7,7 +7,7 @@ const LPTHUB_KEY_DURATION_MS = 3 * 60 * 60 * 1000;
 
 const SCRIPTS = {
     "universal": "Script Cho Game Ko Hỗ Trợ/Script.lua",
-    "+1 Speed Keyboard Escape": "+1 Speed Keyboard Escape/MainUI.lua",
+    "+1 Speed Keyboard Escape": "+1 Speed Keyboard Escape/Main.lua",
     "Blox Fruits": "Blox Fruits/Main.lua"
 };
 
