@@ -240,7 +240,7 @@ async function verifyLptHubHwid(key, hwid, remainingSeconds) {
 }
 
 // =====================================
-// API HANDLER
+// API
 // =====================================
 
 module.exports = async (req, res) => {
@@ -282,15 +282,8 @@ module.exports = async (req, res) => {
                 });
             }
 
-            const setName =
-                typeParam === "minecraft"
-                    ? "issued-set-minecraft"
-                    : "issued-set-lpthub";
-
-            const exists = await kv.sismember(
-                setName,
-                cleanKey
-            );
+            const setName = typeParam === "minecraft" ? "issued-set-minecraft" : "issued-set-lpthub";
+            const exists = await kv.sismember(setName,cleanKey);
 
             if (!exists) {
                 return res.status(200).json({
@@ -306,9 +299,9 @@ module.exports = async (req, res) => {
                 });
             }
 
-            const lifetime = await getLptHubKeyLifetime(
-                cleanKey
-            );
+            const lifetime = await getLptHubKeyLifetime(cleanKey);
+
+            res.setHeader("Cache-Control", "no-store");
 
             const lifetimeResult = {
                 success: true,
@@ -338,11 +331,7 @@ module.exports = async (req, res) => {
                 });
             }
 
-            const hwidResult = await verifyLptHubHwid(
-                cleanKey,
-                hwid,
-                lifetime.remainingSeconds
-            );
+            const hwidResult = await verifyLptHubHwid(cleanKey,hwid,lifetime.remainingSeconds);
 
             res.setHeader("Cache-Control", "no-store");
 
