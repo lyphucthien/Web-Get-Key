@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LPT Hub – Lấy key &amp; game hỗ trợ</title>
+<title>LPT Hub – Lấy key</title>
 <link rel="icon" type="image/png" href="https://res.cloudinary.com/dkui88bcf/image/upload/v1786939501/Logo_LPT_vnq390.png">
 <style>
 :root{
-  --bg:#0a0e12;--panel:rgba(14,20,25,.92);--panel2:rgba(18,25,31,.96);--line:#29343d;
+  --bg:#000;--panel:rgba(10,10,12,.95);--panel2:rgba(16,16,20,.98);--line:#26262d;
   --text:#e6edf3;--dim:#8a96a1;--amber:#ffb84d;--green:#6fe08a;
   --purple:#8b6cf7;--purple2:#6c4ce0;--glow:rgba(139,108,247,.35);
   --mono:Consolas,"Courier New",monospace;
@@ -16,15 +16,13 @@
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:72px}
 body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;overflow-x:hidden}
-#bg-image{position:fixed;inset:0;z-index:-3;background:url("https://res.cloudinary.com/dkui88bcf/image/upload/v1786093084/ThoBayMau_txlygo.jpg") center top/cover no-repeat;filter:blur(4px) brightness(.55) saturate(.95);transform:scale(1.04)}
 #bg-canvas{position:fixed;inset:0;z-index:-2}
-body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(circle at 50% 40%,rgba(10,14,18,.3),rgba(10,14,18,.8))}
 a{color:inherit;text-decoration:none}
 :focus-visible{outline:2px solid var(--amber);outline-offset:2px}
 .wrap{width:100%;max-width:1040px;margin:0 auto;padding:0 20px}
 
 /* header */
-header{position:sticky;top:0;z-index:10;background:rgba(10,14,18,.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+header{position:sticky;top:0;z-index:10;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .nav{display:flex;align-items:center;gap:20px;height:60px}
 .brand{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-weight:700;font-size:17px;margin-right:auto}
 .brand img{width:28px;height:28px;border-radius:6px}
@@ -95,7 +93,7 @@ button.main-btn.ready:hover{filter:brightness(1.08)}
 .tag.on{color:var(--green);border-color:rgba(111,224,138,.4)}
 .game .btn{align-self:flex-start;padding:9px 16px;font-size:13px}
 
-footer{border-top:1px solid var(--line);padding:26px 0;color:var(--dim);font-size:13px;background:rgba(10,14,18,.7)}
+footer{border-top:1px solid var(--line);padding:26px 0;color:var(--dim);font-size:13px;background:#000}
 
 @media(max-width:800px){
   .key-grid{grid-template-columns:1fr}
@@ -107,7 +105,6 @@ footer{border-top:1px solid var(--line);padding:26px 0;color:var(--dim);font-siz
 </style>
 </head>
 <body>
-<div id="bg-image"></div>
 <canvas id="bg-canvas"></canvas>
 
 <header>
