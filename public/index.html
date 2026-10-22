@@ -1,1412 +1,365 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>Get Key Minecraft</title>
-
-    <link
-        rel="icon"
-        type="image/png"
-        href="https://res.cloudinary.com/dkui88bcf/image/upload/v1786939501/Logo_LPT_vnq390.png"
-    >
-
-    <style>
-
-        :root {
-            --bg: #0a0e12;
-            --panel: rgba(14, 20, 25, 0.94);
-            --panel-2: rgba(18, 25, 31, 0.96);
-            --line: #29343d;
-
-            --text: #e6edf3;
-            --text-dim: #7d8993;
-
-            --amber: #ffb84d;
-            --amber-dim: #a8752e;
-
-            --green: #6fe08a;
-
-            --purple: #8b6cf7;
-            --purple-2: #6c4ce0;
-            --purple-glow: rgba(139,108,247,0.35);
-
-            --mono:
-                Consolas,
-                "Courier New",
-                monospace;
-        }
-
-
-        * {
-            box-sizing: border-box;
-        }
-
-
-        html,
-        body {
-            margin: 0;
-            width: 100%;
-            min-height: 100%;
-        }
-
-
-        body {
-            min-height: 100vh;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            padding: 20px;
-
-            background: var(--bg);
-
-            color: var(--text);
-
-            font-family: var(--mono);
-
-            overflow-x: hidden;
-        }
-
-
-        /* =========================
-           BACKGROUND
-        ========================= */
-
-        #bg-image {
-            position: fixed;
-            inset: 0;
-
-            z-index: -3;
-
-            background-image:
-                url("https://res.cloudinary.com/dkui88bcf/image/upload/v1786093084/ThoBayMau_txlygo.jpg");
-
-            background-size: cover;
-            background-position: center top;
-            background-repeat: no-repeat;
-
-            filter:
-                blur(4px)
-                brightness(0.65)
-                saturate(0.95);
-
-            transform: scale(1.04);
-        }
-
-
-        #bg-canvas {
-            position: fixed;
-            inset: 0;
-
-            z-index: -2;
-
-            display: block;
-        }
-
-
-        body::before {
-            content: "";
-
-            position: fixed;
-            inset: 0;
-
-            z-index: -1;
-
-            background:
-                radial-gradient(
-                    circle at 50% 30%,
-                    rgba(255,184,77,0.08),
-                    transparent 55%
-                ),
-
-                radial-gradient(
-                    circle at 15% 85%,
-                    rgba(111,224,138,0.05),
-                    transparent 50%
-                ),
-
-                radial-gradient(
-                    circle,
-                    rgba(255,255,255,0.03) 1px,
-                    transparent 1px
-                );
-
-            background-size:
-                auto,
-                auto,
-                22px 22px;
-
-            pointer-events: none;
-        }
-
-
-        body::after {
-            content: "";
-
-            position: fixed;
-            inset: 0;
-
-            z-index: -1;
-
-            background:
-                radial-gradient(
-                    circle at 50% 45%,
-                    rgba(10,14,18,0.25) 0%,
-                    rgba(10,14,18,0.55) 55%,
-                    rgba(10,14,18,0.75) 100%
-                );
-
-            pointer-events: none;
-        }
-
-
-        /* =========================
-           CONSOLE
-        ========================= */
-
-        .console {
-            position: relative;
-
-            width: 100%;
-            max-width: 560px;
-
-            background: var(--panel);
-
-            border: 1px solid var(--line);
-
-            border-radius: 22px;
-
-            box-shadow:
-                0 0 0 1px rgba(139,108,247,0.08),
-                0 20px 60px rgba(0,0,0,0.6);
-
-            backdrop-filter: blur(8px);
-        }
-
-
-        /* =========================
-           BODY
-        ========================= */
-
-        .body {
-            padding:
-                28px 26px 26px;
-
-            border-radius: 4px;
-        }
-
-
-        /* =========================
-           HEADER
-        ========================= */
-
-        .hdr {
-            display: flex;
-
-            align-items: center;
-
-            gap: 10px;
-
-            flex-wrap: wrap;
-
-            margin-bottom: 22px;
-
-            border-bottom:
-                1px dashed var(--line);
-
-            padding-bottom: 16px;
-        }
-
-
-        .hdr h1 {
-            font-size: 18px;
-
-            margin: 0;
-
-            letter-spacing: 1px;
-
-            color: var(--text);
-
-            font-weight: 600;
-        }
-
-
-        .hdr h1 span {
-            color: var(--amber);
-        }
-
-
-        .hdr .stamp {
-            font-size: 11px;
-
-            color: var(--text-dim);
-
-            margin-right: auto;
-        }
-
-
-        .status-inline {
-            font-size: 11px;
-
-            color: var(--text-dim);
-
-            letter-spacing: 0.5px;
-
-            white-space: nowrap;
-        }
-
-
-        .pulse {
-            width: 8px;
-            height: 8px;
-
-            border-radius: 50%;
-
-            background:
-                var(--amber);
-
-            box-shadow:
-                0 0 0 0 rgba(255,184,77,0.6);
-
-            animation:
-                pulse 1.6s infinite;
-
-            flex-shrink: 0;
-        }
-
-
-        .pulse.ready {
-            background:
-                var(--green);
-
-            animation: none;
-        }
-
-
-        @keyframes pulse {
-
-            0% {
-                box-shadow:
-                    0 0 0 0
-                    rgba(255,184,77,0.5);
-            }
-
-            70% {
-                box-shadow:
-                    0 0 0 8px
-                    rgba(255,184,77,0);
-            }
-
-            100% {
-                box-shadow:
-                    0 0 0 0
-                    rgba(255,184,77,0);
-            }
-
-        }
-
-
-        /* =========================
-           PROGRESS
-        ========================= */
-
-        .progress-wrap {
-            margin-bottom: 20px;
-        }
-
-
-        .progress-track {
-            height: 6px;
-
-            width: 100%;
-
-            background:
-                var(--panel-2);
-
-            border:
-                1px solid var(--line);
-
-            border-radius: 6px;
-
-            overflow: hidden;
-        }
-
-
-        .progress-fill {
-            height: 100%;
-
-            width: 0%;
-
-            background:
-                linear-gradient(
-                    90deg,
-                    var(--amber-dim),
-                    var(--amber)
-                );
-
-            transition:
-                width 0.2s linear;
-        }
-
-
-        .progress-labels {
-            display: flex;
-
-            justify-content: space-between;
-
-            font-size: 11px;
-
-            color: var(--text-dim);
-
-            margin-top: 8px;
-        }
-
-
-        /* =========================
-           BUTTON
-        ========================= */
-
-        button.main-btn {
-            width: 100%;
-
-            padding: 14px;
-
-            font-family: var(--mono);
-
-            font-size: 13px;
-
-            letter-spacing: 2px;
-
-            text-transform: uppercase;
-
-            background:
-                var(--panel-2);
-
-            color:
-                var(--text-dim);
-
-            border:
-                1px solid var(--line);
-
-            border-radius: 14px;
-
-            cursor: not-allowed;
-
-            transition:
-                all 0.25s ease;
-        }
-
-
-        button.main-btn.ready {
-            color: #ffffff;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    var(--purple),
-                    var(--purple-2)
-                );
-
-            border-color:
-                var(--purple-2);
-
-            cursor: pointer;
-
-            box-shadow:
-                0 0 24px
-                var(--purple-glow);
-        }
-
-
-        button.main-btn.ready:hover {
-            filter:
-                brightness(1.08);
-        }
-
-
-        /* =========================
-           KEY OUTPUT
-        ========================= */
-
-        .key-out {
-            display: none;
-
-            margin-top: 20px;
-
-            padding: 16px;
-
-            background:
-                var(--panel-2);
-
-            border:
-                1px solid var(--purple);
-
-            border-radius: 16px;
-        }
-
-
-        .key-out.show {
-            display: block;
-        }
-
-
-        .key-out .k-label {
-            font-size: 11px;
-
-            color:
-                var(--text-dim);
-
-            letter-spacing: 1px;
-
-            margin-bottom: 8px;
-
-            text-transform: uppercase;
-        }
-
-
-        .key-row {
-            display: flex;
-
-            gap: 8px;
-        }
-
-
-        .key-row input {
-            flex: 1;
-
-            min-width: 0;
-
-            font-family: var(--mono);
-
-            font-size: 16px;
-
-            letter-spacing: 2px;
-
-            background:
-                var(--bg);
-
-            color:
-                var(--purple);
-
-            border:
-                1px solid var(--line);
-
-            border-radius: 10px;
-
-            padding:
-                10px 12px;
-        }
-
-
-        .key-row button {
-            font-family: var(--mono);
-
-            font-size: 11px;
-
-            letter-spacing: 1px;
-
-            text-transform: uppercase;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    var(--purple),
-                    var(--purple-2)
-                );
-
-            color:
-                #ffffff;
-
-            border:
-                1px solid var(--purple-2);
-
-            border-radius: 10px;
-
-            padding:
-                0 16px;
-
-            cursor: pointer;
-
-            box-shadow:
-                0 0 16px
-                var(--purple-glow);
-        }
-
-
-        .key-row button:hover {
-            filter:
-                brightness(1.1);
-        }
-
-
-        /* =========================
-           FOOTNOTE
-        ========================= */
-
-        .footnote {
-            margin-top: 18px;
-
-            font-size: 10.5px;
-
-            color:
-                var(--text-dim);
-
-            text-align: center;
-
-            letter-spacing: 0.5px;
-        }
-
-
-        /* =========================
-           MOBILE
-        ========================= */
-
-        @media (max-width: 600px) {
-
-            .body {
-                padding:
-                    22px 18px 20px;
-            }
-
-            .key-row {
-                flex-direction: column;
-            }
-
-            .key-row button {
-                height: 40px;
-            }
-
-        }
-
-        /* =========================
-           TYPE TOGGLE
-        ========================= */
-
-        .type-toggle {
-            position: relative;
-
-            display: flex;
-
-            gap: 0;
-
-            margin-bottom: 20px;
-
-            background: var(--panel-2);
-
-            border: 1px solid var(--line);
-
-            border-radius: 10px;
-
-            padding: 4px;
-
-            isolation: isolate;
-        }
-
-
-        .type-toggle-indicator {
-            position: absolute;
-
-            top: 4px;
-            left: 4px;
-
-            width: calc(50% - 4px);
-            height: calc(100% - 8px);
-
-            border-radius: 7px;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    var(--purple-2),
-                    var(--purple)
-                );
-
-            box-shadow:
-                0 0 12px var(--purple-glow);
-
-            transition:
-                transform 0.35s cubic-bezier(0.65, 0, 0.35, 1);
-
-            will-change: transform;
-
-            z-index: 0;
-        }
-
-
-        .type-toggle.pos-lpthub .type-toggle-indicator {
-            transform: translateX(100%);
-        }
-
-
-        .type-btn {
-            position: relative;
-
-            z-index: 1;
-
-            flex: 1;
-
-            padding: 9px 6px;
-
-            border: none;
-
-            border-radius: 7px;
-
-            background: transparent;
-
-            color: var(--text-dim);
-
-            font-family: var(--mono);
-
-            font-size: 12px;
-
-            font-weight: 600;
-
-            letter-spacing: 0.5px;
-
-            cursor: pointer;
-
-            transition:
-                color 0.25s ease;
-        }
-
-
-        .type-btn.active {
-            color: #fff;
-        }
-
-
-        .type-btn:not(.active):hover {
-            color: var(--text);
-        }
-
-    </style>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LPT Hub – Lấy key &amp; game hỗ trợ</title>
+<link rel="icon" type="image/png" href="https://res.cloudinary.com/dkui88bcf/image/upload/v1786939501/Logo_LPT_vnq390.png">
+<style>
+:root{
+  --bg:#0a0e12;--panel:rgba(14,20,25,.92);--panel2:rgba(18,25,31,.96);--line:#29343d;
+  --text:#e6edf3;--dim:#8a96a1;--amber:#ffb84d;--green:#6fe08a;
+  --purple:#8b6cf7;--purple2:#6c4ce0;--glow:rgba(139,108,247,.35);
+  --mono:Consolas,"Courier New",monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;overflow-x:hidden}
+#bg-image{position:fixed;inset:0;z-index:-3;background:url("https://res.cloudinary.com/dkui88bcf/image/upload/v1786093084/ThoBayMau_txlygo.jpg") center top/cover no-repeat;filter:blur(4px) brightness(.55) saturate(.95);transform:scale(1.04)}
+#bg-canvas{position:fixed;inset:0;z-index:-2}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(circle at 50% 40%,rgba(10,14,18,.3),rgba(10,14,18,.8))}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.wrap{width:100%;max-width:1040px;margin:0 auto;padding:0 20px}
+
+/* header */
+header{position:sticky;top:0;z-index:10;background:rgba(10,14,18,.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;gap:20px;height:60px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-weight:700;font-size:17px;margin-right:auto}
+.brand img{width:28px;height:28px;border-radius:6px}
+.nav a.link{font-size:14px;color:var(--dim);transition:color .2s}
+.nav a.link:hover{color:var(--text)}
+.nav .cta{font-size:13px;padding:7px 14px;border-radius:9px;background:linear-gradient(135deg,var(--purple),var(--purple2));box-shadow:0 0 16px var(--glow)}
+
+/* hero */
+.hero{padding:84px 0 56px}
+.hero h1{font-family:var(--mono);font-size:clamp(30px,5.4vw,50px);line-height:1.15;margin:0 0 18px;max-width:17ch;letter-spacing:-.5px}
+.hero p{max-width:54ch;color:var(--dim);font-size:17px;margin:0 0 28px}
+.btns{display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-block;padding:12px 22px;border-radius:12px;font-size:14px;font-weight:600;border:1px solid var(--line);background:var(--panel2);cursor:pointer;color:var(--text);font-family:inherit}
+.btn.primary{border-color:var(--purple2);background:linear-gradient(135deg,var(--purple),var(--purple2));box-shadow:0 0 22px var(--glow)}
+.btn:hover{filter:brightness(1.1)}
+.facts{display:flex;gap:36px;flex-wrap:wrap;margin-top:44px;padding-top:22px;border-top:1px dashed var(--line)}
+.facts div{font-size:13px;color:var(--dim)}
+.facts b{display:block;font-family:var(--mono);font-size:22px;color:var(--amber);font-weight:700}
+
+/* sections */
+section{padding:56px 0}
+h2{font-family:var(--mono);font-size:26px;margin:0 0 8px}
+.sub{color:var(--dim);margin:0 0 30px;max-width:56ch}
+
+/* get key */
+.key-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:28px;align-items:start}
+.steps{list-style:none;margin:0;padding:0;counter-reset:s}
+.steps li{position:relative;padding:0 0 22px 46px;counter-increment:s}
+.steps li::before{content:counter(s);position:absolute;left:0;top:0;width:30px;height:30px;border-radius:50%;border:1px solid var(--purple);color:var(--purple);display:grid;place-items:center;font-family:var(--mono);font-size:14px}
+.steps li::after{content:"";position:absolute;left:15px;top:34px;bottom:4px;width:1px;background:var(--line)}
+.steps li:last-child::after{display:none}
+.steps b{display:block;margin-bottom:2px}
+.steps span{color:var(--dim);font-size:14px}
+.console{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:0 0 0 1px rgba(139,108,247,.08),0 20px 60px rgba(0,0,0,.55);backdrop-filter:blur(8px);font-family:var(--mono)}
+.type-toggle{position:relative;display:flex;margin-bottom:20px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:4px;isolation:isolate}
+.type-toggle-indicator{position:absolute;top:4px;left:4px;width:calc(50% - 4px);height:calc(100% - 8px);border-radius:7px;background:linear-gradient(135deg,var(--purple2),var(--purple));box-shadow:0 0 12px var(--glow);transition:transform .35s cubic-bezier(.65,0,.35,1);z-index:0}
+.type-toggle.pos-lpthub .type-toggle-indicator{transform:translateX(100%)}
+.type-btn{position:relative;z-index:1;flex:1;padding:9px 6px;border:0;border-radius:7px;background:none;color:var(--dim);font:600 12px var(--mono);cursor:pointer;transition:color .25s}
+.type-btn.active{color:#fff}
+.hdr{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px;padding-bottom:14px;border-bottom:1px dashed var(--line)}
+.hdr h3{font-size:17px;margin:0;font-weight:600}
+.hdr h3 span{color:var(--amber)}
+.status-inline{font-size:11px;color:var(--dim);margin-left:auto}
+.pulse{width:8px;height:8px;border-radius:50%;background:var(--amber);animation:pulse 1.6s infinite;flex-shrink:0}
+.pulse.ready{background:var(--green);animation:none}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,184,77,.5)}70%{box-shadow:0 0 0 8px rgba(255,184,77,0)}100%{box-shadow:0 0 0 0 rgba(255,184,77,0)}}
+.progress-track{height:6px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.progress-fill{height:100%;width:0;background:linear-gradient(90deg,#a8752e,var(--amber));transition:width .2s linear}
+.progress-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);margin:8px 0 18px}
+button.main-btn{width:100%;padding:14px;font:13px var(--mono);letter-spacing:2px;text-transform:uppercase;background:var(--panel2);color:var(--dim);border:1px solid var(--line);border-radius:14px;cursor:not-allowed;transition:all .25s}
+button.main-btn.ready{color:#fff;background:linear-gradient(135deg,var(--purple),var(--purple2));border-color:var(--purple2);cursor:pointer;box-shadow:0 0 24px var(--glow)}
+button.main-btn.ready:hover{filter:brightness(1.08)}
+.key-out{display:none;margin-top:18px;padding:14px;background:var(--panel2);border:1px solid var(--purple);border-radius:14px}
+.key-out.show{display:block}
+.k-label{font-size:11px;color:var(--dim);margin-bottom:8px}
+.key-row{display:flex;gap:8px}
+.key-row input{flex:1;min-width:0;font:15px var(--mono);letter-spacing:1px;background:var(--bg);color:var(--purple);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.key-row button{font:600 11px var(--mono);background:linear-gradient(135deg,var(--purple),var(--purple2));color:#fff;border:1px solid var(--purple2);border-radius:10px;padding:0 16px;cursor:pointer}
+.footnote{margin-top:16px;font-size:11px;color:var(--dim);text-align:center}
+
+/* games */
+.games{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
+.game{display:flex;flex-direction:column;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px}
+.game.soon{border-style:dashed;background:transparent}
+.game h3{margin:0;font-family:var(--mono);font-size:18px}
+.game p{margin:0;color:var(--dim);font-size:14px;flex:1}
+.tag{align-self:flex-start;font-size:12px;padding:2px 10px;border-radius:20px;border:1px solid var(--line);color:var(--dim)}
+.tag.on{color:var(--green);border-color:rgba(111,224,138,.4)}
+.game .btn{align-self:flex-start;padding:9px 16px;font-size:13px}
+
+footer{border-top:1px solid var(--line);padding:26px 0;color:var(--dim);font-size:13px;background:rgba(10,14,18,.7)}
+
+@media(max-width:800px){
+  .key-grid{grid-template-columns:1fr}
+  .nav a.link{display:none}
+  .hero{padding-top:56px}
+}
+@media(max-width:480px){.key-row{flex-direction:column}.key-row button{height:40px}.facts{gap:24px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.pulse{animation:none}*{transition:none!important}}
+</style>
 </head>
-
-
 <body>
-
-
 <div id="bg-image"></div>
-
 <canvas id="bg-canvas"></canvas>
 
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#top"><img src="https://res.cloudinary.com/dkui88bcf/image/upload/v1786939501/Logo_LPT_vnq390.png" alt="">LPT Hub</a>
+    <a class="link" href="#getkey">Lấy key</a>
+    <a class="link" href="#games">Game hỗ trợ</a>
+    <a class="cta" href="#getkey">Nhận key</a>
+  </div>
+</header>
 
-<div class="console">
-
-    <!-- BODY -->
-    <div class="body">
-
-
-        <!-- TYPE TOGGLE -->
-
-        <div
-            class="type-toggle"
-            id="typeToggle">
-
-            <div
-                class="type-toggle-indicator"
-                id="typeToggleIndicator">
-            </div>
-
-            <button
-                class="type-btn active"
-                id="typeBtnMinecraft"
-                data-type="minecraft">
-                MINECRAFT
-            </button>
-
-            <button
-                class="type-btn"
-                id="typeBtnLpthub"
-                data-type="lpthub">
-                LPT HUB
-            </button>
-
-        </div>
-
-
-        <!-- HEADER -->
-
-        <div class="hdr">
-
-            <div
-                class="pulse"
-                id="pulse">
-            </div>
-
-
-            <h1 id="titleText">
-                Server Minecraft
-                <span>Key</span>
-            </h1>
-
-
-            <div class="stamp">
-                VERIFY
-            </div>
-
-
-            <div
-                class="status-inline"
-                id="statusText">
-
-                Đang xác minh...
-
-            </div>
-
-        </div>
-
-
-        <!-- PROGRESS -->
-
-        <div class="progress-wrap">
-
-            <div class="progress-track">
-
-                <div
-                    class="progress-fill"
-                    id="progressFill">
-                </div>
-
-            </div>
-
-
-            <div class="progress-labels">
-
-                <span>
-                    0s
-                </span>
-
-                <span id="countdownLabel">
-                    10s
-                </span>
-
-            </div>
-
-        </div>
-
-
-        <!-- BUTTON -->
-
-        <button
-            class="main-btn"
-            id="mainBtn"
-            disabled>
-
-            ĐANG CHỜ...
-
-        </button>
-
-
-        <!-- KEY -->
-
-        <div
-            class="key-out"
-            id="keyOut">
-
-            <div class="k-label">
-                KEY
-            </div>
-
-
-            <div class="key-row">
-
-                <input
-                    type="text"
-                    id="keyValue"
-                    readonly>
-
-
-                <button
-                    id="copyBtn">
-
-                    COPY
-
-                </button>
-
-            </div>
-
-        </div>
-
-        <!-- FOOTER -->
-
-        <div class="footnote">
-
-            Vui Lòng Không Rời Khỏi Trang
-
-        </div>
-
+<main id="top">
+  <div class="wrap hero">
+    <h1>Key miễn phí cho server Minecraft và script LPT Hub</h1>
+    <p>Chọn loại key, bấm nhận và dùng ngay. Mỗi thiết bị nhận một key sau mỗi 3 giờ, không cần tạo tài khoản.</p>
+    <div class="btns">
+      <a class="btn primary" href="#getkey">Lấy key ngay</a>
+      <a class="btn" href="#games">Xem game hỗ trợ</a>
     </div>
+    <div class="facts">
+      <div><b>3 giờ</b>hiệu lực của key LPT Hub</div>
+      <div><b>1 key</b>mỗi địa chỉ IP trong 3 giờ</div>
+      <div><b id="gameCount">2</b>game đang hỗ trợ</div>
+    </div>
+  </div>
 
-</div>
+  <section id="getkey">
+    <div class="wrap">
+      <h2>Lấy key</h2>
+      <p class="sub">Làm theo ba bước bên dưới. Giữ nguyên trang cho đến khi key hiện ra.</p>
+      <div class="key-grid">
+        <ol class="steps">
+          <li><b>Chọn loại key</b><span>Minecraft dành cho server, LPT Hub dành cho script.</span></li>
+          <li><b>Bấm “Nhận key”</b><span>Key hiện ngay khi bạn đã xác minh. Nếu nút bị khoá, bạn đã nhận key trong 3 giờ qua.</span></li>
+          <li><b>Copy và sử dụng</b><span>Dán key vào server hoặc script. Key LPT Hub gắn với một thiết bị và hết hạn sau 3 giờ kể từ lần dùng đầu.</span></li>
+        </ol>
 
+        <div class="console">
+          <div class="type-toggle" id="typeToggle">
+            <div class="type-toggle-indicator"></div>
+            <button class="type-btn active" id="typeBtnMinecraft" data-type="minecraft">MINECRAFT</button>
+            <button class="type-btn" id="typeBtnLpthub" data-type="lpthub">LPT HUB</button>
+          </div>
+          <div class="hdr">
+            <div class="pulse" id="pulse"></div>
+            <h3 id="titleText">Server Minecraft <span>Key</span></h3>
+            <div class="status-inline" id="statusText">Đang xác minh...</div>
+          </div>
+          <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+          <div class="progress-labels"><span>0s</span><span id="countdownLabel">3h</span></div>
+          <button class="main-btn" id="mainBtn" disabled>Đang chờ...</button>
+          <div class="key-out" id="keyOut">
+            <div class="k-label">KEY CỦA BẠN</div>
+            <div class="key-row">
+              <input type="text" id="keyValue" readonly aria-label="Key">
+              <button id="copyBtn">COPY</button>
+            </div>
+          </div>
+          <div class="footnote">Vui lòng không rời khỏi trang</div>
+        </div>
+      </div>
+    </div>
+  </section>
 
+  <section id="games">
+    <div class="wrap">
+      <h2>Game hỗ trợ</h2>
+      <p class="sub">Những game dùng được key ở trên. Danh sách được cập nhật khi có game mới.</p>
+      <div class="games" id="gamesGrid"></div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap">© LPT Hub. Key chỉ dùng cho mục đích cá nhân.</div></footer>
 
 <script>
+/* ===== DANH SÁCH GAME – sửa ở đây =====
+   type: "minecraft" | "lpthub" (loại key dùng cho game đó)
+   status: "on" = đang hỗ trợ, "soon" = sắp có */
+const GAMES = [
+  { name: "Minecraft Server", type: "minecraft", status: "on",
+    desc: "Key để vào server Minecraft. Mỗi key kích hoạt cho một tên người chơi." },
+  { name: "LPT Hub Script", type: "lpthub", status: "on",
+    desc: "Key cho script LPT Hub, hiệu lực 3 giờ và gắn với một thiết bị." },
+  { name: "Game tiếp theo", type: "", status: "soon",
+    desc: "Đang chuẩn bị. Quay lại sau để xem cập nhật." }
+];
 
-    /* =========================
-       ELEMENTS
-    ========================= */
+const grid = document.getElementById("gamesGrid");
+document.getElementById("gameCount").textContent = GAMES.filter(g => g.status === "on").length;
+GAMES.forEach(g => {
+  const el = document.createElement("div");
+  el.className = "game" + (g.status === "soon" ? " soon" : "");
+  const tag = document.createElement("span");
+  tag.className = "tag" + (g.status === "on" ? " on" : "");
+  tag.textContent = g.status === "on" ? "Đang hỗ trợ" : "Sắp có";
+  const h = document.createElement("h3"); h.textContent = g.name;
+  const p = document.createElement("p"); p.textContent = g.desc;
+  el.append(tag, h, p);
+  if (g.status === "on" && g.type) {
+    const a = document.createElement("a");
+    a.className = "btn"; a.href = "#getkey"; a.textContent = "Lấy key cho game này";
+    a.addEventListener("click", () => switchType(g.type));
+    el.append(a);
+  }
+  grid.append(el);
+});
 
-    const mainBtn =
-        document.getElementById("mainBtn");
+/* ===== LẤY KEY (giữ nguyên logic cũ) ===== */
+const $ = id => document.getElementById(id);
+const mainBtn = $("mainBtn"), keyOut = $("keyOut"), keyValue = $("keyValue"), copyBtn = $("copyBtn"),
+      progressFill = $("progressFill"), countdownLabel = $("countdownLabel"), statusText = $("statusText"),
+      pulse = $("pulse"), titleText = $("titleText"), typeToggle = $("typeToggle"),
+      typeBtnMinecraft = $("typeBtnMinecraft"), typeBtnLpthub = $("typeBtnLpthub");
 
-    const keyOut =
-        document.getElementById("keyOut");
+const TYPE_LABELS = { minecraft: "Server Minecraft", lpthub: "Script LPT HUB" };
+const TYPE_STORAGE_KEY = "selected_type";
+let currentType = localStorage.getItem(TYPE_STORAGE_KEY) || "minecraft";
+if (!TYPE_LABELS[currentType]) currentType = "minecraft";
+const COOLDOWN_MS = 3 * 60 * 60 * 1000;
+const getStorageKey = () => "issued_key_" + currentType;
+const getStorageTimeKey = () => "issued_key_time_" + currentType;
+let cooldownTimer = null;
 
-    const keyValue =
-        document.getElementById("keyValue");
+function formatTime(ms) {
+  const t = Math.max(Math.ceil(ms / 1000), 0);
+  const p = n => String(n).padStart(2, "0");
+  return p(Math.floor(t / 3600)) + ":" + p(Math.floor((t % 3600) / 60)) + ":" + p(t % 60);
+}
 
-    const copyBtn =
-        document.getElementById("copyBtn");
+function lockButton() {
+  mainBtn.disabled = true;
+  mainBtn.classList.remove("ready");
+  mainBtn.textContent = "ĐÃ NHẬN KEY";
+  pulse.classList.remove("ready");
+  if (cooldownTimer) clearInterval(cooldownTimer);
+  const tick = () => {
+    const saved = Number(localStorage.getItem(getStorageTimeKey()) || 0);
+    const remaining = saved + COOLDOWN_MS - Date.now();
+    if (remaining <= 0) { clearInterval(cooldownTimer); unlockButton(); return; }
+    const progress = ((COOLDOWN_MS - remaining) / COOLDOWN_MS) * 100;
+    progressFill.style.width = Math.min(Math.max(progress, 0), 100) + "%";
+    countdownLabel.textContent = formatTime(remaining);
+    statusText.textContent = "Chờ " + formatTime(remaining) + " để lấy KEY mới";
+  };
+  tick();
+  cooldownTimer = setInterval(tick, 1000);
+}
 
-    const progressFill =
-        document.getElementById("progressFill");
+function unlockButton() {
+  if (cooldownTimer) clearInterval(cooldownTimer);
+  localStorage.removeItem(getStorageKey());
+  localStorage.removeItem(getStorageTimeKey());
+  keyOut.classList.remove("show");
+  keyValue.value = "";
+  progressFill.style.width = "0%";
+  countdownLabel.textContent = "00:00:00";
+  mainBtn.disabled = false;
+  mainBtn.classList.add("ready");
+  mainBtn.textContent = "NHẬN KEY";
+  statusText.textContent = "Sẵn sàng nhận KEY";
+  pulse.classList.add("ready");
+}
 
-    const countdownLabel =
-        document.getElementById("countdownLabel");
+function refreshState() {
+  const savedKey = localStorage.getItem(getStorageKey());
+  const savedTime = Number(localStorage.getItem(getStorageTimeKey()) || 0);
+  if (savedKey && savedTime && Date.now() - savedTime < COOLDOWN_MS) {
+    keyValue.value = savedKey;
+    keyOut.classList.add("show");
+    lockButton();
+  } else {
+    unlockButton();
+  }
+}
 
-    const statusText =
-        document.getElementById("statusText");
+function switchType(type, force) {
+  if (type === currentType && !force) return;
+  currentType = type;
+  localStorage.setItem(TYPE_STORAGE_KEY, type);
+  typeBtnMinecraft.classList.toggle("active", type === "minecraft");
+  typeBtnLpthub.classList.toggle("active", type === "lpthub");
+  typeToggle.classList.toggle("pos-lpthub", type === "lpthub");
+  titleText.innerHTML = (TYPE_LABELS[type] || "Key") + " <span>Key</span>";
+  refreshState();
+}
 
-    const pulse =
-        document.getElementById("pulse");
+switchType(currentType, true);
+typeBtnMinecraft.addEventListener("click", () => switchType("minecraft"));
+typeBtnLpthub.addEventListener("click", () => switchType("lpthub"));
 
-    const titleText =
-        document.getElementById("titleText");
-
-    const typeToggle =
-        document.getElementById("typeToggle");
-
-    const typeBtnMinecraft =
-        document.getElementById("typeBtnMinecraft");
-
-    const typeBtnLpthub =
-        document.getElementById("typeBtnLpthub");
-
-    /* =========================
-       LOẠI KEY
-    ========================= */
-
-    const TYPE_LABELS = {
-        minecraft: "Server Minecraft",
-        lpthub: "Script LPT HUB"
-    };
-
-    const TYPE_STORAGE_KEY = "selected_type";
-
-    let currentType =
-        localStorage.getItem(TYPE_STORAGE_KEY) || "minecraft";
-
-    /* =========================
-       THỜI GIAN CHỜ
-    ========================= */
-
-    const COOLDOWN_MS =
-        (3 * 60 * 60) * 1000; // 3h
-
-    function getStorageKey() {
-        return "issued_key_" + currentType;
+mainBtn.addEventListener("click", async () => {
+  mainBtn.disabled = true;
+  mainBtn.classList.remove("ready");
+  mainBtn.textContent = "ĐANG LẤY KEY...";
+  statusText.textContent = "Đang lấy KEY...";
+  try {
+    const response = await fetch("/api/get-key?type=" + encodeURIComponent(currentType), {
+      method: "GET", headers: { "Accept": "application/json" }
+    });
+    if (!response.ok) throw new Error("HTTP " + response.status);
+    const data = await response.json();
+    if (!data.success || !data.key) {
+      mainBtn.textContent = "HẾT KEY";
+      statusText.textContent = "Không còn KEY";
+      return;
     }
-
-    function getStorageTimeKey() {
-        return "issued_key_time_" + currentType;
-    }
-
-    let cooldownTimer = null;
-
-    function formatTime(ms) {
-
-        const totalSec =
-            Math.max(Math.ceil(ms / 1000), 0);
-
-        const h = Math.floor(totalSec / 3600);
-        const m = Math.floor((totalSec % 3600) / 60);
-        const s = totalSec % 60;
-
-        return (
-            String(h).padStart(2, "0") + ":" +
-            String(m).padStart(2, "0") + ":" +
-            String(s).padStart(2, "0")
-        );
-    }
-
-    // Khoá nút, đếm ngược
-    function lockButton() {
-
-        mainBtn.disabled = true;
-        mainBtn.classList.remove("ready");
-        mainBtn.textContent = "ĐÃ NHẬN KEY";
-
-        pulse.classList.remove("ready");
-
-        if (cooldownTimer) {
-            clearInterval(cooldownTimer);
-        }
-
-        const tick = () => {
-
-            const savedTime =
-                Number(localStorage.getItem(getStorageTimeKey()) || 0);
-
-            const remaining =
-                (savedTime + COOLDOWN_MS) - Date.now();
-
-            if (remaining <= 0) {
-                clearInterval(cooldownTimer);
-                unlockButton();
-                return;
-            }
-
-            const progress =
-                ((COOLDOWN_MS - remaining) / COOLDOWN_MS) * 100;
-
-            progressFill.style.width =
-                Math.min(Math.max(progress, 0), 100) + "%";
-
-            countdownLabel.textContent =
-                formatTime(remaining);
-
-            statusText.textContent =
-                "Chờ " + formatTime(remaining) + " để lấy KEY mới";
-        };
-
-        tick();
-
-        cooldownTimer = setInterval(tick, 1000);
-    }
-
-    // Mở khoá nút
-    function unlockButton() {
-
-        if (cooldownTimer) {
-            clearInterval(cooldownTimer);
-        }
-
-        localStorage.removeItem(getStorageKey());
-        localStorage.removeItem(getStorageTimeKey());
-
-        keyOut.classList.remove("show");
-        keyValue.value = "";
-
-        progressFill.style.width = "0%";
-        countdownLabel.textContent = "00:00:00";
-
-        mainBtn.disabled = false;
-        mainBtn.classList.add("ready");
-        mainBtn.textContent = "NHẬN KEY";
-
-        statusText.textContent = "Sẵn sàng nhận KEY";
-
-        pulse.classList.add("ready");
-    }
-
-    // Kiểm tra trạng thái ngay khi tải trang / đổi loại key
-    // (chống F5 và tab ẩn danh)
-    function refreshState() {
-
-        const savedKey = localStorage.getItem(getStorageKey());
-
-        const savedTime =
-            Number(localStorage.getItem(getStorageTimeKey()) || 0);
-
-        const elapsed = Date.now() - savedTime;
-
-        if (savedKey && savedTime && elapsed < COOLDOWN_MS) {
-
-            keyValue.value = savedKey;
-            keyOut.classList.add("show");
-
-            lockButton();
-
-        } else {
-
-            unlockButton();
-        }
-    }  
-
-    // Đổi loại key (MINECRAFT <-> LPTHUB)
-    function switchType(type, force) {
-
-        if (type === currentType && !force) {
-            return;
-        }
-
-        currentType = type;
-
-        localStorage.setItem(TYPE_STORAGE_KEY, type);
-
-        typeBtnMinecraft.classList.toggle(
-            "active",
-            type === "minecraft"
-        );
-
-        typeBtnLpthub.classList.toggle(
-            "active",
-            type === "lpthub"
-        );
-
-        typeToggle.classList.toggle(
-            "pos-lpthub",
-            type === "lpthub"
-        );
-
-        titleText.innerHTML =
-            (TYPE_LABELS[type] || "Key") +
-            ' <span>Key</span>';
-
-        refreshState();
-    }
-
-    switchType(currentType, true);
-
-    typeBtnMinecraft.addEventListener(
-        "click",
-        () => switchType("minecraft")
-    );
-
-    typeBtnLpthub.addEventListener(
-        "click",
-        () => switchType("lpthub")
-    );
-
-    /* =========================
-        Lấy Key từ server
-    ========================= */
-
-    mainBtn.addEventListener(
-        "click",
-        async () => {
-
-            mainBtn.disabled =
-                true;
-
-
-            mainBtn.classList.remove(
-                "ready"
-            );
-
-
-            mainBtn.textContent =
-                "ĐANG LẤY KEY...";
-            statusText.textContent =
-                "Đang lấy KEY...";
-
-            try {
-
-                const response =
-                    await fetch(
-                        "/api/get-key?type=" +
-                            encodeURIComponent(currentType),
-                        {
-                            method: "GET",
-                            headers: {
-                                "Accept":
-                                    "application/json"
-                            }
-                        }
-                    );
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        "HTTP " +
-                        response.status
-                    );
-
-                }
-
-                const data =
-                    await response.json();
-
-                /* =========================
-                   HẾT KEY
-                ========================= */
-
-                if (
-                    !data.success ||
-                    !data.key
-                ) {
-
-                    mainBtn.textContent =
-                        "HẾT KEY";
-
-
-                    statusText.textContent =
-                        "Không còn KEY";
-
-
-                    return;
-                }
-                
-                /* =========================
-                   HIỂN THỊ KEY
-                ========================= */
-
-                keyValue.value =
-                    data.key;
-
-
-                localStorage.setItem(
-                    getStorageKey(),
-                    data.key
-                );
-
-                localStorage.setItem(
-                    getStorageTimeKey(),
-                    String(Date.now())
-                );
-
-
-                keyOut.classList.add(
-                    "show"
-                );
-
-
-                lockButton();
-
-            }
-
-
-            catch (error) {
-
-                console.error(
-                    "Get key error:",
-                    error
-                );
-
-
-                mainBtn.disabled =
-                    false;
-
-
-                mainBtn.classList.add(
-                    "ready"
-                );
-
-
-                mainBtn.textContent =
-                    "THỬ LẠI";
-
-
-                statusText.textContent =
-                    "Lỗi kết nối server";
-
-            }
-
-        }
-    );
-
-    copyBtn.addEventListener(
-        "click",
-        async () => {
-
-            if (!keyValue.value) {
-                return;
-            }
-
-            try {
-
-                await navigator
-                    .clipboard
-                    .writeText(
-                        keyValue.value
-                    );
-
-
-                copyBtn.textContent =
-                    "ĐÃ COPY";
-
-            }
-
-            catch (error) {
-
-                keyValue.select();
-
-                document.execCommand(
-                    "copy"
-                );
-
-
-                copyBtn.textContent =
-                    "ĐÃ COPY";
-
-            }
-
-
-            setTimeout(() => {
-
-                copyBtn.textContent =
-                    "COPY";
-
-            }, 1500);
-
-        }
-    );
-
-    const canvas =
-        document.getElementById(
-            "bg-canvas"
-        );
-
-
-    const ctx =
-        canvas.getContext("2d");
-
-
-    let stars = [];
-
-
-    function resizeCanvas() {
-
-        canvas.width =
-            window.innerWidth;
-
-        canvas.height =
-            window.innerHeight;
-
-        createStars();
-
-    }
-
-
-    function createStars() {
-
-        stars = [];
-
-
-        const amount =
-            Math.min(
-                120,
-                Math.floor(
-                    window.innerWidth *
-                    window.innerHeight /
-                    10000
-                )
-            );
-
-
-        for (
-            let i = 0;
-            i < amount;
-            i++
-        ) {
-
-            stars.push({
-
-                x:
-                    Math.random() *
-                    canvas.width,
-
-                y:
-                    Math.random() *
-                    canvas.height,
-
-                size:
-                    Math.random() *
-                    1.5,
-
-                speed:
-                    Math.random() *
-                    0.15 +
-                    0.03,
-
-                opacity:
-                    Math.random() *
-                    0.5 +
-                    0.2
-
-            });
-
-        }
-
-    }
-
-
-    function drawStars() {
-
-        ctx.clearRect(
-            0,
-            0,
-            canvas.width,
-            canvas.height
-        );
-
-
-        for (const star of stars) {
-
-            star.y += star.speed;
-
-
-            if (
-                star.y >
-                canvas.height
-            ) {
-
-                star.y = 0;
-
-                star.x =
-                    Math.random() *
-                    canvas.width;
-
-            }
-
-
-            ctx.beginPath();
-
-
-            ctx.arc(
-                star.x,
-                star.y,
-                star.size,
-                0,
-                Math.PI * 2
-            );
-
-
-            ctx.fillStyle =
-                `rgba(
-                    255,
-                    255,
-                    255,
-                    ${star.opacity}
-                )`;
-
-
-            ctx.fill();
-
-        }
-
-
-        requestAnimationFrame(
-            drawStars
-        );
-
-    }
-
-
-    window.addEventListener(
-        "resize",
-        resizeCanvas
-    );
-
-
-    resizeCanvas();
-
-    drawStars();
-
+    keyValue.value = data.key;
+    localStorage.setItem(getStorageKey(), data.key);
+    localStorage.setItem(getStorageTimeKey(), String(Date.now()));
+    keyOut.classList.add("show");
+    lockButton();
+  } catch (error) {
+    console.error("Get key error:", error);
+    mainBtn.disabled = false;
+    mainBtn.classList.add("ready");
+    mainBtn.textContent = "THỬ LẠI";
+    statusText.textContent = "Lỗi kết nối server";
+  }
+});
+
+copyBtn.addEventListener("click", async () => {
+  if (!keyValue.value) return;
+  try { await navigator.clipboard.writeText(keyValue.value); }
+  catch (e) { keyValue.select(); document.execCommand("copy"); }
+  copyBtn.textContent = "ĐÃ COPY";
+  setTimeout(() => { copyBtn.textContent = "COPY"; }, 1500);
+});
+
+/* ===== NỀN SAO ===== */
+const canvas = $("bg-canvas"), ctx = canvas.getContext("2d");
+const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let stars = [];
+function resizeCanvas() {
+  canvas.width = innerWidth; canvas.height = innerHeight;
+  stars = Array.from({ length: Math.min(120, Math.floor(innerWidth * innerHeight / 10000)) }, () => ({
+    x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+    size: Math.random() * 1.5, speed: Math.random() * .15 + .03, opacity: Math.random() * .5 + .2
+  }));
+}
+function drawStars() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (const s of stars) {
+    if (!still) s.y += s.speed;
+    if (s.y > canvas.height) { s.y = 0; s.x = Math.random() * canvas.width; }
+    ctx.beginPath(); ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255,255,255," + s.opacity + ")"; ctx.fill();
+  }
+  if (!still) requestAnimationFrame(drawStars);
+}
+addEventListener("resize", () => { resizeCanvas(); if (still) drawStars(); });
+resizeCanvas(); drawStars();
 </script>
-
-
 </body>
-
 </html>
