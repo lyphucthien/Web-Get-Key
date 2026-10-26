@@ -1,5 +1,12 @@
 {
   "rewrites": [
-    { "source": "/verify", "destination": "/api/verify-start" }
+    {
+      "source": "/",
+      "destination": "/HTML/index"
+    },
+    {
+      "source": "/verify",
+      "destination": "/api/verify-start"
+    }
   ]
 }
