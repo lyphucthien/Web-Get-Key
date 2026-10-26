@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Get Key – LPT Hub</title>
+<link rel="icon" type="image/png" href="https://res.cloudinary.com/dkui88bcf/image/upload/v1786939501/Logo_LPT_vnq390.png">
+<link rel="stylesheet" href="/CSS/style.css">
+<link rel="stylesheet" href="/CSS/getkey.css">
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="/"><img src="https://res.cloudinary.com/dkui88bcf/image/upload/v1786939501/Logo_LPT_vnq390.png" alt="">LPT Hub</a>
+    <nav class="crumbs" aria-label="Điều hướng">
+      <a href="/">Home</a>
+      <a href="/#games">Games</a>
+      <a href="/get-key" aria-current="page">Getkey</a>
+      <a href="/#buy">Buy</a>
+    </nav>
+    <a class="cta" href="https://discord.gg/gyZ27Hw9qu" target="_blank" rel="noopener noreferrer">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.3 4.4A19.8 19.8 0 0 0 15.4 3l-.2.5a18 18 0 0 0-6.4 0L8.6 3a19.8 19.8 0 0 0-4.9 1.4C.6 9 -.3 13.5.1 18a20 20 0 0 0 6 3l1-1.7a13 13 0 0 1-1.6-.8l.4-.3a14.2 14.2 0 0 0 12.2 0l.4.3c-.5.3-1 .6-1.6.8l1 1.7a20 20 0 0 0 6-3c.5-5.200-.8-9.600-3.600-13.600zM8.500 15.300c-1.200 0-2.100-1.100-2.100-2.400s.9-2.400 2.100-2.400 2.100 1.100 2.100 2.400-.9 2.400-2.100 2.400zm7 0c-1.200 0-2.100-1.100-2.100-2.400s.9-2.400 2.100-2.400 2.100 1.100 2.100 2.400-.9 2.400-2.100 2.400z"/></svg>Discord</a>
+  </div>
+</header>
+
+<main id="top">
+  <section id="getkey">
+    <div class="wrap">
+      <h2>Lấy key</h2>
+      <p class="sub">Làm theo ba bước bên dưới. Giữ nguyên trang cho đến khi key hiện ra.</p>
+      <div class="key-grid">
+        <ol class="steps">
+          <li><b>Chọn loại key</b><span>Minecraft dành cho server, LPT Hub dành cho script.</span></li>
+          <li><b>Bấm “Nhận key”</b><span>Key hiện ngay khi bạn đã xác minh. Nếu nút bị khoá, bạn đã nhận key trong 3 giờ qua.</span></li>
+          <li><b>Copy và sử dụng</b><span>Dán key vào server hoặc script. Key LPT Hub gắn với một thiết bị và hết hạn sau 3 giờ kể từ lần dùng đầu.</span></li>
+        </ol>
+
+        <div class="console" id="console">
+          <div class="console-track" id="consoleTrack">
+          <div class="pane pane-guide" id="guidePane" role="region" aria-label="Hướng dẫn" inert>
+            <div class="guide-head">
+              <h3>Hướng dẫn</h3>
+              <button type="button" class="guide-close" id="guideClose">Quay lại</button>
+            </div>
+            <ol class="guide-steps">
+              <li><b>Chọn loại key</b><span>Bấm MINECRAFT nếu cần key cho server, hoặc LPT HUB nếu cần key cho script.</span></li>
+              <li><b>Bấm “NHẬN KEY”</b><span>Chờ nút chuyển sang màu tím rồi bấm. Key sẽ hiện ngay trong khung.</span></li>
+              <li><b>Copy key</b><span>Bấm COPY rồi dán key vào server hoặc script của bạn.</span></li>
+            </ol>
+            <div class="guide-note">
+              <b>Lưu ý</b>
+              <ul>
+                <li>Vui lòng không rời khỏi trang cho đến khi key hiện ra.</li>
+                <li>Mỗi thiết bị nhận 1 key sau mỗi 3 giờ. Nếu nút bị khoá, bạn đã nhận key trong 3 giờ qua.</li>
+                <li>Key LPT Hub gắn với một thiết bị và hết hạn sau 3 giờ kể từ lần dùng đầu.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="pane pane-main" id="mainPane">
+          <div class="type-toggle" id="typeToggle">
+            <div class="type-toggle-indicator"></div>
+            <button class="type-btn active" id="typeBtnMinecraft" data-type="minecraft">MINECRAFT</button>
+            <button class="type-btn" id="typeBtnLpthub" data-type="lpthub">LPT HUB</button>
+          </div>
+          <div class="hdr">
+            <div class="pulse" id="pulse"></div>
+            <h3 id="titleText">Server Minecraft <span>Key</span></h3>
+            <div class="status-inline" id="statusText">Đang xác minh...</div>
+          </div>
+          <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+          <div class="progress-labels"><span>0s</span><span id="countdownLabel">3h</span></div>
+          <button class="main-btn" id="mainBtn" disabled>Đang chờ...</button>
+          <div class="key-out" id="keyOut">
+            <div class="k-label">KEY CỦA BẠN</div>
+            <div class="key-row">
+              <input type="text" id="keyValue" readonly aria-label="Key">
+              <button id="copyBtn">COPY</button>
+            </div>
+          </div>
+          <button type="button" class="guide-btn" id="guideBtn" aria-controls="guidePane" aria-expanded="false">Hướng Dẫn</button>
+        </div>
+          </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap">© LPT Hub. Key chỉ dùng cho mục đích cá nhân.</div></footer>
+
+<script>
+/* ===== LẤY KEY ===== */
+const $ = id => document.getElementById(id);
+const mainBtn = $("mainBtn"), keyOut = $("keyOut"), keyValue = $("keyValue"), copyBtn = $("copyBtn"),
+      progressFill = $("progressFill"), countdownLabel = $("countdownLabel"), statusText = $("statusText"),
+      pulse = $("pulse"), titleText = $("titleText"), typeToggle = $("typeToggle"),
+      typeBtnMinecraft = $("typeBtnMinecraft"), typeBtnLpthub = $("typeBtnLpthub");
+
+const TYPE_LABELS = { minecraft: "Server Minecraft", lpthub: "Script LPT HUB" };
+const TYPE_STORAGE_KEY = "selected_type";
+let currentType = localStorage.getItem(TYPE_STORAGE_KEY) || "minecraft";
+if (!TYPE_LABELS[currentType]) currentType = "minecraft";
+const COOLDOWN_MS = 3 * 60 * 60 * 1000;
+const getStorageKey = () => "issued_key_" + currentType;
+const getStorageTimeKey = () => "issued_key_time_" + currentType;
+let cooldownTimer = null;
+
+function formatTime(ms) {
+  const t = Math.max(Math.ceil(ms / 1000), 0);
+  const p = n => String(n).padStart(2, "0");
+  return p(Math.floor(t / 3600)) + ":" + p(Math.floor((t % 3600) / 60)) + ":" + p(t % 60);
+}
+
+function lockButton() {
+  mainBtn.disabled = true;
+  mainBtn.classList.remove("ready");
+  mainBtn.textContent = "ĐÃ NHẬN KEY";
+  pulse.classList.remove("ready");
+  if (cooldownTimer) clearInterval(cooldownTimer);
+  const tick = () => {
+    const saved = Number(localStorage.getItem(getStorageTimeKey()) || 0);
+    const remaining = saved + COOLDOWN_MS - Date.now();
+    if (remaining <= 0) { clearInterval(cooldownTimer); unlockButton(); return; }
+    const progress = ((COOLDOWN_MS - remaining) / COOLDOWN_MS) * 100;
+    progressFill.style.width = Math.min(Math.max(progress, 0), 100) + "%";
+    countdownLabel.textContent = formatTime(remaining);
+    statusText.textContent = "Chờ " + formatTime(remaining) + " để lấy KEY mới";
+  };
+  tick();
+  cooldownTimer = setInterval(tick, 1000);
+}
+
+function unlockButton() {
+  if (cooldownTimer) clearInterval(cooldownTimer);
+  localStorage.removeItem(getStorageKey());
+  localStorage.removeItem(getStorageTimeKey());
+  keyOut.classList.remove("show");
+  keyValue.value = "";
+  progressFill.style.width = "0%";
+  countdownLabel.textContent = "00:00:00";
+  mainBtn.disabled = false;
+  mainBtn.classList.add("ready");
+  mainBtn.textContent = "NHẬN KEY";
+  statusText.textContent = "Sẵn sàng nhận KEY";
+  pulse.classList.add("ready");
+}
+
+function refreshState() {
+  const savedKey = localStorage.getItem(getStorageKey());
+  const savedTime = Number(localStorage.getItem(getStorageTimeKey()) || 0);
+  if (savedKey && savedTime && Date.now() - savedTime < COOLDOWN_MS) {
+    keyValue.value = savedKey;
+    keyOut.classList.add("show");
+    lockButton();
+  } else {
+    unlockButton();
+  }
+}
+
+function switchType(type, force) {
+  if (type === currentType && !force) return;
+  currentType = type;
+  localStorage.setItem(TYPE_STORAGE_KEY, type);
+  typeBtnMinecraft.classList.toggle("active", type === "minecraft");
+  typeBtnLpthub.classList.toggle("active", type === "lpthub");
+  typeToggle.classList.toggle("pos-lpthub", type === "lpthub");
+  titleText.innerHTML = (TYPE_LABELS[type] || "Key") + " <span>Key</span>";
+  refreshState();
+}
+
+switchType(currentType, true);
+typeBtnMinecraft.addEventListener("click", () => switchType("minecraft"));
+typeBtnLpthub.addEventListener("click", () => switchType("lpthub"));
+
+mainBtn.addEventListener("click", async () => {
+  mainBtn.disabled = true;
+  mainBtn.classList.remove("ready");
+  mainBtn.textContent = "ĐANG LẤY KEY...";
+  statusText.textContent = "Đang lấy KEY...";
+  try {
+    const response = await fetch("/api/get-key?type=" + encodeURIComponent(currentType), {
+      method: "GET", headers: { "Accept": "application/json" }
+    });
+    if (!response.ok) throw new Error("HTTP " + response.status);
+    const data = await response.json();
+    if (!data.success || !data.key) {
+      mainBtn.textContent = "HẾT KEY";
+      statusText.textContent = "Không còn KEY";
+      return;
+    }
+    keyValue.value = data.key;
+    localStorage.setItem(getStorageKey(), data.key);
+    localStorage.setItem(getStorageTimeKey(), String(Date.now()));
+    keyOut.classList.add("show");
+    lockButton();
+  } catch (error) {
+    console.error("Get key error:", error);
+    mainBtn.disabled = false;
+    mainBtn.classList.add("ready");
+    mainBtn.textContent = "THỬ LẠI";
+    statusText.textContent = "Lỗi kết nối server";
+  }
+});
+
+copyBtn.addEventListener("click", async () => {
+  if (!keyValue.value) return;
+  try { await navigator.clipboard.writeText(keyValue.value); }
+  catch (e) { keyValue.select(); document.execCommand("copy"); }
+  copyBtn.textContent = "ĐÃ COPY";
+  setTimeout(() => { copyBtn.textContent = "COPY"; }, 1500);
+});
+
+/* ===== HƯỚNG DẪN (mở ngang ngay trong khung, từ trái sang phải) ===== */
+const consoleBox = $("console"), consoleTrack = $("consoleTrack"), mainPane = $("mainPane"), guidePane = $("guidePane"),
+      guideBtn = $("guideBtn"), guideClose = $("guideClose");
+let guideOpen = false;
+function fitConsole() {
+  consoleBox.style.height = (guideOpen ? guidePane : mainPane).offsetHeight + "px";
+}
+function setGuide(open) {
+  guideOpen = open;
+  consoleTrack.classList.toggle("show-guide", open);
+  guidePane.inert = !open;
+  mainPane.inert = open;
+  guideBtn.setAttribute("aria-expanded", String(open));
+  fitConsole();
+  (open ? guideClose : guideBtn).focus({ preventScroll: true });
+}
+guidePane.inert = true;
+guideBtn.addEventListener("click", () => setGuide(true));
+guideClose.addEventListener("click", () => setGuide(false));
+addEventListener("keydown", e => { if (e.key === "Escape" && guideOpen) setGuide(false); });
+if (window.ResizeObserver) { const ro = new ResizeObserver(fitConsole); ro.observe(mainPane); ro.observe(guidePane); }
+addEventListener("resize", fitConsole);
+fitConsole();
+
+/* ===== NỀN CHẤM BI DI CHUYỂN ===== */
+const canvas = document.getElementById("bg-canvas"), ctx = canvas.getContext("2d");
+const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const GAP = 18, DOT = 1.3, MAX_ALPHA = 0.5;
+let W = 0, H = 0;
+function resizeCanvas() {
+  const r = Math.min(devicePixelRatio || 1, 2);
+  W = innerWidth; H = innerHeight;
+  canvas.width = W * r; canvas.height = H * r;
+  ctx.setTransform(r, 0, 0, r, 0, 0);
+}
+const smooth = (a, b, x) => { x = Math.min(Math.max((x - a) / (b - a), 0), 1); return x * x * (3 - 2 * x); };
+function draw(time) {
+  const t = time / 1000;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = "#fff";
+  for (let y = GAP / 2; y < H; y += GAP) {
+    for (let x = GAP / 2; x < W; x += GAP) {
+      const n = (Math.sin(x * .0105 + t * .22) + Math.sin(y * .0125 - t * .17)
+              + Math.sin((x + y) * .0072 + t * .13) + Math.sin(Math.hypot(x - W / 2, y - H / 2) * .0095 - t * .19)) / 4;
+      const a = smooth(.12, .62, n) * MAX_ALPHA;
+      if (a < .015) continue;
+      ctx.globalAlpha = a;
+      ctx.fillRect(x - DOT / 2, y - DOT / 2, DOT, DOT);
+    }
+  }
+  if (!still) requestAnimationFrame(draw);
+}
+addEventListener("resize", () => { resizeCanvas(); if (still) draw(0); });
+resizeCanvas(); requestAnimationFrame(draw);
+</script>
+</body>
+</html>
