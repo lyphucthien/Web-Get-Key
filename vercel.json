@@ -5,6 +5,10 @@
       "destination": "/HTML/index.html"
     },
     {
+      "source": "/get-key",
+      "destination": "/HTML/getkey.html"
+    },
+    {
       "source": "/verify",
       "destination": "/api/verify-start"
     }
