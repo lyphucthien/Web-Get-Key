@@ -63,3 +63,20 @@ footer{border-top:1px solid var(--line);padding:26px 0;color:var(--dim);font-siz
 }
 @media(max-width:480px){.facts{gap:24px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+
+/* ===== THANH CUỘN ===== */
+html{
+  scrollbar-width:thin;
+  scrollbar-color:#3a3a46 transparent;
+}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{
+  background:#2e2e38;
+  border-radius:10px;
+  border:3px solid var(--bg);
+  transition:background .2s;
+}
+::-webkit-scrollbar-thumb:hover{background:var(--purple)}
+::-webkit-scrollbar-thumb:active{background:var(--purple2)}
+::-webkit-scrollbar-corner{background:transparent}
