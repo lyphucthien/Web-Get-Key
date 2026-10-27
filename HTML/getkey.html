@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="/CSS/style.css">
 <link rel="stylesheet" href="/CSS/getkey.css">
 </head>
-  <body data-page="getkey">
+<body data-page="getkey">
 
 <main id="top">
   <section id="getkey">
@@ -23,13 +23,13 @@
             </div>
             <ol class="guide-steps">
               <li><b>Chọn loại key</b><span>Bấm MINECRAFT nếu cần key cho server, hoặc LPT HUB nếu cần key cho script.</span></li>
-              <li><b>Bấm “NHẬN KEY”</b><span>Chờ nút chuyển sang màu tím rồi bấm. Key sẽ hiện ngay trong khung.</span></li>
-              <li><b>Copy key</b><span>Bấm COPY rồi dán key vào server hoặc script của bạn.</span></li>
+              <li><b>Chọn một link</b><span>Bấm Work.ink, Link 4m hoặc Link 4 Sub rồi hoàn thành các bước trên trang đó.</span></li>
+              <li><b>Nhận và copy key</b><span>Xong sẽ tự quay lại trang này và key hiện ra. Bấm COPY rồi dán vào server hoặc script của bạn.</span></li>
             </ol>
             <div class="guide-note">
               <b>Lưu ý</b>
               <ul>
-                <li>Vui lòng không rời khỏi trang cho đến khi key hiện ra.</li>
+                <li>Hãy làm đến hết link để được đưa về trang này. Nếu thoát giữa chừng thì phải làm lại.</li>
                 <li>Mỗi thiết bị nhận 1 key sau mỗi 3 giờ. Nếu nút bị khoá, bạn đã nhận key trong 3 giờ qua.</li>
                 <li>Key LPT Hub gắn với một thiết bị và hết hạn sau 3 giờ kể từ lần dùng đầu.</li>
               </ul>
@@ -48,7 +48,13 @@
           </div>
           <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
           <div class="progress-labels"><span>0s</span><span id="countdownLabel">3h</span></div>
-          <button class="main-btn" id="mainBtn" disabled>Đang chờ...</button>
+          <div class="notice" id="notice" role="status" hidden></div>
+          <div class="link-list" id="linkList">
+            <a class="link-btn" id="linkWorkink" href="#">Work.ink</a>
+            <a class="link-btn" id="linkLink4m" href="#">Link 4m</a>
+            <a class="link-btn" id="linkLink4sub" href="#">Link 4 Sub</a>
+          </div>
+          <div class="status-box" id="doneBox" hidden>ĐÃ NHẬN KEY</div>
           <div class="key-out" id="keyOut">
             <div class="k-label">KEY CỦA BẠN</div>
             <div class="key-row">
@@ -57,21 +63,34 @@
             </div>
           </div>
           <button type="button" class="guide-btn" id="guideBtn" aria-controls="guidePane" aria-expanded="false">Hướng Dẫn</button>
-        </div>
-          </div>
-      </div>
-    </div>
+          </div><!-- đóng pane-main -->
+        </div><!-- đóng console-track -->
+      </div><!-- đóng console -->
+    </div><!-- đóng key-grid -->
+  </div><!-- đóng wrap -->
   </section>
 </main>
 
 <script src="/JS/layout.js"></script>
 <script>
+
+const LINKS = {
+  workink:  "https://work.ink/YOUR_LINK",
+  link4m:   "https://link4m.com/YOUR_LINK",
+  link4sub: "https://link4sub.com/YOUR_LINK"
+};
+
 /* ===== LẤY KEY ===== */
 const $ = id => document.getElementById(id);
-const mainBtn = $("mainBtn"), keyOut = $("keyOut"), keyValue = $("keyValue"), copyBtn = $("copyBtn"),
+const doneBox = $("doneBox"), linkList = $("linkList"), notice = $("notice"),
+      keyOut = $("keyOut"), keyValue = $("keyValue"), copyBtn = $("copyBtn"),
       progressFill = $("progressFill"), countdownLabel = $("countdownLabel"), statusText = $("statusText"),
       pulse = $("pulse"), titleText = $("titleText"), typeToggle = $("typeToggle"),
       typeBtnMinecraft = $("typeBtnMinecraft"), typeBtnLpthub = $("typeBtnLpthub");
+
+$("linkWorkink").href  = LINKS.workink;
+$("linkLink4m").href   = LINKS.link4m;
+$("linkLink4sub").href = LINKS.link4sub;
 
 const TYPE_LABELS = { minecraft: "Server Minecraft", lpthub: "Script LPT HUB" };
 const TYPE_STORAGE_KEY = "selected_type";
@@ -82,6 +101,8 @@ const getStorageKey = () => "issued_key_" + currentType;
 const getStorageTimeKey = () => "issued_key_time_" + currentType;
 let cooldownTimer = null;
 
+function showNotice(msg) { notice.textContent = msg || ""; notice.hidden = !msg; }
+
 function formatTime(ms) {
   const t = Math.max(Math.ceil(ms / 1000), 0);
   const p = n => String(n).padStart(2, "0");
@@ -89,9 +110,9 @@ function formatTime(ms) {
 }
 
 function lockButton() {
-  mainBtn.disabled = true;
-  mainBtn.classList.remove("ready");
-  mainBtn.textContent = "ĐÃ NHẬN KEY";
+  linkList.hidden = true;
+  doneBox.hidden = false;
+  showNotice("");
   pulse.classList.remove("ready");
   if (cooldownTimer) clearInterval(cooldownTimer);
   const tick = () => {
@@ -115,18 +136,21 @@ function unlockButton() {
   keyValue.value = "";
   progressFill.style.width = "0%";
   countdownLabel.textContent = "00:00:00";
-  mainBtn.disabled = false;
-  mainBtn.classList.add("ready");
-  mainBtn.textContent = "NHẬN KEY";
-  statusText.textContent = "Sẵn sàng nhận KEY";
+  doneBox.hidden = true;
+  linkList.hidden = false;
+  statusText.textContent = "Chọn một link để nhận KEY";
   pulse.classList.add("ready");
 }
 
-function refreshState() {
+function hasValidSavedKey() {
   const savedKey = localStorage.getItem(getStorageKey());
   const savedTime = Number(localStorage.getItem(getStorageTimeKey()) || 0);
-  if (savedKey && savedTime && Date.now() - savedTime < COOLDOWN_MS) {
-    keyValue.value = savedKey;
+  return !!(savedKey && savedTime && Date.now() - savedTime < COOLDOWN_MS);
+}
+
+function refreshState() {
+  if (hasValidSavedKey()) {
+    keyValue.value = localStorage.getItem(getStorageKey());
     keyOut.classList.add("show");
     lockButton();
   } else {
@@ -142,6 +166,7 @@ function switchType(type, force) {
   typeBtnLpthub.classList.toggle("active", type === "lpthub");
   typeToggle.classList.toggle("pos-lpthub", type === "lpthub");
   titleText.innerHTML = (TYPE_LABELS[type] || "Key") + " <span>Key</span>";
+  showNotice("");
   refreshState();
 }
 
@@ -149,20 +174,19 @@ switchType(currentType, true);
 typeBtnMinecraft.addEventListener("click", () => switchType("minecraft"));
 typeBtnLpthub.addEventListener("click", () => switchType("lpthub"));
 
-mainBtn.addEventListener("click", async () => {
-  mainBtn.disabled = true;
-  mainBtn.classList.remove("ready");
-  mainBtn.textContent = "ĐANG LẤY KEY...";
+/* Sau khi làm xong link, /verify chuyển về /get-key?claim=1 → tự lấy key một lần */
+async function claimKey() {
+  linkList.hidden = true;
   statusText.textContent = "Đang lấy KEY...";
   try {
     const response = await fetch("/api/get-key?type=" + encodeURIComponent(currentType), {
       method: "GET", headers: { "Accept": "application/json" }
     });
-    if (!response.ok) throw new Error("HTTP " + response.status);
-    const data = await response.json();
-    if (!data.success || !data.key) {
-      mainBtn.textContent = "HẾT KEY";
-      statusText.textContent = "Không còn KEY";
+    let data = {};
+    try { data = await response.json(); } catch (e) {}
+    if (!response.ok || !data.success || !data.key) {
+      unlockButton();
+      showNotice(data.error || "Không lấy được KEY. Vui lòng làm lại link.");
       return;
     }
     keyValue.value = data.key;
@@ -172,12 +196,16 @@ mainBtn.addEventListener("click", async () => {
     lockButton();
   } catch (error) {
     console.error("Get key error:", error);
-    mainBtn.disabled = false;
-    mainBtn.classList.add("ready");
-    mainBtn.textContent = "THỬ LẠI";
-    statusText.textContent = "Lỗi kết nối server";
+    unlockButton();
+    showNotice("Lỗi kết nối server, vui lòng thử lại.");
   }
-});
+}
+
+const params = new URLSearchParams(location.search);
+if (params.has("claim")) {
+  history.replaceState(null, "", location.pathname);
+  if (!hasValidSavedKey()) claimKey();
+}
 
 copyBtn.addEventListener("click", async () => {
   if (!keyValue.value) return;
