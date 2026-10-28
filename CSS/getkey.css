@@ -63,7 +63,7 @@ body[data-page="getkey"] #getkey{width:100%;padding:24px 0}
 /* nút link lấy key */
 .link-list{display:flex;flex-direction:column;gap:10px}
 .link-list[hidden],.notice[hidden]{display:none}
-.link-btn{display:block;padding:14px;text-align:center;text-decoration:none;font:13px var(--mono);letter-spacing:2px;text-transform:uppercase;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:14px;transition:border-color .2s,box-shadow .2s,transform .15s,color .2s}
+.link-btn{width:100%;cursor:pointer;display:block;padding:14px;text-align:center;text-decoration:none;font:13px var(--mono);letter-spacing:2px;text-transform:uppercase;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:14px;transition:border-color .2s,box-shadow .2s,transform .15s,color .2s}
 .link-btn:hover{color:#fff;border-color:var(--purple2);box-shadow:0 0 24px var(--glow);transform:translateY(-1px)}
 .notice{margin-bottom:12px;padding:10px 12px;font-size:12px;line-height:1.5;color:var(--amber);background:rgba(255,184,77,.06);border:1px solid rgba(255,184,77,.35);border-radius:10px}
 
