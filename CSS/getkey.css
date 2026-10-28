@@ -78,16 +78,6 @@ body[data-page="getkey"] #getkey{width:100%;padding:24px 0}
 .copy-icon .ic-check path{stroke-dasharray:24;stroke-dashoffset:24}
 
 /* animation khi sao chép: tô đậm key, quét từ trái sang phải, tới rìa phải hiện dấu tích */
-.key-sweep{position:absolute;inset:0;z-index:1;border-radius:10px;pointer-events:none;opacity:0;transform:scaleX(0);transform-origin:left;
-  background:linear-gradient(90deg,rgba(139,108,247,.16),rgba(139,108,247,.42))}
-.key-row.copying .key-sweep{animation:keySweep 2s linear forwards}
-@keyframes keySweep{
-  0%{transform:scaleX(0);opacity:1;animation-timing-function:cubic-bezier(.65,0,.35,1)}
-  30%{transform:scaleX(1);opacity:1}
-  75%{transform:scaleX(1);opacity:1}
-  100%{transform:scaleX(1);opacity:0}
-}
-.key-row.copying input{color:#fff;font-weight:700;text-shadow:0 0 10px rgba(139,108,247,.7)}
 .key-row .copy-icon.copied,.key-row .copy-icon.copied:hover{color:var(--green);background:none;cursor:default}
 .copy-icon.copied .ic-copy{opacity:0;transform:scale(.6)}
 .copy-icon.copied .ic-check{opacity:1;transition:opacity .01s .5s}
