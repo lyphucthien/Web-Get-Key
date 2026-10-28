@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Games – LPT Hub</title>
+<title>Game hỗ trợ – LPT Hub</title>
 <link rel="icon" type="image/png" href="https://res.cloudinary.com/dkui88bcf/image/upload/v1786939501/Logo_LPT_vnq390.png">
 <link rel="stylesheet" href="/CSS/style.css">
 <link rel="stylesheet" href="/CSS/games.css">
@@ -11,20 +11,45 @@
 <body data-page="games">
 
 <main id="top">
-  <div class="wrap page-head">
-    <h1>Supported Game</h1>
-    <p id="headSub">Danh sách game và các chức năng có trong từng game.</p>
-  </div>
+  <div class="wrap">
+    <div class="gl-top">
+      <div class="gl-title">
+        <div class="gl-label">Thư viện</div>
+        <h1>Game hỗ trợ</h1>
+        <p>Bấm vào một game để xem mô tả và các chức năng.</p>
+      </div>
+      <div class="gl-total">
+        <div class="gl-label">Đang hỗ trợ</div>
+        <div><b id="totalNum">0</b><span class="gl-sub">và sẽ còn thêm</span></div>
+      </div>
+    </div>
 
-  <div class="wrap games-wrap">
-    <div class="msg" id="msg">Đang tải danh sách game...</div>
-    <div class="games" id="gamesGrid"></div>
+    <label class="gl-search">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input type="search" id="search" placeholder="Tìm game..." autocomplete="off" aria-label="Tìm game">
+    </label>
+
+    <div class="gl-msg" id="msg">Đang tải danh sách game...</div>
+    <div class="gl-grid" id="grid"></div>
   </div>
 </main>
 
+<dialog class="gl-dialog" id="dialog" aria-labelledby="dName">
+  <button type="button" class="gl-close" id="dClose" aria-label="Đóng">&times;</button>
+  <div class="gl-d-img" id="dImg"></div>
+  <div class="gl-d-body">
+    <span class="tag" id="dTag"></span>
+    <h2 id="dName"></h2>
+    <p class="gl-d-desc" id="dDesc"></p>
+    <div class="gl-d-feat" id="dFeat"></div>
+    <a class="gl-d-btn" id="dBtn" href="/get-key" hidden>Lấy key cho game này</a>
+  </div>
+</dialog>
+
 <script>
 const $ = id => document.getElementById(id);
-const grid = $("gamesGrid"), msg = $("msg"), headSub = $("headSub");
+const grid = $("grid"), msg = $("msg"), search = $("search"), totalNum = $("totalNum"), dialog = $("dialog");
+let GAMES = [];
 
 function el(tag, cls, text) {
   const e = document.createElement(tag);
@@ -33,53 +58,116 @@ function el(tag, cls, text) {
   return e;
 }
 
-function showMsg(text) { msg.textContent = text; msg.hidden = false; }
+const norm = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/gi, "d")
+  .toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
 
-function renderGame(g) {
-  const card = el("div", "game" + (g.status === "soon" ? " soon" : ""));
-  card.append(el("span", "tag" + (g.status === "on" ? " on" : ""), g.status === "on" ? "Đang hỗ trợ" : "Sắp có"));
-  card.append(el("h3", "", g.name));
-  if (g.description) card.append(el("p", "", g.description));
+function lev(a, b) {
+  const m = a.length, n = b.length, d = Array.from({ length: m + 1 }, (_, i) => [i]);
+  for (let j = 1; j <= n; j++) d[0][j] = j;
+  for (let i = 1; i <= m; i++)
+    for (let j = 1; j <= n; j++)
+      d[i][j] = Math.min(d[i-1][j] + 1, d[i][j-1] + 1, d[i-1][j-1] + (a[i-1] === b[j-1] ? 0 : 1));
+  return d[m][n];
+}
 
-  const total = g.features.reduce((n, grp) => n + grp.items.length, 0);
-  const head = el("div", "f-head");
-  head.append(el("span", "", "Chức năng"), el("span", "", String(total)));
-  card.append(head);
+function cover(g, parent) {
+  parent.append(el("div", "gl-initial", (g.name[0] || "?").toUpperCase()));
+  if (!g.image) return;
+  const img = document.createElement("img");
+  img.alt = g.name; img.loading = "lazy"; img.decoding = "async"; img.referrerPolicy = "no-referrer";
+  img.addEventListener("error", () => img.remove());
+  img.src = g.image;
+  parent.append(img);
+}
 
-  if (!total) {
-    card.append(el("p", "f-empty", "Chưa có danh sách chức năng."));
-  } else {
-    g.features.forEach(grp => {
-      if (grp.category) card.append(el("div", "f-cat", grp.category));
-      const ul = el("ul", "f-list");
-      grp.items.forEach(item => ul.append(el("li", "", item)));
-      card.append(ul);
-    });
-  }
-
-  if (g.status === "on" && g.type) {
-    const a = el("a", "btn", "Lấy key cho game này");
-    a.href = "/get-key";
-    a.addEventListener("click", () => { try { localStorage.setItem("selected_type", g.type); } catch (e) {} });
-    card.append(a);
-  }
+function renderCard(g) {
+  const card = el("button", "gl-card"); card.type = "button";
+  const thumb = el("div", "gl-thumb");
+  cover(g, thumb);
+  thumb.append(el("span", "gl-badge" + (g.status === "on" ? " on" : ""), g.status === "on" ? "Đang hỗ trợ" : "Sắp có"));
+  card.append(thumb, el("div", "gl-name", g.name));
+  card.addEventListener("click", () => openGame(g));
+  const name = norm(g.name);
+  card._c = {
+    name, compact: name.replace(/ /g, ""), words: name.split(" ").filter(Boolean),
+    feat: norm(g.features.map(grp => grp.category + " " + grp.items.join(" ")).join(" "))
+  };
   return card;
 }
+
+function openGame(g) {
+  const dImg = $("dImg"); dImg.replaceChildren(); cover(g, dImg);
+  const tag = $("dTag"); tag.className = "tag" + (g.status === "on" ? " on" : ""); tag.textContent = g.status === "on" ? "Đang hỗ trợ" : "Sắp có";
+  $("dName").textContent = g.name;
+  $("dDesc").textContent = g.description || "Chưa có mô tả.";
+
+  const total = g.features.reduce((n, grp) => n + grp.items.length, 0);
+  const feat = $("dFeat"); feat.replaceChildren();
+  const head = el("div", "gl-d-head"); head.append(el("span", "", "Chức năng"), el("span", "", String(total)));
+  feat.append(head);
+  if (!total) feat.append(el("p", "gl-empty", "Chưa có danh sách chức năng."));
+  g.features.forEach(grp => {
+    if (grp.category) feat.append(el("div", "gl-cat", grp.category));
+    const ul = el("ul", "gl-list");
+    grp.items.forEach(item => ul.append(el("li", "", item)));
+    feat.append(ul);
+  });
+
+  const btn = $("dBtn");
+  btn.hidden = !(g.status === "on" && g.type);
+  btn.onclick = () => { try { localStorage.setItem("selected_type", g.type); } catch (e) {} };
+
+  dialog.showModal();
+  dialog.querySelector(".gl-d-body").scrollTop = 0;
+}
+
+$("dClose").addEventListener("click", () => dialog.close());
+dialog.addEventListener("click", e => { if (e.target === dialog) dialog.close(); });
+
+function tokenScore(tok, c) {
+  if (c.name.includes(tok)) return c.words.some(w => w.startsWith(tok)) ? 4 : 3;
+  if (tok.length >= 4) {
+    const lim = tok.length >= 8 ? 2 : 1;
+    if (c.words.some(w => Math.abs(w.length - tok.length) <= lim && lev(w, tok) <= lim)) return 2;
+  }
+  if (c.feat.includes(tok)) return 1;
+  return 0;
+}
+
+function applyFilter() {
+  const q = norm(search.value);
+  const cards = [...grid.children];
+  const scored = cards.map(card => {
+    if (!q) return { card, i: card._i, score: 1 };
+    const c = card._c, tokens = q.split(" ");
+    const qc = q.replace(/ /g, "");
+    if (qc.length >= 2 && c.compact.includes(qc)) return { card, i: card._i, score: 10 };
+    let score = 0;
+    for (const t of tokens) { const sc = tokenScore(t, c); if (!sc) { score = 0; break; } score += sc; }
+    return { card, i: card._i, score };
+  });
+  scored.forEach(x => { x.card.hidden = x.score === 0; });
+  const shown = scored.filter(x => x.score > 0);
+
+  grid.append(...scored.sort((a, b) => (b.score - a.score) || (a.i - b.i)).map(x => x.card));
+  msg.hidden = shown.length > 0;
+  if (!shown.length) msg.textContent = "Không tìm thấy game nào.";
+}
+search.addEventListener("input", applyFilter);
 
 async function loadGames() {
   try {
     const res = await fetch("/api/games", { headers: { "Accept": "application/json" } });
     if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
-    const games = Array.isArray(data.games) ? data.games : [];
-    if (!games.length) { showMsg("Chưa có game nào."); return; }
+    GAMES = Array.isArray(data.games) ? data.games : [];
+    totalNum.textContent = GAMES.filter(g => g.status === "on").length;
+    if (!GAMES.length) { msg.textContent = "Chưa có game nào."; return; }
     msg.hidden = true;
-    grid.replaceChildren(...games.map(renderGame));
-    const on = games.filter(g => g.status === "on").length;
-    headSub.textContent = "Danh sách game và các chức năng có trong từng game. Hiện có " + on + " game đang hỗ trợ.";
+    grid.replaceChildren(...GAMES.map((g, i) => { const c = renderCard(g); c._i = i; return c; }));
   } catch (e) {
     console.error("Load games error:", e);
-    showMsg("Không tải được danh sách game. Vui lòng thử lại sau.");
+    msg.textContent = "Không tải được danh sách game. Vui lòng thử lại sau.";
   }
 }
 loadGames();
