@@ -22,7 +22,7 @@
             <ol class="guide-steps">
               <li><b>Chọn loại key</b><span>Bấm MINECRAFT nếu cần key cho server, hoặc LPT HUB nếu cần key cho script.</span></li>
               <li><b>Chọn một link</b><span>Bấm Work.ink, Link 4m hoặc Link 4 Sub rồi hoàn thành các bước trên trang đó.</span></li>
-              <li><b>Nhận và copy key</b><span>Xong sẽ tự quay lại trang này và key hiện ra. Bấm COPY rồi dán vào server hoặc script của bạn.</span></li>
+              <li><b>Nhận và copy key</b><span>Xong sẽ tự quay lại trang này và key hiện ra. Bấm biểu tượng sao chép rồi dán vào server hoặc script của bạn.</span></li>
             </ol>
             <div class="guide-note">
               <b>Lưu ý</b>
@@ -47,7 +47,7 @@
           <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
           <div class="progress-labels"><span>0s</span><span id="countdownLabel">3h</span></div>
           <div class="notice" id="notice" role="status" hidden></div>
-          <div class="link-list" id="linkList">
+          <div class="link-list" id="linkList" hidden>
             <button type="button" class="link-btn" id="linkWorkink">Work.ink</button>
             <button type="button" class="link-btn" id="linkLink4m">Link 4m</button>
             <button type="button" class="link-btn" id="linkLink4sub">Link 4 Sub</button>
@@ -62,14 +62,13 @@
               </button>
             </div>
           </div>
-                    <button type="button" class="guide-btn" id="guideBtn" aria-controls="guidePane" aria-expanded="false">Hướng Dẫn</button>
+          <button type="button" class="guide-btn" id="guideBtn" aria-controls="guidePane" aria-expanded="false">Hướng Dẫn</button>
           </div>
       </div>
     </div>
   </section>
 </main>
 
-<script src="/JS/layout.js"></script>
 <script>
 
 const LINKS = {
@@ -78,7 +77,6 @@ const LINKS = {
   link4sub: "https://link4sub.com/owycAYxKdu"
 };
 
-/* ===== LẤY KEY ===== */
 const $ = id => document.getElementById(id);
 const copyBtn = $("copyBtn"), linkList = $("linkList"), notice = $("notice"),
       keyOut = $("keyOut"), keyValue = $("keyValue"),
@@ -170,7 +168,6 @@ switchType(currentType, true);
 typeBtnMinecraft.addEventListener("click", () => switchType("minecraft"));
 typeBtnLpthub.addEventListener("click", () => switchType("lpthub"));
 
-/* Sau khi làm xong link, /verify chuyển về /get-key?claim=1 → tự lấy key một lần */
 async function claimKey() {
   linkList.hidden = true;
   statusText.textContent = "Đang lấy KEY...";
@@ -228,5 +225,6 @@ guideBtn.addEventListener("click", () => setGuide(!guideOpen));
 guideClose.addEventListener("click", () => setGuide(false));
 addEventListener("keydown", e => { if (e.key === "Escape" && guideOpen) setGuide(false); });
 </script>
+<script src="/JS/layout.js"></script>
 </body>
 </html>
