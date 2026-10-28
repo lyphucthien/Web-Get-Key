@@ -9,8 +9,17 @@
       "destination": "/HTML/getkey.html"
     },
     {
+      "source": "/games",
+      "destination": "/HTML/games.html"
+    },
+    {
       "source": "/verify",
       "destination": "/api/verify-start"
     }
-  ]
+  ],
+  "functions": {
+    "api/games.js": {
+      "includeFiles": "Games/**"
+    }
+  }
 }

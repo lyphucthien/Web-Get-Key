@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game hỗ trợ – LPT Hub</title>
+<link rel="icon" type="image/png" href="https://res.cloudinary.com/dkui88bcf/image/upload/v1786939501/Logo_LPT_vnq390.png">
+<link rel="stylesheet" href="/CSS/style.css">
+<link rel="stylesheet" href="/CSS/games.css">
+</head>
+<body data-page="games">
+
+<main id="top">
+  <div class="wrap page-head">
+    <h1>Game hỗ trợ</h1>
+    <p id="headSub">Danh sách game và các chức năng có trong từng game.</p>
+  </div>
+
+  <div class="wrap games-wrap">
+    <div class="msg" id="msg">Đang tải danh sách game...</div>
+    <div class="games" id="gamesGrid"></div>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const grid = $("gamesGrid"), msg = $("msg"), headSub = $("headSub");
+
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text !== undefined) e.textContent = text;   // textContent: an toàn, không chạy HTML từ file JSON
+  return e;
+}
+
+function showMsg(text) { msg.textContent = text; msg.hidden = false; }
+
+function renderGame(g) {
+  const card = el("div", "game" + (g.status === "soon" ? " soon" : ""));
+  card.append(el("span", "tag" + (g.status === "on" ? " on" : ""), g.status === "on" ? "Đang hỗ trợ" : "Sắp có"));
+  card.append(el("h3", "", g.name));
+  if (g.description) card.append(el("p", "", g.description));
+
+  const total = g.features.reduce((n, grp) => n + grp.items.length, 0);
+  const head = el("div", "f-head");
+  head.append(el("span", "", "Chức năng"), el("span", "", String(total)));
+  card.append(head);
+
+  if (!total) {
+    card.append(el("p", "f-empty", "Chưa có danh sách chức năng."));
+  } else {
+    g.features.forEach(grp => {
+      if (grp.category) card.append(el("div", "f-cat", grp.category));
+      const ul = el("ul", "f-list");
+      grp.items.forEach(item => ul.append(el("li", "", item)));
+      card.append(ul);
+    });
+  }
+
+  if (g.status === "on" && g.type) {
+    const a = el("a", "btn", "Lấy key cho game này");
+    a.href = "/get-key";
+    a.addEventListener("click", () => { try { localStorage.setItem("selected_type", g.type); } catch (e) {} });
+    card.append(a);
+  }
+  return card;
+}
+
+async function loadGames() {
+  try {
+    const res = await fetch("/api/games", { headers: { "Accept": "application/json" } });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    const games = Array.isArray(data.games) ? data.games : [];
+    if (!games.length) { showMsg("Chưa có game nào."); return; }
+    msg.hidden = true;
+    grid.replaceChildren(...games.map(renderGame));
+    const on = games.filter(g => g.status === "on").length;
+    headSub.textContent = "Danh sách game và các chức năng có trong từng game. Hiện có " + on + " game đang hỗ trợ.";
+  } catch (e) {
+    console.error("Load games error:", e);
+    showMsg("Không tải được danh sách game. Vui lòng thử lại sau.");
+  }
+}
+loadGames();
+</script>
+<script src="/JS/layout.js"></script>
+</body>
+</html>
