@@ -48,9 +48,9 @@
           <div class="progress-labels"><span>0s</span><span id="countdownLabel">3h</span></div>
           <div class="notice" id="notice" role="status" hidden></div>
           <div class="link-list" id="linkList">
-            <a class="link-btn" id="linkWorkink" href="#">Work.ink</a>
-            <a class="link-btn" id="linkLink4m" href="#">Link 4m</a>
-            <a class="link-btn" id="linkLink4sub" href="#">Link 4 Sub</a>
+            <button type="button" class="link-btn" id="linkWorkink">Work.ink</button>
+            <button type="button" class="link-btn" id="linkLink4m">Link 4m</button>
+            <button type="button" class="link-btn" id="linkLink4sub">Link 4 Sub</button>
           </div>
           <div class="key-out" id="keyOut">
             <div class="k-label">KEY CỦA BẠN</div>
@@ -86,9 +86,9 @@ const copyBtn = $("copyBtn"), linkList = $("linkList"), notice = $("notice"),
       pulse = $("pulse"), titleText = $("titleText"), typeToggle = $("typeToggle"),
       typeBtnMinecraft = $("typeBtnMinecraft"), typeBtnLpthub = $("typeBtnLpthub");
 
-$("linkWorkink").href  = LINKS.workink;
-$("linkLink4m").href   = LINKS.link4m;
-$("linkLink4sub").href = LINKS.link4sub;
+$("linkWorkink").addEventListener("click",  () => { location.href = LINKS.workink; });
+$("linkLink4m").addEventListener("click",   () => { location.href = LINKS.link4m; });
+$("linkLink4sub").addEventListener("click", () => { location.href = LINKS.link4sub; });
 
 const TYPE_LABELS = { minecraft: "Server Minecraft", lpthub: "Script LPT HUB" };
 const TYPE_STORAGE_KEY = "selected_type";
