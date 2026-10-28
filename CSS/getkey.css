@@ -54,7 +54,7 @@ button.main-btn.ready:hover{filter:brightness(1.08)}
 .guide-note ul{margin:0;padding-left:16px}
 .guide-note li{margin-bottom:3px}
 
-@media(prefers-reduced-motion:reduce){.pulse{animation:none}.key-row.copying .key-sweep{animation:none}}
+@media(prefers-reduced-motion:reduce){.pulse{animation:none}}
 
 /* căn khung nhận key ra giữa trang */
 body[data-page="getkey"] main{min-height:calc(100vh - 61px);display:flex;align-items:center}
@@ -80,5 +80,5 @@ body[data-page="getkey"] #getkey{width:100%;padding:24px 0}
 /* animation khi sao chép: tô đậm key, quét từ trái sang phải, tới rìa phải hiện dấu tích */
 .key-row .copy-icon.copied,.key-row .copy-icon.copied:hover{color:var(--green);background:none;cursor:default}
 .copy-icon.copied .ic-copy{opacity:0;transform:scale(.6)}
-.copy-icon.copied .ic-check{opacity:1;transition:opacity .01s .5s}
-.copy-icon.copied .ic-check path{stroke-dashoffset:0;transition:stroke-dashoffset .3s ease .5s}
+.copy-icon.copied .ic-check{opacity:1;transition:opacity .01s 0s}
+.copy-icon.copied .ic-check path{stroke-dashoffset:0;transition:stroke-dashoffset .3s ease 0s}
