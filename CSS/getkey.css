@@ -28,11 +28,18 @@ button.main-btn.ready:hover{filter:brightness(1.08)}
 .guide-btn{display:block;margin:16px auto 0;padding:6px 14px;background:none;border:0;border-radius:8px;font:600 12px var(--mono);letter-spacing:1px;color:var(--dim);cursor:pointer;transition:color .2s,background .2s}
 .guide-btn:hover{color:var(--text);background:rgba(255,255,255,.08)}
 
-/* hướng dẫn: trượt ngang trong khung, từ trái sang phải */
-.console{padding:0;overflow:hidden;transition:height .35s cubic-bezier(.65,0,.35,1)}
-.console-track{display:flex;align-items:flex-start;width:200%;transform:translateX(-50%);transition:transform .4s cubic-bezier(.65,0,.35,1)}
-.console-track.show-guide{transform:translateX(0)}
-.pane{width:50%;flex:none;padding:24px}
+/* hướng dẫn: panel trượt ra bên trái khung getkey */
+.key-grid{position:relative}
+.console{position:relative;z-index:2}
+.guide-panel{position:absolute;top:50%;right:100%;margin-right:14px;width:340px;z-index:1;padding:22px;background:var(--panel);border:1px solid var(--line);border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.55);font-family:var(--mono);
+  transform:translate(calc(100% + 14px),-50%);opacity:0;visibility:hidden;
+  transition:transform .4s cubic-bezier(.65,0,.35,1),opacity .3s,visibility .4s}
+.guide-panel.open{transform:translate(0,-50%);opacity:1;visibility:visible}
+/* màn hình hẹp, không đủ chỗ bên trái: trượt từ trái đè lên khung */
+@media(max-width:1260px){
+  .guide-panel{top:0;right:0;left:0;margin:0;width:auto;min-height:100%;z-index:3;background:var(--panel2);transform:translateX(-110%)}
+  .guide-panel.open{transform:translateX(0)}
+}
 .guide-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;padding-bottom:14px;border-bottom:1px dashed var(--line)}
 .guide-head h3{margin:0;font-size:17px;font-weight:600}
 .guide-close{padding:6px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);color:var(--dim);font:600 11px var(--mono);letter-spacing:1px;cursor:pointer;transition:color .2s,background .2s}
@@ -47,8 +54,7 @@ button.main-btn.ready:hover{filter:brightness(1.08)}
 .guide-note ul{margin:0;padding-left:16px}
 .guide-note li{margin-bottom:3px}
 
-@media(max-width:480px){.key-row{flex-direction:column}.key-row button{height:40px}}
-@media(prefers-reduced-motion:reduce){.pulse{animation:none}}
+@media(prefers-reduced-motion:reduce){.pulse{animation:none}.key-row.copying .key-sweep{animation:none}}
 
 /* căn khung nhận key ra giữa trang */
 body[data-page="getkey"] main{min-height:calc(100vh - 61px);display:flex;align-items:center}
@@ -56,8 +62,33 @@ body[data-page="getkey"] #getkey{width:100%;padding:24px 0}
 
 /* nút link lấy key */
 .link-list{display:flex;flex-direction:column;gap:10px}
-.link-list[hidden],.status-box[hidden],.notice[hidden]{display:none}
+.link-list[hidden],.notice[hidden]{display:none}
 .link-btn{display:block;padding:14px;text-align:center;text-decoration:none;font:13px var(--mono);letter-spacing:2px;text-transform:uppercase;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:14px;transition:border-color .2s,box-shadow .2s,transform .15s,color .2s}
 .link-btn:hover{color:#fff;border-color:var(--purple2);box-shadow:0 0 24px var(--glow);transform:translateY(-1px)}
-.status-box{padding:14px;text-align:center;font:13px var(--mono);letter-spacing:2px;text-transform:uppercase;color:var(--dim);background:var(--panel2);border:1px solid var(--line);border-radius:14px}
 .notice{margin-bottom:12px;padding:10px 12px;font-size:12px;line-height:1.5;color:var(--amber);background:rgba(255,184,77,.06);border:1px solid rgba(255,184,77,.35);border-radius:10px}
+
+/* ô key có nút sao chép nằm ở rìa phải */
+.key-row{position:relative}
+.key-row input{padding-right:52px;position:relative;transition:color .25s,text-shadow .25s}
+.key-row .copy-icon{position:absolute;z-index:2;top:50%;right:6px;transform:translateY(-50%);width:36px;height:36px;padding:0;display:grid;place-items:center;background:none;border:0;border-radius:8px;color:var(--dim);cursor:pointer;transition:color .2s,background .2s}
+.key-row .copy-icon:hover{color:var(--text);background:rgba(255,255,255,.08)}
+.copy-icon svg{grid-area:1/1;width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.copy-icon .ic-copy{transition:opacity .15s,transform .15s}
+.copy-icon .ic-check{opacity:0;transition:opacity .15s}
+.copy-icon .ic-check path{stroke-dasharray:24;stroke-dashoffset:24}
+
+/* animation khi sao chép: tô đậm key, quét từ trái sang phải, tới rìa phải hiện dấu tích */
+.key-sweep{position:absolute;inset:0;z-index:1;border-radius:10px;pointer-events:none;opacity:0;transform:scaleX(0);transform-origin:left;
+  background:linear-gradient(90deg,rgba(139,108,247,.16),rgba(139,108,247,.42))}
+.key-row.copying .key-sweep{animation:keySweep 2s linear forwards}
+@keyframes keySweep{
+  0%{transform:scaleX(0);opacity:1;animation-timing-function:cubic-bezier(.65,0,.35,1)}
+  30%{transform:scaleX(1);opacity:1}
+  75%{transform:scaleX(1);opacity:1}
+  100%{transform:scaleX(1);opacity:0}
+}
+.key-row.copying input{color:#fff;font-weight:700;text-shadow:0 0 10px rgba(139,108,247,.7)}
+.key-row .copy-icon.copied,.key-row .copy-icon.copied:hover{color:var(--green);background:none;cursor:default}
+.copy-icon.copied .ic-copy{opacity:0;transform:scale(.6)}
+.copy-icon.copied .ic-check{opacity:1;transition:opacity .01s .5s}
+.copy-icon.copied .ic-check path{stroke-dashoffset:0;transition:stroke-dashoffset .3s ease .5s}

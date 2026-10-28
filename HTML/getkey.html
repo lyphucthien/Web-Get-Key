@@ -14,9 +14,7 @@
   <section id="getkey">
     <div class="wrap">
       <div class="key-grid">
-        <div class="console" id="console">
-          <div class="console-track" id="consoleTrack">
-          <div class="pane pane-guide" id="guidePane" role="region" aria-label="Hướng dẫn" inert>
+          <aside class="guide-panel" id="guidePane" role="region" aria-label="Hướng dẫn" inert>
             <div class="guide-head">
               <h3>Hướng dẫn</h3>
               <button type="button" class="guide-close" id="guideClose">Quay lại</button>
@@ -34,8 +32,8 @@
                 <li>Key LPT Hub gắn với một thiết bị và hết hạn sau 3 giờ kể từ lần dùng đầu.</li>
               </ul>
             </div>
-          </div>
-          <div class="pane pane-main" id="mainPane">
+          </aside>
+          <div class="console" id="console">
           <div class="type-toggle" id="typeToggle">
             <div class="type-toggle-indicator"></div>
             <button class="type-btn active" id="typeBtnMinecraft" data-type="minecraft">MINECRAFT</button>
@@ -54,20 +52,21 @@
             <a class="link-btn" id="linkLink4m" href="#">Link 4m</a>
             <a class="link-btn" id="linkLink4sub" href="#">Link 4 Sub</a>
           </div>
-          <div class="status-box" id="doneBox" hidden>ĐÃ NHẬN KEY</div>
           <div class="key-out" id="keyOut">
             <div class="k-label">KEY CỦA BẠN</div>
             <div class="key-row">
+              <span class="key-sweep" aria-hidden="true"></span>
               <input type="text" id="keyValue" readonly aria-label="Key">
-              <button id="copyBtn">COPY</button>
+              <button type="button" class="copy-icon" id="copyBtn" aria-label="Sao chép key" title="Sao chép key">
+                <svg class="ic-copy" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>
+                <svg class="ic-check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+              </button>
             </div>
           </div>
-          <button type="button" class="guide-btn" id="guideBtn" aria-controls="guidePane" aria-expanded="false">Hướng Dẫn</button>
-          </div><!-- đóng pane-main -->
-        </div><!-- đóng console-track -->
-      </div><!-- đóng console -->
-    </div><!-- đóng key-grid -->
-  </div><!-- đóng wrap -->
+                    <button type="button" class="guide-btn" id="guideBtn" aria-controls="guidePane" aria-expanded="false">Hướng Dẫn</button>
+          </div>
+      </div>
+    </div>
   </section>
 </main>
 
@@ -75,15 +74,15 @@
 <script>
 
 const LINKS = {
-  workink:  "https://work.ink/YOUR_LINK",
-  link4m:   "https://link4m.com/YOUR_LINK",
-  link4sub: "https://link4sub.com/YOUR_LINK"
+  workink:  "https://work.ink/34tV/lpt-hub-script-key-mission",
+  link4m:   "https://link4m.net/UMaxDw",
+  link4sub: "https://link4sub.com/owycAYxKdu"
 };
 
 /* ===== LẤY KEY ===== */
 const $ = id => document.getElementById(id);
-const doneBox = $("doneBox"), linkList = $("linkList"), notice = $("notice"),
-      keyOut = $("keyOut"), keyValue = $("keyValue"), copyBtn = $("copyBtn"),
+const copyBtn = $("copyBtn"), linkList = $("linkList"), notice = $("notice"),
+      keyOut = $("keyOut"), keyValue = $("keyValue"),
       progressFill = $("progressFill"), countdownLabel = $("countdownLabel"), statusText = $("statusText"),
       pulse = $("pulse"), titleText = $("titleText"), typeToggle = $("typeToggle"),
       typeBtnMinecraft = $("typeBtnMinecraft"), typeBtnLpthub = $("typeBtnLpthub");
@@ -111,7 +110,6 @@ function formatTime(ms) {
 
 function lockButton() {
   linkList.hidden = true;
-  doneBox.hidden = false;
   showNotice("");
   pulse.classList.remove("ready");
   if (cooldownTimer) clearInterval(cooldownTimer);
@@ -136,7 +134,6 @@ function unlockButton() {
   keyValue.value = "";
   progressFill.style.width = "0%";
   countdownLabel.textContent = "00:00:00";
-  doneBox.hidden = true;
   linkList.hidden = false;
   statusText.textContent = "Chọn một link để nhận KEY";
   pulse.classList.add("ready");
@@ -207,37 +204,34 @@ if (params.has("claim")) {
   if (!hasValidSavedKey()) claimKey();
 }
 
+const keyRow = copyBtn.parentElement;
+let copyTimer = null;
 copyBtn.addEventListener("click", async () => {
   if (!keyValue.value) return;
   try { await navigator.clipboard.writeText(keyValue.value); }
   catch (e) { keyValue.select(); document.execCommand("copy"); }
-  copyBtn.textContent = "ĐÃ COPY";
-  setTimeout(() => { copyBtn.textContent = "COPY"; }, 1500);
+
+  keyRow.classList.remove("copying"); copyBtn.classList.remove("copied");
+  void keyRow.offsetWidth;
+  keyRow.classList.add("copying"); copyBtn.classList.add("copied");
+  clearTimeout(copyTimer);
+  copyTimer = setTimeout(() => { keyRow.classList.remove("copying"); copyBtn.classList.remove("copied"); }, 2400);
 });
 
-/* ===== HƯỚNG DẪN (mở ngang ngay trong khung, từ trái sang phải) ===== */
-const consoleBox = $("console"), consoleTrack = $("consoleTrack"), mainPane = $("mainPane"), guidePane = $("guidePane"),
-      guideBtn = $("guideBtn"), guideClose = $("guideClose");
+/* ===== HƯỚNG DẪN ===== */
+const guidePane = $("guidePane"), guideBtn = $("guideBtn"), guideClose = $("guideClose");
 let guideOpen = false;
-function fitConsole() {
-  consoleBox.style.height = (guideOpen ? guidePane : mainPane).offsetHeight + "px";
-}
 function setGuide(open) {
   guideOpen = open;
-  consoleTrack.classList.toggle("show-guide", open);
+  guidePane.classList.toggle("open", open);
   guidePane.inert = !open;
-  mainPane.inert = open;
   guideBtn.setAttribute("aria-expanded", String(open));
-  fitConsole();
   (open ? guideClose : guideBtn).focus({ preventScroll: true });
 }
 guidePane.inert = true;
-guideBtn.addEventListener("click", () => setGuide(true));
+guideBtn.addEventListener("click", () => setGuide(!guideOpen));
 guideClose.addEventListener("click", () => setGuide(false));
 addEventListener("keydown", e => { if (e.key === "Escape" && guideOpen) setGuide(false); });
-if (window.ResizeObserver) { const ro = new ResizeObserver(fitConsole); ro.observe(mainPane); ro.observe(guidePane); }
-addEventListener("resize", fitConsole);
-fitConsole();
 </script>
 </body>
 </html>

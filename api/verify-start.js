@@ -27,7 +27,7 @@ module.exports = async (req, res) => {
 
         res.writeHead(302, {
             "Set-Cookie": cookie,
-            "Location": "/"
+            "Location": "/get-key?claim=1"
         });
 
         res.end();
