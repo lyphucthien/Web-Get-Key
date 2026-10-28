@@ -136,20 +136,17 @@ function tokenScore(tok, c) {
 
 function applyFilter() {
   const q = norm(search.value);
-  const cards = [...grid.children];
-  const scored = cards.map(card => {
-    if (!q) return { card, i: card._i, score: 1 };
+  const scored = [...grid.children].map(card => {
+    if (!q) return { card, score: 1 };
     const c = card._c, tokens = q.split(" ");
     const qc = q.replace(/ /g, "");
-    if (qc.length >= 2 && c.compact.includes(qc)) return { card, i: card._i, score: 10 };
+    if (qc.length >= 2 && c.compact.includes(qc)) return { card, score: 10 };
     let score = 0;
     for (const t of tokens) { const sc = tokenScore(t, c); if (!sc) { score = 0; break; } score += sc; }
-    return { card, i: card._i, score };
+    return { card, score };
   });
   scored.forEach(x => { x.card.hidden = x.score === 0; });
   const shown = scored.filter(x => x.score > 0);
-
-  grid.append(...scored.sort((a, b) => (b.score - a.score) || (a.i - b.i)).map(x => x.card));
   msg.hidden = shown.length > 0;
   if (!shown.length) msg.textContent = "Không tìm thấy game nào.";
 }
@@ -164,7 +161,7 @@ async function loadGames() {
     totalNum.textContent = GAMES.filter(g => g.status === "on").length;
     if (!GAMES.length) { msg.textContent = "Chưa có game nào."; return; }
     msg.hidden = true;
-    grid.replaceChildren(...GAMES.map((g, i) => { const c = renderCard(g); c._i = i; return c; }));
+    grid.replaceChildren(...GAMES.map(renderCard));
   } catch (e) {
     console.error("Load games error:", e);
     msg.textContent = "Không tải được danh sách game. Vui lòng thử lại sau.";
