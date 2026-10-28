@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Game hỗ trợ – LPT Hub</title>
+<title>Games – LPT Hub</title>
 <link rel="icon" type="image/png" href="https://res.cloudinary.com/dkui88bcf/image/upload/v1786939501/Logo_LPT_vnq390.png">
 <link rel="stylesheet" href="/CSS/style.css">
 <link rel="stylesheet" href="/CSS/games.css">
@@ -12,7 +12,7 @@
 
 <main id="top">
   <div class="wrap page-head">
-    <h1>Game hỗ trợ</h1>
+    <h1>Supported Game</h1>
     <p id="headSub">Danh sách game và các chức năng có trong từng game.</p>
   </div>
 
@@ -29,7 +29,7 @@ const grid = $("gamesGrid"), msg = $("msg"), headSub = $("headSub");
 function el(tag, cls, text) {
   const e = document.createElement(tag);
   if (cls) e.className = cls;
-  if (text !== undefined) e.textContent = text;   // textContent: an toàn, không chạy HTML từ file JSON
+  if (text !== undefined) e.textContent = text;
   return e;
 }
 
