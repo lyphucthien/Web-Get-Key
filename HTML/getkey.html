@@ -55,7 +55,6 @@
           <div class="key-out" id="keyOut">
             <div class="k-label">KEY CỦA BẠN</div>
             <div class="key-row">
-              <span class="key-sweep" aria-hidden="true"></span>
               <input type="text" id="keyValue" readonly aria-label="Key">
               <button type="button" class="copy-icon" id="copyBtn" aria-label="Sao chép key" title="Sao chép key">
                 <svg class="ic-copy" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>
@@ -204,18 +203,14 @@ if (params.has("claim")) {
   if (!hasValidSavedKey()) claimKey();
 }
 
-const keyRow = copyBtn.parentElement;
 let copyTimer = null;
 copyBtn.addEventListener("click", async () => {
   if (!keyValue.value) return;
   try { await navigator.clipboard.writeText(keyValue.value); }
   catch (e) { keyValue.select(); document.execCommand("copy"); }
-
-  keyRow.classList.remove("copying"); copyBtn.classList.remove("copied");
-  void keyRow.offsetWidth;
-  keyRow.classList.add("copying"); copyBtn.classList.add("copied");
+  copyBtn.classList.add("copied");
   clearTimeout(copyTimer);
-  copyTimer = setTimeout(() => { keyRow.classList.remove("copying"); copyBtn.classList.remove("copied"); }, 2400);
+  copyTimer = setTimeout(() => copyBtn.classList.remove("copied"), 2000);
 });
 
 /* ===== HƯỚNG DẪN ===== */
