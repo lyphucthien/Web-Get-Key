@@ -27,18 +27,19 @@ const VERIFY_TYPES = ["minecraft", "lpthub"];
 function generateKey() {
     const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const digits = "0123456789";
-    let part1 = "";
-    let part2 = "";
+    const chars = [];
 
-    for (let i = 0; i < 8; i++) {
-        part1 += letters[crypto.randomInt(letters.length)];
+    for (let i = 0; i < 6; i++) {
+        chars.push(letters[crypto.randomInt(letters.length)]);
+        chars.push(digits[crypto.randomInt(digits.length)]);
     }
 
-    for (let i = 0; i < 8; i++) {
-        part2 += digits[crypto.randomInt(digits.length)];
+    for (let i = chars.length - 1; i > 0; i--) {
+        const j = crypto.randomInt(i + 1);
+        [chars[i], chars[j]] = [chars[j], chars[i]];
     }
 
-    return `LPT-${part1}-${part2}`;
+    return `LPT-${chars.join("")}`;
 }
 
 async function isIssuedKey(key, type) {
