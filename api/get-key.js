@@ -378,7 +378,7 @@ module.exports = async (req, res) => {
 
             return res.status(200).json({
                 success: false,
-                error: "Bạn này đã nhận KEY rồi"
+                error: "Bạn đã nhận KEY rồi"
             });
         }
 
