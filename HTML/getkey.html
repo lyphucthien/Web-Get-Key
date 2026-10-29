@@ -10,57 +10,53 @@
 </head>
 <body data-page="getkey">
 
-<main id="top">
-  <section id="getkey">
-    <div class="wrap">
-      <div class="key-grid">
-          <aside class="guide-panel" id="guidePane" role="region" aria-label="Hướng dẫn" inert>
-            <div class="guide-head">
-              <h3>Hướng dẫn</h3>
-              <button type="button" class="guide-close" id="guideClose">Quay lại</button>
-            </div>
-            <ol class="guide-steps">
-              <li><b>Chọn một link</b><span>Bấm Work.ink, Link 4m hoặc Link 4 Sub rồi hoàn thành các bước trên trang đó.</span></li>
-              <li><b>Nhận và copy key</b><span>Xong sẽ tự quay lại trang này và key hiện ra. Bấm biểu tượng sao chép rồi dán vào server Minecraft hoặc script LPT Hub.</span></li>
-            </ol>
-            <div class="guide-note">
-              <b>Lưu ý</b>
-              <ul>
-                <li>Hãy làm đến hết link để được đưa về trang này. Nếu thoát giữa chừng thì phải làm lại.</li>
-                <li>Mỗi thiết bị nhận 1 key sau mỗi 3 giờ. Nếu nút bị khoá, bạn đã nhận key trong 3 giờ qua.</li>
-                <li>Một key dùng được cho cả Minecraft và LPT Hub. Khi dùng cho script LPT Hub, key gắn với một thiết bị và hết hạn sau 3 giờ kể từ lần dùng đầu.</li>
-              </ul>
-            </div>
-          </aside>
-          <div class="console" id="console">
-          <div class="hdr">
-            <div class="pulse" id="pulse"></div>
-            <h3>LPT <span>Key</span></h3>
-            <div class="status-inline" id="statusText">Đang xác minh...</div>
-          </div>
-          <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-          <div class="progress-labels"><span>0s</span><span id="countdownLabel">3h</span></div>
-          <div class="notice" id="notice" role="status" hidden></div>
-          <div class="link-list" id="linkList" hidden>
-            <button type="button" class="link-btn" id="linkWorkink">Work.ink</button>
-            <button type="button" class="link-btn" id="linkLink4m">Link 4m</button>
-            <button type="button" class="link-btn" id="linkLink4sub">Link 4 Sub</button>
-          </div>
-          <div class="key-out" id="keyOut">
-            <div class="k-label">KEY CỦA BẠN</div>
-            <div class="key-row">
-              <input type="text" id="keyValue" readonly aria-label="Key">
-              <button type="button" class="copy-icon" id="copyBtn" aria-label="Sao chép key" title="Sao chép key">
-                <svg class="ic-copy" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>
-                <svg class="ic-check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
-              </button>
-            </div>
-          </div>
-          <button type="button" class="guide-btn" id="guideBtn" aria-controls="guidePane" aria-expanded="false">Hướng Dẫn</button>
-          </div>
+<main>
+  <div class="wrap">
+    <div class="console" id="console">
+      <div class="hdr">
+        <div class="pulse" id="pulse"></div>
+        <h1>Lấy key</h1>
       </div>
+      <p class="status" id="statusText">Đang xác minh...</p>
+
+      <div class="notice" id="notice" role="status" hidden></div>
+
+      <div class="link-list" id="linkList" hidden>
+        <button type="button" class="link-btn" id="linkWorkink">Work.ink</button>
+        <button type="button" class="link-btn" id="linkLink4m">Link 4m</button>
+        <button type="button" class="link-btn" id="linkLink4sub">Link 4 Sub</button>
+      </div>
+
+      <div class="key-out" id="keyOut">
+        <div class="k-label">KEY CỦA BẠN</div>
+        <div class="key-row">
+          <input type="text" id="keyValue" readonly aria-label="Key">
+          <button type="button" class="copy-icon" id="copyBtn" aria-label="Sao chép key" title="Sao chép key">
+            <svg class="ic-copy" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>
+            <svg class="ic-check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="cooldown" id="cooldown" hidden>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-labels"><span>Lấy key mới sau</span><span id="countdownLabel">03:00:00</span></div>
+      </div>
+
+      <details class="guide">
+        <summary>Hướng dẫn &amp; lưu ý</summary>
+        <ol class="guide-steps">
+          <li><b>Chọn một link</b><span>Bấm Work.ink, Link 4m hoặc Link 4 Sub rồi hoàn thành các bước trên trang đó.</span></li>
+          <li><b>Copy key và dùng</b><span>Xong sẽ tự quay lại trang này và hiện key. Bấm biểu tượng sao chép rồi dán vào server Minecraft hoặc script LPT Hub.</span></li>
+        </ol>
+        <ul class="guide-notes">
+          <li>Làm đến hết link để được đưa về trang này. Thoát giữa chừng thì phải làm lại.</li>
+          <li>Mỗi thiết bị nhận 1 key sau mỗi 3 giờ.</li>
+          <li>Một key dùng cho cả Minecraft và LPT Hub. Trên script, key gắn với một thiết bị và hết hạn sau 3 giờ kể từ lần dùng đầu.</li>
+        </ul>
+      </details>
     </div>
-  </section>
+  </div>
 </main>
 
 <script>
@@ -69,7 +65,7 @@ const $ = id => document.getElementById(id);
 const copyBtn = $("copyBtn"), linkList = $("linkList"), notice = $("notice"),
       keyOut = $("keyOut"), keyValue = $("keyValue"),
       progressFill = $("progressFill"), countdownLabel = $("countdownLabel"), statusText = $("statusText"),
-      pulse = $("pulse");
+      pulse = $("pulse"), cooldown = $("cooldown");
 
 $("linkWorkink").addEventListener("click",  () => { location.href = "/api/start?p=workink"; });
 $("linkLink4m").addEventListener("click",   () => { location.href = "/api/start?p=link4m"; });
@@ -104,6 +100,8 @@ function formatTime(ms) {
 
 function lockButton() {
   linkList.hidden = true;
+  cooldown.hidden = false;
+  statusText.textContent = "Bạn đã nhận key. Có thể lấy key mới khi hết thời gian chờ.";
   showNotice("");
   pulse.classList.remove("ready");
   if (cooldownTimer) clearInterval(cooldownTimer);
@@ -114,7 +112,6 @@ function lockButton() {
     const progress = ((COOLDOWN_MS - remaining) / COOLDOWN_MS) * 100;
     progressFill.style.width = Math.min(Math.max(progress, 0), 100) + "%";
     countdownLabel.textContent = formatTime(remaining);
-    statusText.textContent = "Chờ " + formatTime(remaining) + " để lấy KEY mới";
   };
   tick();
   cooldownTimer = setInterval(tick, 1000);
@@ -129,7 +126,8 @@ function unlockButton() {
   progressFill.style.width = "0%";
   countdownLabel.textContent = "00:00:00";
   linkList.hidden = false;
-  statusText.textContent = "Chọn một link để nhận KEY";
+  cooldown.hidden = true;
+  statusText.textContent = "Chọn một link, hoàn thành rồi nhận key.";
   pulse.classList.add("ready");
 }
 
@@ -201,21 +199,6 @@ copyBtn.addEventListener("click", async () => {
   clearTimeout(copyTimer);
   copyTimer = setTimeout(() => copyBtn.classList.remove("copied"), 2000);
 });
-
-/* ===== HƯỚNG DẪN ===== */
-const guidePane = $("guidePane"), guideBtn = $("guideBtn"), guideClose = $("guideClose");
-let guideOpen = false;
-function setGuide(open) {
-  guideOpen = open;
-  guidePane.classList.toggle("open", open);
-  guidePane.inert = !open;
-  guideBtn.setAttribute("aria-expanded", String(open));
-  (open ? guideClose : guideBtn).focus({ preventScroll: true });
-}
-guidePane.inert = true;
-guideBtn.addEventListener("click", () => setGuide(!guideOpen));
-guideClose.addEventListener("click", () => setGuide(false));
-addEventListener("keydown", e => { if (e.key === "Escape" && guideOpen) setGuide(false); });
 </script>
 <script src="/JS/layout.js"></script>
 </body>

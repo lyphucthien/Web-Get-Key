@@ -4,10 +4,9 @@
   const current = document.body.dataset.page;
 
   const LINKS = [
-    { text: "Home",   href: "/",         page: "home" },
-    { text: "Games",  href: "/games",    page: "games" },
-    { text: "Getkey", href: "/get-key",  page: "getkey" },
-    { text: "Buy",    href: "/#buy" }
+    { text: "Trang chủ", href: "/",        page: "home" },
+    { text: "Game",      href: "/games",   page: "games" },
+    { text: "Lấy key",   href: "/get-key", page: "getkey" }
   ];
   const nav = LINKS.map(l =>
     `<a href="${l.href}"${l.page && l.page === current ? ' aria-current="page"' : ""}>${l.text}</a>`
@@ -15,12 +14,12 @@
 
   document.body.insertAdjacentHTML("afterbegin", `
     <canvas id="bg-canvas"></canvas>
-    <header>
+    <header class="site-header">
       <div class="wrap nav">
-        <a class="brand" href="/"><img src="${LOGO}" alt="">LPT Hub</a>
+        <a class="brand" href="/"><img src="${LOGO}" alt=""><span>LPT Hub</span></a>
         <nav class="crumbs" aria-label="Điều hướng">${nav}</nav>
-        <a class="cta" href="${DISCORD}" target="_blank" rel="noopener noreferrer">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.3 4.4A19.8 19.8 0 0 0 15.4 3l-.2.5a18 18 0 0 0-6.4 0L8.6 3a19.8 19.8 0 0 0-4.9 1.4C.6 9 -.3 13.5.1 18a20 20 0 0 0 6 3l1-1.7a13 13 0 0 1-1.6-.8l.4-.3a14.2 14.2 0 0 0 12.2 0l.4.3c-.5.3-1 .6-1.6.8l1 1.7a20 20 0 0 0 6-3c.5-5.200-.8-9.600-3.600-13.600zM8.500 15.300c-1.200 0-2.100-1.100-2.100-2.400s.9-2.400 2.100-2.400 2.100 1.100 2.100 2.400-.9 2.400-2.100 2.400zm7 0c-1.200 0-2.100-1.100-2.100-2.400s.9-2.400 2.100-2.400 2.100 1.100 2.100 2.400-.9 2.400-2.100 2.400z"/></svg>Discord
+        <a class="cta" aria-label="Discord" href="${DISCORD}" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.3 4.4A19.8 19.8 0 0 0 15.4 3l-.2.5a18 18 0 0 0-6.4 0L8.6 3a19.8 19.8 0 0 0-4.9 1.4C.6 9 -.3 13.5.1 18a20 20 0 0 0 6 3l1-1.7a13 13 0 0 1-1.6-.8l.4-.3a14.2 14.2 0 0 0 12.2 0l.4.3c-.5.3-1 .6-1.6.8l1 1.7a20 20 0 0 0 6-3c.5-5.200-.8-9.600-3.600-13.600zM8.500 15.300c-1.200 0-2.100-1.100-2.100-2.400s.9-2.400 2.100-2.400 2.100 1.100 2.100 2.400-.9 2.400-2.100 2.400zm7 0c-1.200 0-2.100-1.100-2.100-2.400s.9-2.400 2.100-2.400 2.100 1.100 2.100 2.400-.9 2.400-2.100 2.400z"/></svg><span>Discord</span>
         </a>
       </div>
     </header>`);

@@ -1,28 +1,21 @@
-/* trang Game hỗ trợ (/games) – dạng thẻ poster */
-body[data-page="games"] main{min-height:calc(100vh - 61px);padding:28px 0 72px}
+.gl-page{padding-top:36px;padding-bottom:72px}
 
-/* đầu trang: tiêu đề + tổng số game */
-.gl-top{display:grid;grid-template-columns:1fr 220px;gap:14px;margin-bottom:14px}
-.gl-title,.gl-total{border:1px solid var(--line);border-radius:22px;padding:22px 26px;background:var(--panel)}
-.gl-label{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--dim)}
-.gl-title h1{margin:8px 0 6px;font-family:var(--mono);font-size:clamp(30px,5vw,48px);line-height:1.1;letter-spacing:-.5px}
-.gl-title p{margin:0;color:var(--dim);font-size:14px}
-.gl-total{display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(145deg,var(--purple),var(--purple2));border-color:var(--purple2);box-shadow:0 0 30px var(--glow)}
-.gl-total .gl-label{color:rgba(255,255,255,.75)}
-.gl-total b{display:block;margin-top:14px;font-family:var(--mono);font-size:52px;line-height:1;color:#fff}
-.gl-total span.gl-sub{font-size:13px;color:rgba(255,255,255,.8)}
+.gl-head{margin-bottom:22px}
+.gl-head h1{margin:0 0 6px;font-family:var(--mono);font-size:clamp(28px,5vw,40px);line-height:1.15;letter-spacing:-.5px}
+.gl-head p{margin:0;color:var(--dim);font-size:15px}
 
-/* ô tìm kiếm */
-.gl-search{display:block;position:relative;margin-bottom:18px}
-.gl-search svg{position:absolute;left:18px;top:50%;transform:translateY(-50%);width:18px;height:18px;fill:none;stroke:var(--dim);stroke-width:2;stroke-linecap:round;pointer-events:none}
-.gl-search input{width:100%;padding:16px 18px 16px 48px;font:15px var(--sans);color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:18px;transition:border-color .2s}
+.gl-toolbar{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.gl-search{flex:1;position:relative;display:block}
+.gl-search svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);width:18px;height:18px;fill:none;stroke:var(--dim);stroke-width:2;stroke-linecap:round;pointer-events:none}
+.gl-search input{width:100%;padding:13px 16px 13px 44px;font:15px var(--sans);color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:14px;transition:border-color .2s}
 .gl-search input::placeholder{color:var(--dim)}
 .gl-search input:focus{outline:none;border-color:var(--purple)}
+.gl-count{flex-shrink:0;padding:12px 16px;font-size:13px;color:var(--dim);background:var(--panel);border:1px solid var(--line);border-radius:14px;white-space:nowrap}
+.gl-count b{margin-right:4px;font-family:var(--mono);font-size:16px;color:var(--green)}
 
-/* lưới thẻ game */
 .gl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
 .gl-card{display:flex;flex-direction:column;padding:0;text-align:left;font:inherit;color:inherit;background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s}
-.gl-card:hover,.gl-card:focus-visible{outline:none;transform:translateY(-6px);box-shadow:0 16px 36px rgba(0,0,0,.55)}
+.gl-card:hover,.gl-card:focus-visible{transform:translateY(-6px);box-shadow:0 16px 36px rgba(0,0,0,.55)}
 .gl-card[hidden]{display:none}
 .gl-thumb{position:relative;aspect-ratio:3/4;background:linear-gradient(160deg,#2a2347,#17151f);overflow:hidden}
 .gl-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .35s}
@@ -35,7 +28,6 @@ body[data-page="games"] main{min-height:calc(100vh - 61px);padding:28px 0 72px}
 .gl-msg{padding:56px 0;text-align:center;color:var(--dim)}
 .gl-msg[hidden]{display:none}
 
-/* cửa sổ mô tả game */
 .gl-dialog{width:min(760px,94vw);max-height:88vh;padding:0;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:22px;box-shadow:0 30px 90px rgba(0,0,0,.7);overflow:hidden}
 .gl-dialog[open]{display:grid;grid-template-columns:240px 1fr;animation:glIn .25s ease}
 .gl-dialog::backdrop{background:rgba(0,0,0,.65);backdrop-filter:blur(4px);animation:glFade .25s ease}
@@ -59,9 +51,6 @@ body:has(.gl-dialog[open]){overflow:hidden}
 .gl-close:hover{color:var(--text);background:rgba(255,255,255,.1)}
 
 @media(max-width:700px){
-  .gl-top{grid-template-columns:1fr}
-  .gl-total{flex-direction:row;align-items:flex-end;gap:16px}
-  .gl-total b{margin:0;font-size:40px}
   .gl-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
   .gl-dialog[open]{grid-template-columns:1fr;overflow-y:auto}
   .gl-d-img{min-height:0;aspect-ratio:16/10}

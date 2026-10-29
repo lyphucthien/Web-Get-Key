@@ -10,24 +10,20 @@
 </head>
 <body data-page="games">
 
-<main id="top">
-  <div class="wrap">
-    <div class="gl-top">
-      <div class="gl-title">
-        <div class="gl-label">Thư viện</div>
-        <h1>Game hỗ trợ</h1>
-        <p>Bấm vào game muốn chọn để xem chi tiết các chức năng.</p>
-      </div>
-      <div class="gl-total">
-        <div class="gl-label">Đang hỗ trợ</div>
-        <div><b id="totalNum">0</b><span class="gl-sub">và sẽ còn thêm</span></div>
-      </div>
+<main>
+  <div class="wrap gl-page">
+    <div class="gl-head">
+      <h1>Game hỗ trợ</h1>
+      <p>Bấm vào một game để xem chi tiết chức năng.</p>
     </div>
 
-    <label class="gl-search">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-      <input type="search" id="search" placeholder="Tìm game..." autocomplete="off" aria-label="Tìm game">
-    </label>
+    <div class="gl-toolbar">
+      <label class="gl-search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input type="search" id="search" placeholder="Tìm game..." autocomplete="off" aria-label="Tìm game">
+      </label>
+      <div class="gl-count"><b id="totalNum">0</b> đang hỗ trợ</div>
+    </div>
 
     <div class="gl-msg" id="msg">Đang tải danh sách game...</div>
     <div class="gl-grid" id="grid"></div>

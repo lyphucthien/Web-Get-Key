@@ -9,56 +9,26 @@
 </head>
 <body data-page="home">
 
-<main id="top">
-  <div class="wrap hero">
-    <h1>Key miễn phí cho server Minecraft và script LPT Hub</h1>
-    <p>Chọn một link, hoàn thành và nhận key dùng ngay. Một key dùng được cho cả server Minecraft và script LPT Hub. Mỗi thiết bị nhận một key sau mỗi 3 giờ, không cần tạo tài khoản.</p>
-    <div class="btns">
-      <a class="btn primary" href="/get-key">Lấy key ngay</a>
-      <a class="btn" href="/games">Xem game hỗ trợ</a>
-    </div>
-  </div>
+<main>
+  <div class="wrap">
+    <section class="hero">
+      <span class="tag on">Miễn phí · Không cần tài khoản</span>
+      <h1>Key miễn phí cho Minecraft và LPT Hub</h1>
+      <p>Hoàn thành một link rút gọn là nhận key dùng ngay. Một key dùng được cho cả server Minecraft và script LPT Hub.</p>
+      <div class="btns">
+        <a class="btn primary" href="/get-key">Lấy key ngay</a>
+        <a class="btn" href="/games">Xem game hỗ trợ</a>
+      </div>
+    </section>
 
-  <section id="games">
-    <div class="wrap">
-      <h2>Game hỗ trợ</h2>
-      <p class="sub">Những game dùng được key của LPT Hub. Danh sách được cập nhật khi có game mới.</p>
-      <div class="games" id="gamesGrid"></div>
-    </div>
-  </section>
+    <ol class="steps">
+      <li><b>Chọn một link</b><span>Work.ink, Link 4m hoặc Link 4 Sub, chọn cái nào cũng được.</span></li>
+      <li><b>Làm đến hết link</b><span>Hoàn thành xong sẽ tự quay về trang lấy key.</span></li>
+      <li><b>Copy và dùng key</b><span>Dán vào server hoặc script. Mỗi thiết bị nhận 1 key sau mỗi 3 giờ.</span></li>
+    </ol>
+  </div>
 </main>
 
 <script src="/JS/layout.js"></script>
-<script>
-
-const GAMES = [
-  { name: "Minecraft Server", type: "minecraft", status: "on",
-    desc: "Key để vào server Minecraft. Mỗi key kích hoạt cho một tên người chơi." },
-  { name: "LPT Hub Script", type: "lpthub", status: "on",
-    desc: "Key cho script LPT Hub, hiệu lực 3 giờ và gắn với một thiết bị." },
-  { name: "Game tiếp theo", type: "", status: "soon",
-    desc: "Đang chuẩn bị. Quay lại sau để xem cập nhật." }
-];
-
-const grid = document.getElementById("gamesGrid");
-const gameCountEl = document.getElementById("gameCount");
-if (gameCountEl) gameCountEl.textContent = GAMES.filter(g => g.status === "on").length;
-GAMES.forEach(g => {
-  const el = document.createElement("div");
-  el.className = "game" + (g.status === "soon" ? " soon" : "");
-  const tag = document.createElement("span");
-  tag.className = "tag" + (g.status === "on" ? " on" : "");
-  tag.textContent = g.status === "on" ? "Đang hỗ trợ" : "Sắp có";
-  const h = document.createElement("h3"); h.textContent = g.name;
-  const p = document.createElement("p"); p.textContent = g.desc;
-  el.append(tag, h, p);
-  if (g.status === "on") {
-    const a = document.createElement("a");
-    a.className = "btn"; a.href = "/get-key"; a.textContent = "Lấy key cho game này";
-    el.append(a);
-  }
-  grid.append(el);
-});
-</script>
 </body>
 </html>
