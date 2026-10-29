@@ -1,5 +1,3 @@
-const fs = require("fs");
-const path = require("path");
 const crypto = require("crypto");
 const { kv } = require("@vercel/kv");
 
@@ -8,51 +6,47 @@ const TOKEN_MAX_AGE_MS = 15 * 60 * 1000;
 const IP_LOCK_SECONDS = 3 * 60 * 60;
 const LPTHUB_KEY_DURATION_MS = 3 * 60 * 60 * 1000;
 
-// =====================================
-// CẤU HÌNH CÁC LOẠI KEY
-// =====================================
-
-const KEY_TYPES = {
-    minecraft: {
-        file: "keys.json",
-        kvList: "remaining-keys",
-        ipPrefix: "ip"
-    },
-
-    lpthub: {
-        generated: true,
-        kvIssuedSet: "issued-set-lpthub",
-        ipPrefix: "ip-lpthub"
-    }
-};
-
 if (!SECRET) {
     throw new Error("VERIFY_SECRET is not configured");
 }
 
 // =====================================
-// TẠO KEY LPTHUB
+// KEY CHUNG
 // =====================================
 
-function generateLptHubKey() {
+const KEY_SET = "issued-set-lpt";
+const IP_PREFIX = "ip-lpt";
+
+const LEGACY_SETS = {
+    minecraft: "issued-set-minecraft",
+    lpthub: "issued-set-lpthub"
+};
+
+const VERIFY_TYPES = ["minecraft", "lpthub"];
+
+function generateKey() {
     const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const digits = "0123456789";
-    const chars = [];
+    let part1 = "";
+    let part2 = "";
 
     for (let i = 0; i < 8; i++) {
-        chars.push(letters[crypto.randomInt(letters.length)]);
+        part1 += letters[crypto.randomInt(letters.length)];
     }
 
-    for (let i = 0; i < 7; i++) {
-        chars.push(digits[crypto.randomInt(digits.length)]);
+    for (let i = 0; i < 8; i++) {
+        part2 += digits[crypto.randomInt(digits.length)];
     }
 
-    for (let i = chars.length - 1; i > 0; i--) {
-        const j = crypto.randomInt(i + 1);
-        [chars[i], chars[j]] = [chars[j], chars[i]];
+    return `LPT-${part1}-${part2}`;
+}
+
+async function isIssuedKey(key, type) {
+    if (await kv.sismember(KEY_SET, key)) {
+        return true;
     }
 
-    return "LPTHUB-" + chars.join("");
+    return !!(await kv.sismember(LEGACY_SETS[type], key));
 }
 
 // =====================================
@@ -146,9 +140,7 @@ function parseActivationRecord(value) {
         }
     }
 
-    return value && typeof value === "object"
-        ? value
-        : null;
+    return value && typeof value === "object" ? value : null;
 }
 
 async function getLptHubKeyLifetime(key) {
@@ -254,24 +246,23 @@ module.exports = async (req, res) => {
             });
         }
 
-        const typeParam = String(
-            req.query?.type || "minecraft"
-        ).toLowerCase();
-
-        const typeConfig = KEY_TYPES[typeParam];
-
-        if (!typeConfig) {
-            return res.status(400).json({
-                success: false,
-                error: "Loại key không hợp lệ"
-            });
-        }
-
         // =====================================
-        // 1. KIỂM TRA KEY VÀ HWID
+        // 1. KIỂM TRA KEY
         // =====================================
 
         if (typeof req.query?.key !== "undefined") {
+            const typeParam = String(
+                req.query?.type ||
+                (typeof req.query?.hwid !== "undefined" ? "lpthub" : "minecraft")
+            ).toLowerCase();
+
+            if (!VERIFY_TYPES.includes(typeParam)) {
+                return res.status(400).json({
+                    success: false,
+                    error: "Loại key không hợp lệ"
+                });
+            }
+
             const cleanKey = String(req.query.key).trim();
 
             if (!cleanKey) {
@@ -282,8 +273,7 @@ module.exports = async (req, res) => {
                 });
             }
 
-            const setName = typeParam === "minecraft" ? "issued-set-minecraft" : "issued-set-lpthub";
-            const exists = await kv.sismember(setName,cleanKey);
+            const exists = await isIssuedKey(cleanKey, typeParam);
 
             if (!exists) {
                 return res.status(200).json({
@@ -316,8 +306,6 @@ module.exports = async (req, res) => {
             }
 
             if (typeof req.query?.hwid === "undefined") {
-                res.setHeader("Cache-Control", "no-store");
-
                 return res.status(200).json(lifetimeResult);
             }
 
@@ -331,29 +319,24 @@ module.exports = async (req, res) => {
                 });
             }
 
-            const hwidResult = await verifyLptHubHwid(cleanKey,hwid,lifetime.remainingSeconds);
-
-            res.setHeader("Cache-Control", "no-store");
+            const hwidResult = await verifyLptHubHwid(
+                cleanKey,
+                hwid,
+                lifetime.remainingSeconds
+            );
 
             if (!hwidResult.valid) {
-                return res.status(403).json({
-                    ...lifetimeResult,
-                    valid: false,
-                    hwidBound: false,
-                    error: hwidResult.error
-                });
+                return res.status(403).json({...lifetimeResult,valid: false,hwidBound: false,error: hwidResult.error});
             }
 
-            return res.status(200).json({
-                ...lifetimeResult,
-                valid: true,
-                hwidBound: true
-            });
+            return res.status(200).json({...lifetimeResult,valid: true,hwidBound: true});
         }
 
         // =====================================
         // 2. CẤP KEY: KIỂM TRA TOKEN
         // =====================================
+
+        res.setHeader("Cache-Control", "no-store");
 
         let token = req.query?.token;
 
@@ -369,23 +352,29 @@ module.exports = async (req, res) => {
         }
 
         const ip = getClientIp(req);
+        const tokenKey = `used-token:${token}`;
+        const ipKey = `${IP_PREFIX}:${ip}`;
 
-        const tokenKey = `used-token:${typeParam}:${token}`;
+        const gotToken = await kv.set(tokenKey, true, {
+            nx: true,
+            ex: 15 * 60
+        });
 
-        const alreadyUsed = await kv.get(tokenKey);
-
-        if (alreadyUsed) {
+        if (!gotToken) {
             return res.status(403).json({
                 success: false,
                 error: "Token này đã được sử dụng"
             });
         }
 
-        const ipKey = `${typeConfig.ipPrefix}:${ip}`;
+        const gotIp = await kv.set(ipKey, "pending", {
+            nx: true,
+            ex: IP_LOCK_SECONDS
+        });
 
-        const alreadyClaimedByIp = await kv.get(ipKey);
+        if (!gotIp) {
+            await kv.del(tokenKey);
 
-        if (alreadyClaimedByIp) {
             return res.status(200).json({
                 success: false,
                 error: "Bạn này đã nhận KEY rồi"
@@ -393,19 +382,16 @@ module.exports = async (req, res) => {
         }
 
         // =====================================
-        // 3. CẤP KEY LPTHUB
+        // 3. CẤP KEY CHUNG
         // =====================================
 
-        if (typeConfig.generated) {
-            let issuedKey = null;
+        let issuedKey = null;
 
+        try {
             for (let attempt = 0; attempt < 10; attempt++) {
-                const candidate = generateLptHubKey();
+                const candidate = generateKey();
 
-                const added = await kv.sadd(
-                    typeConfig.kvIssuedSet,
-                    candidate
-                );
+                const added = await kv.sadd(KEY_SET, candidate);
 
                 if (added === 1) {
                     issuedKey = candidate;
@@ -414,6 +400,9 @@ module.exports = async (req, res) => {
             }
 
             if (!issuedKey) {
+                await kv.del(tokenKey);
+                await kv.del(ipKey);
+
                 return res.status(503).json({
                     success: false,
                     error: "Server is busy, please try again"
@@ -423,105 +412,20 @@ module.exports = async (req, res) => {
             await kv.set(ipKey, issuedKey, {
                 ex: IP_LOCK_SECONDS
             });
-
-            await kv.set(tokenKey, true, {
-                ex: 15 * 60
-            });
-
-            res.setHeader(
-                "Set-Cookie",
-                "verify_token=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=Lax"
-            );
-
-            return res.status(200).json({
-                success: true,
-                key: issuedKey
-            });
+        } catch (error) {
+            await kv.del(tokenKey).catch(() => {});
+            await kv.del(ipKey).catch(() => {});
+            throw error;
         }
 
-        // =====================================
-        // 4. CẤP KEY MINECRAFT
-        // =====================================
+        res.setHeader(
+            "Set-Cookie",
+            "verify_token=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=Lax"
+        );
 
-        let keys = await kv.get(typeConfig.kvList);
-
-        if (!keys) {
-            const keysPath = path.join(
-                process.cwd(),
-                typeConfig.file
-            );
-
-            const keysData = JSON.parse(
-                fs.readFileSync(keysPath, "utf8")
-            );
-
-            if (!Array.isArray(keysData)) {
-                throw new Error(
-                    `${typeConfig.file} must contain an array of keys`
-                );
-            }
-
-            keys = keysData
-                .map(key => String(key).trim())
-                .filter(Boolean);
-
-            await kv.set(typeConfig.kvList, keys);
-        }
-
-        if (keys.length === 0) {
-            return res.status(404).json({
-                success: false,
-                error: "All keys have been claimed"
-            });
-        }
-
-        for (let attempt = 0; attempt < 10; attempt++) {
-            const currentKeys =
-                (await kv.get(typeConfig.kvList)) || [];
-
-            const availableKey = currentKeys[0];
-
-            if (!availableKey) {
-                return res.status(404).json({
-                    success: false,
-                    error: "All keys have been claimed"
-                });
-            }
-
-            const updatedKeys = currentKeys.slice(1);
-
-            await kv.set(
-                typeConfig.kvList,
-                updatedKeys
-            );
-
-            await kv.sadd(
-                "issued-set-minecraft",
-                availableKey
-            );
-
-            await kv.set(ipKey, availableKey, {
-                ex: IP_LOCK_SECONDS
-            });
-
-            await kv.set(tokenKey, true, {
-                ex: 15 * 60
-            });
-
-            res.setHeader(
-                "Set-Cookie",
-                "verify_token=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=Lax"
-            );
-
-            return res.status(200).json({
-                success: true,
-                key: availableKey
-            });
-        }
-
-        return res.status(503).json({
-            success: false,
-            error: "Server is busy, please try again"
+        return res.status(200).json({
+            success: true,
+            key: issuedKey
         });
 
     } catch (error) {

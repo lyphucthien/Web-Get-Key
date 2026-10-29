@@ -27,7 +27,14 @@ function normalizeFeatures(raw) {
   return groups;
 }
 
-function normalizeGame(file, data) {
+function safeImage(v) {
+  const u = str(v);
+  if (/^https:\/\//i.test(u)) return u;
+  if (u.startsWith("/") && !u.startsWith("//")) return u;
+  return "";
+}
+
+function normalizeGame(file, data, imageFile) {
   const id = file.replace(/\.json$/i, "");
   const type = str(data.type).toLowerCase();
   return {
@@ -36,6 +43,7 @@ function normalizeGame(file, data) {
     status: str(data.status).toLowerCase() === "soon" ? "soon" : "on",
     type: type === "minecraft" || type === "lpthub" ? type : "",
     description: str(data.description),
+    image: safeImage(data.image) || (imageFile ? "/Games/" + encodeURIComponent(imageFile) : ""),
     order: Number.isFinite(data.order) ? data.order : 9999,
     features: normalizeFeatures(data.features)
   };
@@ -48,8 +56,14 @@ module.exports = (req, res) => {
   }
 
   let files = [];
+  const images = new Map();
   try {
-    files = fs.readdirSync(GAMES_DIR).filter(f => /\.json$/i.test(f));
+    const all = fs.readdirSync(GAMES_DIR);
+    files = all.filter(f => /\.json$/i.test(f));
+    for (const f of all) {
+      const m = /^(.*)\.(png|jpe?g|webp|gif|avif)$/i.exec(f);
+      if (m && !images.has(m[1].toLowerCase())) images.set(m[1].toLowerCase(), f);
+    }
   } catch (e) {
     return res.status(200).json({ success: true, games: [], errors: ["Không tìm thấy thư mục Games"] });
   }
@@ -60,7 +74,7 @@ module.exports = (req, res) => {
       const raw = fs.readFileSync(path.join(GAMES_DIR, file), "utf8").replace(/^\uFEFF/, "");
       const data = JSON.parse(raw);
       if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("không phải object JSON");
-      games.push(normalizeGame(file, data));
+      games.push(normalizeGame(file, data, images.get(file.replace(/\.json$/i, "").toLowerCase())));
     } catch (e) {
       errors.push(file + ": " + e.message);
     }

@@ -114,8 +114,7 @@ function openGame(g) {
   });
 
   const btn = $("dBtn");
-  btn.hidden = !(g.status === "on" && g.type);
-  btn.onclick = () => { try { localStorage.setItem("selected_type", g.type); } catch (e) {} };
+  btn.hidden = g.status !== "on";
 
   dialog.showModal();
   dialog.querySelector(".gl-d-body").scrollTop = 0;

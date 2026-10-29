@@ -8,8 +8,9 @@ if (!SECRET) {
 }
 
 const RESET_TARGETS = {
-    minecraft: {kvList: "remaining-keys"},
-    lpthub: {kvIssuedSet: "issued-set-lpthub"}
+    lpt: {kvDel: ["issued-set-lpt"]},
+    minecraft: {kvDel: ["issued-set-minecraft", "remaining-keys"]},
+    lpthub: {kvDel: ["issued-set-lpthub"]}
 };
 
 function safeEqual(a, b) {
@@ -40,21 +41,22 @@ module.exports = async (req, res) => {
         if (!target) {
             return res.status(400).json({
                 success: false,
-                error: "type phải là 'minecraft' hoặc 'lpthub'"
+                error: "type phải là 'lpt', 'minecraft' hoặc 'lpthub'"
             });
         }
 
         const resetIp = req.query?.resetIp === "1";
 
-        if (target.kvList) {await kv.del(target.kvList);}
-        if (target.kvIssuedSet) {await kv.del(target.kvIssuedSet);}
+        for (const name of target.kvDel) {
+            await kv.del(name);
+        }
 
         let ipNote = "Không đụng tới khoá IP";
 
         if (resetIp) {
             ipNote =
                 "Muốn xoá khoá IP, vào Upstash Data Browser " +
-                "tìm theo prefix tương ứng và xoá thủ công " +
+                "tìm theo prefix ip-lpt: (key chung) hoặc ip: / ip-lpthub: (key cũ) và xoá thủ công " +
                 "(hoặc đợi tự hết hạn).";
         }
 

@@ -70,10 +70,11 @@ module.exports = async (req, res) => {
         const cleanKey = String(key).trim();
         const username = String(minecraftUsername).trim();
 
+        const isUnifiedKey = await kv.sismember("issued-set-lpt", cleanKey);
         const isMinecraftKey = await kv.sismember("issued-set-minecraft", cleanKey);
         const isLpthubKey = await kv.sismember("issued-set-lpthub", cleanKey);
 
-        if (!isMinecraftKey && !isLpthubKey) {
+        if (!isUnifiedKey && !isMinecraftKey && !isLpthubKey) {
             return res.status(400).json({
                 success: false,
                 error: "Key không hợp lệ"

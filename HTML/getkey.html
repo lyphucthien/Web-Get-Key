@@ -20,32 +20,27 @@
               <button type="button" class="guide-close" id="guideClose">Quay lại</button>
             </div>
             <ol class="guide-steps">
-              <li><b>Chọn loại key</b><span>Bấm MINECRAFT nếu cần key cho server, hoặc LPT HUB nếu cần key cho script.</span></li>
               <li><b>Chọn một link</b><span>Bấm Work.ink, Link 4m hoặc Link 4 Sub rồi hoàn thành các bước trên trang đó.</span></li>
-              <li><b>Nhận và copy key</b><span>Xong sẽ tự quay lại trang này và key hiện ra. Bấm biểu tượng sao chép rồi dán vào server hoặc script của bạn.</span></li>
+              <li><b>Nhận và copy key</b><span>Xong sẽ tự quay lại trang này và key hiện ra. Bấm biểu tượng sao chép rồi dán vào server Minecraft hoặc script LPT Hub.</span></li>
             </ol>
             <div class="guide-note">
               <b>Lưu ý</b>
               <ul>
                 <li>Hãy làm đến hết link để được đưa về trang này. Nếu thoát giữa chừng thì phải làm lại.</li>
                 <li>Mỗi thiết bị nhận 1 key sau mỗi 3 giờ. Nếu nút bị khoá, bạn đã nhận key trong 3 giờ qua.</li>
-                <li>Key LPT Hub gắn với một thiết bị và hết hạn sau 3 giờ kể từ lần dùng đầu.</li>
+                <li>Một key dùng được cho cả Minecraft và LPT Hub. Khi dùng cho script LPT Hub, key gắn với một thiết bị và hết hạn sau 3 giờ kể từ lần dùng đầu.</li>
               </ul>
             </div>
           </aside>
           <div class="console" id="console">
-          <div class="type-toggle" id="typeToggle">
-            <div class="type-toggle-indicator"></div>
-            <button class="type-btn active" id="typeBtnMinecraft" data-type="minecraft">MINECRAFT</button>
-            <button class="type-btn" id="typeBtnLpthub" data-type="lpthub">LPT HUB</button>
-          </div>
           <div class="hdr">
             <div class="pulse" id="pulse"></div>
-            <h3 id="titleText">Server Minecraft <span>Key</span></h3>
+            <h3>LPT <span>Key</span></h3>
             <div class="status-inline" id="statusText">Đang xác minh...</div>
           </div>
           <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
           <div class="progress-labels"><span>0s</span><span id="countdownLabel">3h</span></div>
+          <p class="key-sub">Một key dùng cho cả server Minecraft và script LPT Hub.</p>
           <div class="notice" id="notice" role="status" hidden></div>
           <div class="link-list" id="linkList" hidden>
             <button type="button" class="link-btn" id="linkWorkink">Work.ink</button>
@@ -81,20 +76,29 @@ const $ = id => document.getElementById(id);
 const copyBtn = $("copyBtn"), linkList = $("linkList"), notice = $("notice"),
       keyOut = $("keyOut"), keyValue = $("keyValue"),
       progressFill = $("progressFill"), countdownLabel = $("countdownLabel"), statusText = $("statusText"),
-      pulse = $("pulse"), titleText = $("titleText"), typeToggle = $("typeToggle"),
-      typeBtnMinecraft = $("typeBtnMinecraft"), typeBtnLpthub = $("typeBtnLpthub");
+      pulse = $("pulse");
 
 $("linkWorkink").addEventListener("click",  () => { location.href = LINKS.workink; });
 $("linkLink4m").addEventListener("click",   () => { location.href = LINKS.link4m; });
 $("linkLink4sub").addEventListener("click", () => { location.href = LINKS.link4sub; });
 
-const TYPE_LABELS = { minecraft: "Server Minecraft", lpthub: "Script LPT HUB" };
-const TYPE_STORAGE_KEY = "selected_type";
-let currentType = localStorage.getItem(TYPE_STORAGE_KEY) || "minecraft";
-if (!TYPE_LABELS[currentType]) currentType = "minecraft";
 const COOLDOWN_MS = 3 * 60 * 60 * 1000;
-const getStorageKey = () => "issued_key_" + currentType;
-const getStorageTimeKey = () => "issued_key_time_" + currentType;
+const KEY_STORE = "lpt_key", TIME_STORE = "lpt_key_time";
+const getStorageKey = () => KEY_STORE;
+const getStorageTimeKey = () => TIME_STORE;
+
+(function migrateOldKey() {
+  if (localStorage.getItem(KEY_STORE)) return;
+  for (const t of ["lpthub", "minecraft"]) {
+    const k = localStorage.getItem("issued_key_" + t);
+    const ts = Number(localStorage.getItem("issued_key_time_" + t) || 0);
+    if (k && ts && Date.now() - ts < COOLDOWN_MS) {
+      localStorage.setItem(KEY_STORE, k);
+      localStorage.setItem(TIME_STORE, String(ts));
+      break;
+    }
+  }
+})();
 let cooldownTimer = null;
 
 function showNotice(msg) { notice.textContent = msg || ""; notice.hidden = !msg; }
@@ -152,27 +156,13 @@ function refreshState() {
   }
 }
 
-function switchType(type, force) {
-  if (type === currentType && !force) return;
-  currentType = type;
-  localStorage.setItem(TYPE_STORAGE_KEY, type);
-  typeBtnMinecraft.classList.toggle("active", type === "minecraft");
-  typeBtnLpthub.classList.toggle("active", type === "lpthub");
-  typeToggle.classList.toggle("pos-lpthub", type === "lpthub");
-  titleText.innerHTML = (TYPE_LABELS[type] || "Key") + " <span>Key</span>";
-  showNotice("");
-  refreshState();
-}
-
-switchType(currentType, true);
-typeBtnMinecraft.addEventListener("click", () => switchType("minecraft"));
-typeBtnLpthub.addEventListener("click", () => switchType("lpthub"));
+refreshState();
 
 async function claimKey() {
   linkList.hidden = true;
   statusText.textContent = "Đang lấy KEY...";
   try {
-    const response = await fetch("/api/get-key?type=" + encodeURIComponent(currentType), {
+    const response = await fetch("/api/get-key", {
       method: "GET", headers: { "Accept": "application/json" }
     });
     let data = {};

@@ -1,11 +1,6 @@
 /* trang lấy key */
 .key-grid{max-width:520px;margin:0 auto}
 .console{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:0 0 0 1px rgba(139,108,247,.08),0 20px 60px rgba(0,0,0,.55);backdrop-filter:blur(8px);font-family:var(--mono)}
-.type-toggle{position:relative;display:flex;margin-bottom:20px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:4px;isolation:isolate}
-.type-toggle-indicator{position:absolute;top:4px;left:4px;width:calc(50% - 4px);height:calc(100% - 8px);border-radius:7px;background:linear-gradient(135deg,var(--purple2),var(--purple));box-shadow:0 0 12px var(--glow);transition:transform .35s cubic-bezier(.65,0,.35,1);z-index:0}
-.type-toggle.pos-lpthub .type-toggle-indicator{transform:translateX(100%)}
-.type-btn{position:relative;z-index:1;flex:1;padding:9px 6px;border:0;border-radius:7px;background:none;color:var(--dim);font:600 12px var(--mono);cursor:pointer;transition:color .25s}
-.type-btn.active{color:#fff}
 .hdr{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px;padding-bottom:14px;border-bottom:1px dashed var(--line)}
 .hdr h3{font-size:17px;margin:0;font-weight:600}
 .hdr h3 span{color:var(--amber)}
@@ -35,7 +30,7 @@ button.main-btn.ready:hover{filter:brightness(1.08)}
   transform:translate(calc(100% + 14px),-50%);opacity:0;visibility:hidden;
   transition:transform .4s cubic-bezier(.65,0,.35,1),opacity .3s,visibility .4s}
 .guide-panel.open{transform:translate(0,-50%);opacity:1;visibility:visible}
-/* màn hình hẹp, không đủ chỗ bên trái: trượt từ trái đè lên khung */
+
 @media(max-width:1260px){
   .guide-panel{top:0;right:0;left:0;margin:0;width:auto;min-height:100%;z-index:3;background:var(--panel2);transform:translateX(-110%)}
   .guide-panel.open{transform:translateX(0)}
@@ -82,3 +77,5 @@ body[data-page="getkey"] #getkey{width:100%;padding:24px 0}
 .copy-icon.copied .ic-copy{opacity:0;transform:scale(.6)}
 .copy-icon.copied .ic-check{opacity:1;transition:opacity .01s 0s}
 .copy-icon.copied .ic-check path{stroke-dashoffset:0;transition:stroke-dashoffset .3s ease 0s}
+
+.key-sub{margin:-6px 0 14px;font-size:12px;line-height:1.5;color:var(--dim);text-align:center}
