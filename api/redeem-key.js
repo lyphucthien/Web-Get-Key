@@ -82,14 +82,6 @@ module.exports = async (req, res) => {
         }
 
         const redeemKey = `redeemed:${cleanKey}`;
-        const alreadyRedeemed = await kv.get(redeemKey);
-
-        if (alreadyRedeemed) {
-            return res.status(400).json({
-                success: false,
-                error: "Key này đã được kích hoạt trước đó"
-            });
-        }
 
         const record = {
             minecraftUsername: username,
@@ -97,8 +89,21 @@ module.exports = async (req, res) => {
             redeemedAt: Date.now()
         };
 
-        await kv.set(redeemKey, record);
-        await kv.set(`verified:${username.toLowerCase()}`, record);
+        const claimed = await kv.set(redeemKey, record, { nx: true });
+
+        if (!claimed) {
+            return res.status(400).json({
+                success: false,
+                error: "Key này đã được kích hoạt trước đó"
+            });
+        }
+
+        try {
+            await kv.set(`verified:${username.toLowerCase()}`, record);
+        } catch (error) {
+            await kv.del(redeemKey).catch(() => {});
+            throw error;
+        }
 
         return res.status(200).json({
             success: true
@@ -110,7 +115,7 @@ module.exports = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            error: error.message
+            error: "Lỗi máy chủ"
         });
     }
 };

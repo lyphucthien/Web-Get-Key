@@ -65,21 +65,15 @@
 
 <script>
 
-const LINKS = {
-  workink:  "https://work.ink/34tV/lpt-hub-script-key-mission",
-  link4m:   "https://link4m.net/UMaxDw",
-  link4sub: "https://link4sub.com/owycAYxKdu"
-};
-
 const $ = id => document.getElementById(id);
 const copyBtn = $("copyBtn"), linkList = $("linkList"), notice = $("notice"),
       keyOut = $("keyOut"), keyValue = $("keyValue"),
       progressFill = $("progressFill"), countdownLabel = $("countdownLabel"), statusText = $("statusText"),
       pulse = $("pulse");
 
-$("linkWorkink").addEventListener("click",  () => { location.href = LINKS.workink; });
-$("linkLink4m").addEventListener("click",   () => { location.href = LINKS.link4m; });
-$("linkLink4sub").addEventListener("click", () => { location.href = LINKS.link4sub; });
+$("linkWorkink").addEventListener("click",  () => { location.href = "/api/start?p=workink"; });
+$("linkLink4m").addEventListener("click",   () => { location.href = "/api/start?p=link4m"; });
+$("linkLink4sub").addEventListener("click", () => { location.href = "/api/start?p=link4sub"; });
 
 const COOLDOWN_MS = 3 * 60 * 60 * 1000;
 const KEY_STORE = "lpt_key", TIME_STORE = "lpt_key_time";
@@ -184,6 +178,15 @@ async function claimKey() {
 }
 
 const params = new URLSearchParams(location.search);
+const ERRORS = {
+  missing: "Bạn chưa hoàn thành link. Hãy bấm một link bên dưới và làm đến hết.",
+  fast: "Bạn hoàn thành link quá nhanh. Hãy bấm lại link và làm đủ các bước.",
+  expired: "Phiên làm link đã hết hạn. Hãy bấm lại link."
+};
+if (params.has("error")) {
+  history.replaceState(null, "", location.pathname);
+  showNotice(ERRORS[params.get("error")] || "Không xác minh được. Vui lòng làm lại link.");
+}
 if (params.has("claim")) {
   history.replaceState(null, "", location.pathname);
   if (!hasValidSavedKey()) claimKey();
