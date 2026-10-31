@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lấy key miễn phí – LPT Hub</title>
+<meta name="description" content="Lấy key miễn phí cho Minecraft và LPT Hub: chọn một link rút gọn, hoàn thành rồi nhận key ngay trên trang.">
+<link rel="canonical" href="https://lyphucthien.vercel.app/get-key">
+<link rel="icon" type="image/png" href="https://res.cloudinary.com/dkui88bcf/image/upload/v1786939501/Logo_LPT_vnq390.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="LPT Hub">
+<meta property="og:title" content="Lấy key miễn phí – LPT Hub">
+<meta property="og:description" content="Lấy key miễn phí cho Minecraft và LPT Hub: chọn một link rút gọn, hoàn thành rồi nhận key ngay trên trang.">
+<meta property="og:url" content="https://lyphucthien.vercel.app/get-key">
+<meta property="og:image" content="https://res.cloudinary.com/dkui88bcf/image/upload/v1786939501/Logo_LPT_vnq390.png">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="/CSS/style.css">
+<link rel="stylesheet" href="/CSS/getkey.css">
+</head>
+<body data-page="getkey">
+
+<main>
+  <div class="wrap">
+    <div class="console" id="console">
+      <div class="hdr">
+        <div class="pulse" id="pulse"></div>
+        <h1>Lấy key</h1>
+      </div>
+      <p class="status" id="statusText">Đang xác minh...</p>
+
+      <div class="notice" id="notice" role="status" hidden></div>
+
+      <div class="link-list" id="linkList" hidden>
+        <button type="button" class="link-btn" id="linkWorkink">Work.ink</button>
+        <button type="button" class="link-btn" id="linkLink4m">Link 4m</button>
+        <button type="button" class="link-btn" id="linkLink4sub">Link 4 Sub</button>
+      </div>
+
+      <div class="key-out" id="keyOut">
+        <div class="k-label">KEY CỦA BẠN</div>
+        <div class="key-row">
+          <input type="text" id="keyValue" readonly aria-label="Key">
+          <button type="button" class="copy-icon" id="copyBtn" aria-label="Sao chép key" title="Sao chép key">
+            <svg class="ic-copy" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>
+            <svg class="ic-check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="cooldown" id="cooldown" hidden>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-labels"><span>Lấy key mới sau</span><span id="countdownLabel">03:00:00</span></div>
+      </div>
+
+      <details class="guide">
+        <summary>Hướng dẫn &amp; lưu ý</summary>
+        <ol class="guide-steps">
+          <li><b>Chọn một link</b><span>Bấm Work.ink, Link 4m hoặc Link 4 Sub rồi hoàn thành các bước trên trang đó.</span></li>
+          <li><b>Copy key và dùng</b><span>Xong sẽ tự quay lại trang này và hiện key. Bấm biểu tượng sao chép rồi dán vào server Minecraft hoặc script LPT Hub.</span></li>
+        </ol>
+        <ul class="guide-notes">
+          <li>Làm đến hết link để được đưa về trang này. Thoát giữa chừng thì phải làm lại.</li>
+          <li>Mỗi thiết bị nhận 1 key sau mỗi 3 giờ.</li>
+          <li>Một key dùng cho cả Minecraft và LPT Hub. Trên script, key gắn với một thiết bị và hết hạn sau 3 giờ kể từ lần dùng đầu.</li>
+        </ul>
+      </details>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>© 2026 LPT Hub</span>
+    <nav aria-label="Liên kết cuối trang">
+      <a href="/about">Giới thiệu</a>
+      <a href="/contact">Liên hệ</a>
+      <a href="/privacy">Quyền riêng tư</a>
+      <a href="/docs">Tài liệu</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+
+const $ = id => document.getElementById(id);
+const copyBtn = $("copyBtn"), linkList = $("linkList"), notice = $("notice"),
+      keyOut = $("keyOut"), keyValue = $("keyValue"),
+      progressFill = $("progressFill"), countdownLabel = $("countdownLabel"), statusText = $("statusText"),
+      pulse = $("pulse"), cooldown = $("cooldown");
+
+$("linkWorkink").addEventListener("click",  () => { location.href = "/api/start?p=workink"; });
+$("linkLink4m").addEventListener("click",   () => { location.href = "/api/start?p=link4m"; });
+$("linkLink4sub").addEventListener("click", () => { location.href = "/api/start?p=link4sub"; });
+
+const COOLDOWN_MS = 3 * 60 * 60 * 1000;
+const KEY_STORE = "lpt_key", TIME_STORE = "lpt_key_time";
+const getStorageKey = () => KEY_STORE;
+const getStorageTimeKey = () => TIME_STORE;
+
+(function migrateOldKey() {
+  if (localStorage.getItem(KEY_STORE)) return;
+  for (const t of ["lpthub", "minecraft"]) {
+    const k = localStorage.getItem("issued_key_" + t);
+    const ts = Number(localStorage.getItem("issued_key_time_" + t) || 0);
+    if (k && ts && Date.now() - ts < COOLDOWN_MS) {
+      localStorage.setItem(KEY_STORE, k);
+      localStorage.setItem(TIME_STORE, String(ts));
+      break;
+    }
+  }
+})();
+let cooldownTimer = null;
+
+function showNotice(msg) { notice.textContent = msg || ""; notice.hidden = !msg; }
+
+function formatTime(ms) {
+  const t = Math.max(Math.ceil(ms / 1000), 0);
+  const p = n => String(n).padStart(2, "0");
+  return p(Math.floor(t / 3600)) + ":" + p(Math.floor((t % 3600) / 60)) + ":" + p(t % 60);
+}
+
+function lockButton() {
+  linkList.hidden = true;
+  cooldown.hidden = false;
+  statusText.textContent = "Bạn đã nhận key. Có thể lấy key mới khi hết thời gian chờ.";
+  showNotice("");
+  pulse.classList.remove("ready");
+  if (cooldownTimer) clearInterval(cooldownTimer);
+  const tick = () => {
+    const saved = Number(localStorage.getItem(getStorageTimeKey()) || 0);
+    const remaining = saved + COOLDOWN_MS - Date.now();
+    if (remaining <= 0) { clearInterval(cooldownTimer); unlockButton(); return; }
+    const progress = ((COOLDOWN_MS - remaining) / COOLDOWN_MS) * 100;
+    progressFill.style.width = Math.min(Math.max(progress, 0), 100) + "%";
+    countdownLabel.textContent = formatTime(remaining);
+  };
+  tick();
+  cooldownTimer = setInterval(tick, 1000);
+}
+
+function unlockButton() {
+  if (cooldownTimer) clearInterval(cooldownTimer);
+  localStorage.removeItem(getStorageKey());
+  localStorage.removeItem(getStorageTimeKey());
+  keyOut.classList.remove("show");
+  keyValue.value = "";
+  progressFill.style.width = "0%";
+  countdownLabel.textContent = "00:00:00";
+  linkList.hidden = false;
+  cooldown.hidden = true;
+  statusText.textContent = "Chọn một link, hoàn thành rồi nhận key.";
+  pulse.classList.add("ready");
+}
+
+function hasValidSavedKey() {
+  const savedKey = localStorage.getItem(getStorageKey());
+  const savedTime = Number(localStorage.getItem(getStorageTimeKey()) || 0);
+  return !!(savedKey && savedTime && Date.now() - savedTime < COOLDOWN_MS);
+}
+
+function refreshState() {
+  if (hasValidSavedKey()) {
+    keyValue.value = localStorage.getItem(getStorageKey());
+    keyOut.classList.add("show");
+    lockButton();
+  } else {
+    unlockButton();
+  }
+}
+
+refreshState();
+
+async function claimKey() {
+  linkList.hidden = true;
+  statusText.textContent = "Đang lấy KEY...";
+  try {
+    const response = await fetch("/api/get-key", {
+      method: "GET", headers: { "Accept": "application/json" }
+    });
+    let data = {};
+    try { data = await response.json(); } catch (e) {}
+    if (!response.ok || !data.success || !data.key) {
+      unlockButton();
+      showNotice(data.error || "Không lấy được KEY. Vui lòng làm lại link.");
+      return;
+    }
+    keyValue.value = data.key;
+    localStorage.setItem(getStorageKey(), data.key);
+    localStorage.setItem(getStorageTimeKey(), String(Date.now()));
+    keyOut.classList.add("show");
+    lockButton();
+  } catch (error) {
+    console.error("Get key error:", error);
+    unlockButton();
+    showNotice("Lỗi kết nối server, vui lòng thử lại.");
+  }
+}
+
+const params = new URLSearchParams(location.search);
+const ERRORS = {
+  missing: "Bạn chưa hoàn thành link. Hãy bấm một link bên dưới và làm đến hết.",
+  fast: "Bạn hoàn thành link quá nhanh. Hãy bấm lại link và làm đủ các bước.",
+  expired: "Phiên làm link đã hết hạn. Hãy bấm lại link."
+};
+if (params.has("error")) {
+  history.replaceState(null, "", location.pathname);
+  showNotice(ERRORS[params.get("error")] || "Không xác minh được. Vui lòng làm lại link.");
+}
+if (params.has("claim")) {
+  history.replaceState(null, "", location.pathname);
+  if (!hasValidSavedKey()) claimKey();
+}
+
+let copyTimer = null;
+copyBtn.addEventListener("click", async () => {
+  if (!keyValue.value) return;
+  try { await navigator.clipboard.writeText(keyValue.value); }
+  catch (e) { keyValue.select(); document.execCommand("copy"); }
+  copyBtn.classList.add("copied");
+  clearTimeout(copyTimer);
+  copyTimer = setTimeout(() => copyBtn.classList.remove("copied"), 2000);
+});
+</script>
+<script src="/JS/layout.js"></script>
+</body>
+</html>

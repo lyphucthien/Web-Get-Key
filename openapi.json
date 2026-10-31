@@ -1,0 +1,80 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "LPT Hub public API",
+    "version": "1.0.0",
+    "description": "API đọc công khai của LPT Hub. Không cần xác thực. Key chỉ được cấp trên trình duyệt của người dùng và không có trong API này. MCP server nằm ở /mcp."
+  },
+  "servers": [{ "url": "https://lyphucthien.vercel.app" }],
+  "paths": {
+    "/api/games": {
+      "get": {
+        "operationId": "listGames",
+        "summary": "Danh sách game LPT Hub hỗ trợ",
+        "description": "Trả về các game đang hỗ trợ (status on) và sắp có (status soon), đã sắp xếp. Kết quả được cache ngắn.",
+        "responses": {
+          "200": {
+            "description": "Danh sách game",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GamesResponse" }
+              }
+            }
+          },
+          "405": {
+            "description": "Chỉ hỗ trợ GET và HEAD",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "GamesResponse": {
+        "type": "object",
+        "required": ["success", "games", "errors"],
+        "properties": {
+          "success": { "type": "boolean" },
+          "games": { "type": "array", "items": { "$ref": "#/components/schemas/Game" } },
+          "errors": { "type": "array", "items": { "type": "string" }, "description": "Các file game bị lỗi khi đọc, nếu có." }
+        }
+      },
+      "Game": {
+        "type": "object",
+        "required": ["id", "name", "status", "type", "description", "image", "order", "features"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "status": { "type": "string", "enum": ["on", "soon"] },
+          "type": { "type": "string", "enum": ["minecraft", "lpthub", ""] },
+          "description": { "type": "string" },
+          "image": { "type": "string", "description": "Đường dẫn ảnh, có thể rỗng." },
+          "order": { "type": "number" },
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["category", "items"],
+              "properties": {
+                "category": { "type": "string" },
+                "items": { "type": "array", "items": { "type": "string" } }
+              }
+            }
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "const": false },
+          "error": { "type": "string" }
+        }
+      }
+    }
+  }
+}

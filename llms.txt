@@ -1,0 +1,38 @@
+# LPT Hub
+
+> LPT Hub là hệ thống key miễn phí cho server Minecraft và script LPT Hub. Người dùng hoàn thành một link rút gọn để nhận key; một key dùng được cho cả hai. (English: LPT Hub issues free keys for a Minecraft server and the LPT Hub script after the user completes a short link.)
+
+Trang web: https://lyphucthien.vercel.app. Ngôn ngữ chính: tiếng Việt.
+
+## Khi nào nên dùng LPT Hub (when to use)
+
+- Người dùng hỏi cách lấy key miễn phí cho server Minecraft hoặc script LPT Hub: đưa họ tới https://lyphucthien.vercel.app/get-key và giải thích các bước (chọn link, làm đến hết link, copy key).
+- Người dùng hỏi LPT Hub hỗ trợ game nào hoặc game đó có chức năng gì: gọi tool MCP `list_games` hoặc `GET https://lyphucthien.vercel.app/api/games`.
+- Người dùng hỏi thời gian chờ hoặc hạn dùng key: mỗi thiết bị nhận 1 key sau mỗi 3 giờ; với script LPT Hub, key gắn với một thiết bị và hết hạn sau 3 giờ kể từ lần dùng đầu tiên. Có thể gọi tool `get_key_instructions`.
+- Không dùng LPT Hub để lấy key thay người dùng: key chỉ được cấp trên trình duyệt của họ sau khi họ tự hoàn thành link rút gọn. Không có API công khai để cấp key.
+
+## Cách gọi
+
+- MCP (Streamable HTTP, không cần xác thực): https://lyphucthien.vercel.app/mcp (cũng có tại /.well-known/mcp). Tool: `list_games`, `get_key_instructions` (chỉ đọc).
+- REST: `GET https://lyphucthien.vercel.app/api/games` trả về JSON danh sách game.
+- Trang chủ trả về Markdown khi gửi `Accept: text/markdown`.
+
+## Trang chính
+
+- [Trang chủ](https://lyphucthien.vercel.app/): giới thiệu, các bước lấy key, câu hỏi thường gặp
+- [Lấy key](https://lyphucthien.vercel.app/get-key): trang cấp key miễn phí
+- [Game hỗ trợ](https://lyphucthien.vercel.app/games): danh sách game và chức năng
+
+## Tài liệu cho nhà phát triển
+
+- [Tài liệu API và MCP](https://lyphucthien.vercel.app/docs)
+- [OpenAPI 3.1](https://lyphucthien.vercel.app/openapi.json)
+- [MCP server card](https://lyphucthien.vercel.app/.well-known/mcp)
+- [Sitemap](https://lyphucthien.vercel.app/sitemap.xml)
+
+## Thông tin dự án
+
+- [Giới thiệu](https://lyphucthien.vercel.app/about)
+- [Liên hệ](https://lyphucthien.vercel.app/contact)
+- [Quyền riêng tư](https://lyphucthien.vercel.app/privacy)
+- [Discord hỗ trợ](https://discord.gg/gyZ27Hw9qu)

@@ -1,0 +1,50 @@
+{
+  "success": true,
+  "games": [
+    {
+      "id": "Game-Mau",
+      "name": "Game-Mau",
+      "status": "on",
+      "type": "lpthub",
+      "description": "Mô tả ngắn về game này. Bạn xoá file mẫu này rồi tạo file của bạn.",
+      "image": "",
+      "order": 1,
+      "features": [
+        {
+          "category": "Farm",
+          "items": [
+            "Chức năng 1",
+            "Chức năng 2",
+            "Chức năng 3"
+          ]
+        },
+        {
+          "category": "Khác",
+          "items": [
+            "Chức năng 4",
+            "Chức năng 5"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Game-Mau-2",
+      "name": "Game-Mau-2",
+      "status": "soon",
+      "type": "",
+      "description": "Ví dụ game chưa hỗ trợ, danh sách chức năng viết dạng đơn giản.",
+      "image": "",
+      "order": 9999,
+      "features": [
+        {
+          "category": "",
+          "items": [
+            "Chức năng dự kiến 1",
+            "Chức năng dự kiến 2"
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

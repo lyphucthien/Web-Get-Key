@@ -1,0 +1,54 @@
+body[data-page="getkey"] main{display:flex;align-items:center;padding:24px 0}
+
+.console{width:100%;max-width:480px;margin:0 auto;padding:26px;background:var(--panel);border:1px solid var(--line);border-radius:20px;box-shadow:0 0 0 1px rgba(139,108,247,.08),0 20px 60px rgba(0,0,0,.55);backdrop-filter:blur(8px)}
+
+.hdr{display:flex;align-items:center;gap:10px}
+.hdr h1{margin:0;font-family:var(--mono);font-size:22px;font-weight:700}
+.pulse{width:9px;height:9px;flex-shrink:0;border-radius:50%;background:var(--amber);animation:pulse 1.6s infinite}
+.pulse.ready{background:var(--green);animation:none}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,184,77,.5)}70%{box-shadow:0 0 0 8px rgba(255,184,77,0)}100%{box-shadow:0 0 0 0 rgba(255,184,77,0)}}
+.status{margin:6px 0 20px;font-size:14px;color:var(--dim)}
+
+.notice{margin-bottom:14px;padding:10px 12px;font-size:13px;line-height:1.5;color:var(--amber);background:rgba(255,184,77,.06);border:1px solid rgba(255,184,77,.35);border-radius:10px}
+
+.link-list{display:flex;flex-direction:column;gap:10px}
+.link-btn{width:100%;padding:14px;font:600 13px var(--mono);letter-spacing:1.5px;text-transform:uppercase;text-align:center;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:14px;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .15s}
+.link-btn:hover{color:#fff;border-color:var(--purple2);box-shadow:0 0 24px var(--glow);transform:translateY(-1px)}
+
+.key-out{display:none;padding:14px;background:var(--panel2);border:1px solid var(--purple);border-radius:14px}
+.key-out.show{display:block}
+.k-label{margin-bottom:8px;font:600 11px var(--mono);letter-spacing:1.5px;color:var(--dim)}
+.key-row{position:relative}
+.key-row input{width:100%;min-width:0;padding:11px 52px 11px 12px;font:15px var(--mono);letter-spacing:1px;color:var(--purple);background:var(--bg);border:1px solid var(--line);border-radius:10px}
+.copy-icon{position:absolute;top:50%;right:6px;transform:translateY(-50%);width:36px;height:36px;padding:0;display:grid;place-items:center;color:var(--dim);background:none;border:0;border-radius:8px;cursor:pointer;transition:color .2s,background .2s}
+.copy-icon:hover{color:var(--text);background:rgba(255,255,255,.08)}
+.copy-icon svg{grid-area:1/1;width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ic-copy{transition:opacity .15s,transform .15s}
+.ic-check{opacity:0;transition:opacity .15s}
+.ic-check path{stroke-dasharray:24;stroke-dashoffset:24}
+.copy-icon.copied,.copy-icon.copied:hover{color:var(--green);background:none;cursor:default}
+.copy-icon.copied .ic-copy{opacity:0;transform:scale(.6)}
+.copy-icon.copied .ic-check{opacity:1;transition:opacity .01s}
+.copy-icon.copied .ic-check path{stroke-dashoffset:0;transition:stroke-dashoffset .3s ease}
+
+.cooldown{margin-top:16px}
+.progress-track{height:6px;overflow:hidden;background:var(--panel2);border:1px solid var(--line);border-radius:6px}
+.progress-fill{height:100%;width:0;background:linear-gradient(90deg,#a8752e,var(--amber));transition:width .2s linear}
+.progress-labels{display:flex;justify-content:space-between;margin-top:8px;font:12px var(--mono);color:var(--dim)}
+
+.guide{margin-top:20px;padding-top:14px;border-top:1px dashed var(--line)}
+.guide summary{display:flex;align-items:center;gap:8px;font:600 12px var(--mono);letter-spacing:1px;color:var(--dim);cursor:pointer;list-style:none;transition:color .2s}
+.guide summary::-webkit-details-marker{display:none}
+.guide summary::before{content:"";width:6px;height:6px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .2s}
+.guide[open] summary::before{transform:rotate(45deg)}
+.guide summary:hover{color:var(--text)}
+.guide-steps{list-style:none;margin:16px 0 14px;padding:0;counter-reset:g}
+.guide-steps li{position:relative;padding:0 0 12px 38px;counter-increment:g}
+.guide-steps li::before{content:counter(g);position:absolute;left:0;top:0;width:26px;height:26px;display:grid;place-items:center;font-size:12px;color:var(--purple);border:1px solid var(--purple);border-radius:50%}
+.guide-steps b{display:block;font-size:14px}
+.guide-steps span{display:block;font-size:13px;line-height:1.55;color:var(--dim)}
+.guide-notes{margin:0;padding:12px 14px 12px 30px;font-size:12.5px;line-height:1.55;color:var(--dim);background:var(--panel2);border:1px solid var(--line);border-radius:12px}
+.guide-notes li+li{margin-top:4px}
+
+@media(max-width:480px){.console{padding:20px}}
+@media(prefers-reduced-motion:reduce){.pulse{animation:none}}

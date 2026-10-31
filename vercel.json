@@ -2,24 +2,42 @@
   "rewrites": [
     {
       "source": "/",
-      "destination": "/HTML/index.html"
+      "has": [{ "type": "header", "key": "accept", "value": ".*text/markdown.*" }],
+      "destination": "/api/site?kind=home"
+    },
+    { "source": "/", "destination": "/HTML/index.html" },
+    { "source": "/get-key", "destination": "/HTML/getkey.html" },
+    { "source": "/games", "destination": "/HTML/games.html" },
+    { "source": "/about", "destination": "/HTML/about.html" },
+    { "source": "/contact", "destination": "/HTML/contact.html" },
+    { "source": "/privacy", "destination": "/HTML/privacy.html" },
+    { "source": "/docs", "destination": "/HTML/docs.html" },
+    { "source": "/verify", "destination": "/api/verify-start" },
+    { "source": "/mcp", "destination": "/api/mcp" },
+    { "source": "/.well-known/mcp", "destination": "/api/mcp" },
+    { "source": "/.well-known/mcp/server-card.json", "destination": "/api/mcp" },
+    { "source": "/((?!_vercel).*)", "destination": "/api/site?kind=404" }
+  ],
+  "headers": [
+    {
+      "source": "/",
+      "headers": [{ "key": "Vary", "value": "Accept" }]
     },
     {
-      "source": "/get-key",
-      "destination": "/HTML/getkey.html"
+      "source": "/llms.txt",
+      "headers": [{ "key": "Content-Type", "value": "text/plain; charset=utf-8" }]
     },
     {
-      "source": "/games",
-      "destination": "/HTML/games.html"
+      "source": "/sitemap.xml",
+      "headers": [{ "key": "Content-Type", "value": "application/xml; charset=utf-8" }]
     },
     {
-      "source": "/verify",
-      "destination": "/api/verify-start"
+      "source": "/openapi.json",
+      "headers": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }]
     }
   ],
   "functions": {
-    "api/games.js": {
-      "includeFiles": "Games/**"
-    }
+    "api/games.js": { "includeFiles": "Games/**" },
+    "api/mcp.js": { "includeFiles": "Games/**" }
   }
 }

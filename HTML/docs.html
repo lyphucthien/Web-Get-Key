@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tài liệu API và MCP – LPT Hub</title>
+<meta name="description" content="Tài liệu API công khai và MCP server của LPT Hub: danh sách game, OpenAPI, llms.txt và cách kết nối agent.">
+<link rel="canonical" href="https://lyphucthien.vercel.app/docs">
+<link rel="icon" type="image/png" href="https://res.cloudinary.com/dkui88bcf/image/upload/v1786939501/Logo_LPT_vnq390.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="LPT Hub">
+<meta property="og:title" content="Tài liệu API và MCP – LPT Hub">
+<meta property="og:description" content="Tài liệu API công khai và MCP server của LPT Hub: danh sách game, OpenAPI, llms.txt và cách kết nối agent.">
+<meta property="og:url" content="https://lyphucthien.vercel.app/docs">
+<meta property="og:image" content="https://res.cloudinary.com/dkui88bcf/image/upload/v1786939501/Logo_LPT_vnq390.png">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="/CSS/style.css">
+</head>
+<body data-page="docs">
+
+<main>
+  <article class="wrap prose">
+    <h1>Tài liệu API và MCP của LPT Hub</h1>
+    <p>LPT Hub có một API đọc công khai để lấy danh sách game và một MCP server để agent AI truy vấn cùng dữ liệu đó. Không cần khóa API hay đăng nhập.</p>
+    <h2>API danh sách game</h2>
+    <p><code>GET https://lyphucthien.vercel.app/api/games</code> trả về JSON gồm <code>success</code>, <code>games</code> và <code>errors</code>. Mỗi game có <code>id</code>, <code>name</code>, <code>status</code> (<code>on</code> hoặc <code>soon</code>), <code>type</code>, <code>description</code>, <code>image</code>, <code>order</code> và <code>features</code> (nhóm chức năng).</p>
+    <pre><code>curl -s https://lyphucthien.vercel.app/api/games</code></pre>
+    <p>Đặc tả đầy đủ nằm ở <a href="/openapi.json">/openapi.json</a> (OpenAPI 3.1).</p>
+    <h2>MCP server</h2>
+    <p>Endpoint: <code>https://lyphucthien.vercel.app/mcp</code> (cũng có tại <code>/.well-known/mcp</code>). Giao thức Streamable HTTP, gửi JSON-RPC bằng POST, không cần xác thực. Có hai tool chỉ đọc:</p>
+    <ul>
+      <li><code>list_games</code>: liệt kê game hỗ trợ, có thể lọc theo <code>status</code> và <code>query</code>.</li>
+      <li><code>get_key_instructions</code>: các bước lấy key, thời gian chờ và đường dẫn trang lấy key.</li>
+    </ul>
+    <pre><code>curl -s https://lyphucthien.vercel.app/mcp \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'</code></pre>
+    <h2>Lưu ý về key</h2>
+    <p>Key chỉ được cấp trên trình duyệt của người dùng sau khi họ hoàn thành link rút gọn, nên agent không thể lấy key thay người dùng. API kiểm tra key dành riêng cho script LPT Hub và không thuộc API công khai.</p>
+    <h2>Tệp dành cho agent</h2>
+    <p><a href="/llms.txt">/llms.txt</a> mô tả khi nào nên dùng LPT Hub, <a href="/sitemap.xml">/sitemap.xml</a> liệt kê các trang, và trang chủ trả về Markdown khi gửi <code>Accept: text/markdown</code>.</p>
+  </article>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>© 2026 LPT Hub</span>
+    <nav aria-label="Liên kết cuối trang">
+      <a href="/about">Giới thiệu</a>
+      <a href="/contact">Liên hệ</a>
+      <a href="/privacy">Quyền riêng tư</a>
+      <a href="/docs">Tài liệu</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="/JS/layout.js"></script>
+</body>
+</html>
