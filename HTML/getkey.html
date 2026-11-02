@@ -18,6 +18,7 @@
 <link rel="stylesheet" href="/CSS/getkey.css">
 </head>
 <body data-page="getkey">
+<canvas id="bgCanvas" aria-hidden="true"></canvas>
 
 <main>
   <div class="wrap">
@@ -31,9 +32,9 @@
       <div class="notice" id="notice" role="status" hidden></div>
 
       <div class="link-list" id="linkList" hidden>
-        <button type="button" class="link-btn" id="linkWorkink">Work.ink</button>
-        <button type="button" class="link-btn" id="linkLink4m">Link 4m</button>
-        <button type="button" class="link-btn" id="linkLink4sub">Link 4 Sub</button>
+        <button type="button" class="link-btn" id="linkWorkink"><span class="spinner"></span><span class="label">Work.ink</span></button>
+        <button type="button" class="link-btn" id="linkLink4m"><span class="spinner"></span><span class="label">Link 4m</span></button>
+        <button type="button" class="link-btn" id="linkLink4sub"><span class="spinner"></span><span class="label">Link 4 Sub</span></button>
       </div>
 
       <div class="key-out" id="keyOut">
@@ -81,6 +82,96 @@
 </footer>
 
 <script>
+(() => {
+  const cv = document.getElementById("bgCanvas");
+  const ctx = cv.getContext("2d");
+  const LINK = 150;          // khoảng cách tối đa để nối
+  const R = 110;             // bán kính ảnh hưởng của chuột
+  const MINV = .7, MAXV = 3; // tốc độ nhỏ nhất / lớn nhất
+  const JITTER = .22;        // độ lộn xộn khi di chuyển
+  const FADE_OUT = .03;      // tốc độ mờ khi chuột ở gần
+  const FADE_IN = .003;      // tốc độ hiện lại khi chuột đã đi xa
+  let W, H, dpr, P = [];
+  const mouse = { x: -9999, y: -9999 };
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = innerWidth; H = innerHeight;
+    cv.width = W * dpr; cv.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const n = Math.round(Math.min(130, (W * H) / 14000));
+    P = [];
+    for (let i = 0; i < n; i++) {
+      const ang = Math.random() * Math.PI * 2, sp = MINV + Math.random() * 1.2;
+      P.push({ x: Math.random() * W, y: Math.random() * H,
+               vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp,
+               r: Math.random() * 1.6 + .8, life: 1 });
+    }
+  }
+
+  function frame() {
+    ctx.clearRect(0, 0, W, H);
+    for (const p of P) {
+      p.vx += (Math.random() - .5) * JITTER;
+      p.vy += (Math.random() - .5) * JITTER;
+
+      const dx = p.x - mouse.x, dy = p.y - mouse.y, d = Math.hypot(dx, dy);
+      if (d < R) {
+        const k = 1 - d / R;
+        p.vx += (dx / (d || 1)) * k * 1.4;
+        p.vy += (dy / (d || 1)) * k * 1.4;
+        p.life = Math.max(0, p.life - FADE_OUT * (.4 + k));
+      } else {
+        p.life = Math.min(1, p.life + FADE_IN);
+      }
+
+      p.vx *= .99; p.vy *= .99;
+      const sp = Math.hypot(p.vx, p.vy) || .001;
+      if (sp > MAXV) { p.vx *= MAXV / sp; p.vy *= MAXV / sp; }
+      else if (sp < MINV) { p.vx *= MINV / sp; p.vy *= MINV / sp; }
+
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) { p.x = 0; p.vx = Math.abs(p.vx); }
+      if (p.x > W) { p.x = W; p.vx = -Math.abs(p.vx); }
+      if (p.y < 0) { p.y = 0; p.vy = Math.abs(p.vy); }
+      if (p.y > H) { p.y = H; p.vy = -Math.abs(p.vy); }
+    }
+
+    ctx.lineWidth = 1;
+    for (let i = 0; i < P.length; i++) {
+      const a = P[i];
+      if (a.life <= 0) continue;
+      for (let j = i + 1; j < P.length; j++) {
+        const b = P[j];
+        if (b.life <= 0) continue;
+        const dx = b.x - a.x, dy = b.y - a.y, d2 = dx * dx + dy * dy;
+        if (d2 > LINK * LINK) continue;
+        const alpha = (1 - Math.sqrt(d2) / LINK) * .55 * Math.min(a.life, b.life);
+        if (alpha > .005) {
+          ctx.strokeStyle = "rgba(200,200,200," + alpha + ")";
+          ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        }
+      }
+    }
+    for (const p of P) {
+      if (p.life <= 0) continue;
+      ctx.fillStyle = "rgba(200,200,200," + (.6 * p.life) + ")";
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+    }
+    requestAnimationFrame(frame);
+  }
+
+  addEventListener("mousemove", e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+  addEventListener("touchmove", e => { const t = e.touches[0]; mouse.x = t.clientX; mouse.y = t.clientY; }, { passive: true });
+  addEventListener("mouseout", () => { mouse.x = mouse.y = -9999; });
+  addEventListener("touchend", () => { mouse.x = mouse.y = -9999; });
+  addEventListener("resize", resize);
+  resize();
+  frame();
+})();
+</script>
+
+<script>
 
 const $ = id => document.getElementById(id);
 const copyBtn = $("copyBtn"), linkList = $("linkList"), notice = $("notice"),
@@ -88,9 +179,28 @@ const copyBtn = $("copyBtn"), linkList = $("linkList"), notice = $("notice"),
       progressFill = $("progressFill"), countdownLabel = $("countdownLabel"), statusText = $("statusText"),
       pulse = $("pulse"), cooldown = $("cooldown");
 
-$("linkWorkink").addEventListener("click",  () => { location.href = "/api/start?p=workink"; });
-$("linkLink4m").addEventListener("click",   () => { location.href = "/api/start?p=link4m"; });
-$("linkLink4sub").addEventListener("click", () => { location.href = "/api/start?p=link4sub"; });
+const linkBtns = document.querySelectorAll(".link-btn");
+linkBtns.forEach(b => { b.dataset.text = b.querySelector(".label").textContent; });
+
+function openLink(btn, url) {
+  if (btn.classList.contains("loading")) return;
+  btn.classList.add("loading");
+  btn.querySelector(".label").textContent = "Opening";
+  linkBtns.forEach(b => { if (b !== btn) b.classList.add("disabled"); });
+  setTimeout(() => { location.href = url; }, 150);
+}
+
+window.addEventListener("pageshow", e => {
+  if (!e.persisted) return;
+  linkBtns.forEach(b => {
+    b.classList.remove("loading", "disabled");
+    b.querySelector(".label").textContent = b.dataset.text;
+  });
+});
+
+$("linkWorkink").addEventListener("click",  e => openLink(e.currentTarget, "/api/start?p=workink"));
+$("linkLink4m").addEventListener("click",   e => openLink(e.currentTarget, "/api/start?p=link4m"));
+$("linkLink4sub").addEventListener("click", e => openLink(e.currentTarget, "/api/start?p=link4sub"));
 
 const COOLDOWN_MS = 3 * 60 * 60 * 1000;
 const KEY_STORE = "lpt_key", TIME_STORE = "lpt_key_time";
