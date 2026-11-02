@@ -16,7 +16,6 @@
     <style>
       .site-header .cta.cta-key{background:#fff;color:#111;border-color:#fff}
       .site-header .cta.cta-key:hover{background:#e6e6e6;color:#111;border-color:#e6e6e6}
-      .site-header .cta.cta-key svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;opacity:.6}
     </style>
     <canvas id="bg-canvas"></canvas>
     <header class="site-header">
@@ -28,7 +27,7 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.3 4.4A19.8 19.8 0 0 0 15.4 3l-.2.5a18 18 0 0 0-6.4 0L8.6 3a19.8 19.8 0 0 0-4.9 1.4C.6 9 -.3 13.5.1 18a20 20 0 0 0 6 3l1-1.7a13 13 0 0 1-1.6-.8l.4-.3a14.2 14.2 0 0 0 12.2 0l.4.3c-.5.3-1 .6-1.6.8l1 1.7a20 20 0 0 0 6-3c.5-5.200-.8-9.600-3.600-13.600zM8.500 15.300c-1.200 0-2.100-1.100-2.100-2.400s.9-2.400 2.100-2.400 2.100 1.100 2.100 2.400-.9 2.400-2.100 2.400zm7 0c-1.200 0-2.100-1.100-2.100-2.400s.9-2.400 2.100-2.400 2.100 1.100 2.100 2.400-.9 2.400-2.100 2.400z"/></svg><span>Discord</span>
           </a>
           <a class="cta cta-key" aria-label="Get Key" href="/get-key"${current === "getkey" ? ' aria-current="page"' : ""}>
-            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="4.2"/><path d="M11 11L21 21M17 17l2.6-2.6M13.8 13.8l2.2-2.2"/></svg><span>Get Key</span>
+            <span>Get Key</span>
           </a>
         </div>
       </div>
