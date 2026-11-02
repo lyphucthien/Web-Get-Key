@@ -85,12 +85,12 @@
 (() => {
   const cv = document.getElementById("bgCanvas");
   const ctx = cv.getContext("2d");
-  const LINK = 150;          // khoảng cách tối đa để nối
-  const R = 110;             // bán kính ảnh hưởng của chuột
-  const MINV = .7, MAXV = 3; // tốc độ nhỏ nhất / lớn nhất
-  const JITTER = .22;        // độ lộn xộn khi di chuyển
-  const FADE_OUT = .03;      // tốc độ mờ khi chuột ở gần
-  const FADE_IN = .003;      // tốc độ hiện lại khi chuột đã đi xa
+  const LINK = 180;          // khoảng cách tối đa để nối
+  const R = 120;             // bán kính ảnh hưởng của chuột
+  const MINV = .7, MAXV = 4; // tốc độ nhỏ nhất / lớn nhất
+  const JITTER = .3;        // độ lộn xộn khi di chuyển
+  const FADE_OUT = .04;      // tốc độ mờ khi chuột ở gần
+  const FADE_IN = .004;      // tốc độ hiện lại khi chuột đã đi xa
   let W, H, dpr, P = [];
   const mouse = { x: -9999, y: -9999 };
 
@@ -118,8 +118,8 @@
       const dx = p.x - mouse.x, dy = p.y - mouse.y, d = Math.hypot(dx, dy);
       if (d < R) {
         const k = 1 - d / R;
-        p.vx += (dx / (d || 1)) * k * 1.4;
-        p.vy += (dy / (d || 1)) * k * 1.4;
+        p.vx += (dx / (d || 1)) * k * 1.9;
+        p.vy += (dy / (d || 1)) * k * 1.9;
         p.life = Math.max(0, p.life - FADE_OUT * (.4 + k));
       } else {
         p.life = Math.min(1, p.life + FADE_IN);
