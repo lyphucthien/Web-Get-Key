@@ -52,3 +52,14 @@ body[data-page="getkey"] main{display:flex;align-items:center;padding:24px 0}
 
 @media(max-width:480px){.console{padding:20px}}
 @media(prefers-reduced-motion:reduce){.pulse{animation:none}}
+
+html{background:var(--bg)}
+body[data-page="getkey"]{background:transparent}
+#bgCanvas{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+
+.link-btn{display:flex;align-items:center;justify-content:center;gap:10px}
+.link-btn .spinner{display:none;flex-shrink:0;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+.link-btn.loading .spinner{display:inline-block}
+.link-btn.loading{pointer-events:none;border-color:var(--purple2)}
+.link-btn.disabled{opacity:.45;pointer-events:none}
+@keyframes spin{to{transform:rotate(360deg)}}
