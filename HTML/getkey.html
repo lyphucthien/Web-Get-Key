@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lấy key miễn phí – LPT Hub</title>
-<meta name="description" content="Lấy key miễn phí cho Minecraft và LPT Hub: chọn một link rút gọn, hoàn thành rồi nhận key ngay trên trang.">
+<title>Get a free key – LPT Hub</title>
+<meta name="description" content="Get a free key for Minecraft and LPT Hub: pick a short link, finish it, and get your key right on the page.">
 <link rel="canonical" href="https://lyphucthien.vercel.app/get-key">
 <link rel="icon" type="image/png" href="https://res.cloudinary.com/dkui88bcf/image/upload/v1786939501/Logo_LPT_vnq390.png">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="LPT Hub">
-<meta property="og:title" content="Lấy key miễn phí – LPT Hub">
-<meta property="og:description" content="Lấy key miễn phí cho Minecraft và LPT Hub: chọn một link rút gọn, hoàn thành rồi nhận key ngay trên trang.">
+<meta property="og:title" content="Get a free key – LPT Hub">
+<meta property="og:description" content="Get a free key for Minecraft and LPT Hub: pick a short link, finish it, and get your key right on the page.">
 <meta property="og:url" content="https://lyphucthien.vercel.app/get-key">
 <meta property="og:image" content="https://res.cloudinary.com/dkui88bcf/image/upload/v1786939501/Logo_LPT_vnq390.png">
 <meta name="twitter:card" content="summary">
@@ -25,9 +25,9 @@
     <div class="console" id="console">
       <div class="hdr">
         <div class="pulse" id="pulse"></div>
-        <h1>Lấy key</h1>
+        <h1>Get key</h1>
       </div>
-      <p class="status" id="statusText">Đang xác minh...</p>
+      <p class="status" id="statusText">Verifying...</p>
 
       <div class="notice" id="notice" role="status" hidden></div>
 
@@ -38,10 +38,10 @@
       </div>
 
       <div class="key-out" id="keyOut">
-        <div class="k-label">KEY CỦA BẠN</div>
+        <div class="k-label">YOUR KEY</div>
         <div class="key-row">
           <input type="text" id="keyValue" readonly aria-label="Key">
-          <button type="button" class="copy-icon" id="copyBtn" aria-label="Sao chép key" title="Sao chép key">
+          <button type="button" class="copy-icon" id="copyBtn" aria-label="Copy key" title="Copy key">
             <svg class="ic-copy" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>
             <svg class="ic-check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
           </button>
@@ -50,19 +50,19 @@
 
       <div class="cooldown" id="cooldown" hidden>
         <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-        <div class="progress-labels"><span>Lấy key mới sau</span><span id="countdownLabel">03:00:00</span></div>
+        <div class="progress-labels"><span>Next key available in</span><span id="countdownLabel">03:00:00</span></div>
       </div>
 
       <details class="guide">
-        <summary>Hướng dẫn &amp; lưu ý</summary>
+        <summary>Guide &amp; notes</summary>
         <ol class="guide-steps">
-          <li><b>Chọn một link</b><span>Bấm Work.ink, Link 4m hoặc Link 4 Sub rồi hoàn thành các bước trên trang đó.</span></li>
-          <li><b>Copy key và dùng</b><span>Xong sẽ tự quay lại trang này và hiện key. Bấm biểu tượng sao chép rồi dán vào server Minecraft hoặc script LPT Hub.</span></li>
+          <li><b>Pick a link</b><span>Click Work.ink, Link 4m or Link 4 Sub, then complete the steps on that page.</span></li>
+          <li><b>Copy and use the key</b><span>When you finish, you come back to this page and the key appears. Click the copy icon, then paste it into the Minecraft server or the LPT Hub script.</span></li>
         </ol>
         <ul class="guide-notes">
-          <li>Làm đến hết link để được đưa về trang này. Thoát giữa chừng thì phải làm lại.</li>
-          <li>Mỗi thiết bị nhận 1 key sau mỗi 3 giờ.</li>
-          <li>Một key dùng cho cả Minecraft và LPT Hub. Trên script, key gắn với một thiết bị và hết hạn sau 3 giờ kể từ lần dùng đầu.</li>
+          <li>Finish the link to be sent back to this page. If you leave halfway, you have to start over.</li>
+          <li>Each device gets 1 key every 3 hours.</li>
+          <li>One key works for both Minecraft and LPT Hub. On the script, a key is tied to one device and expires 3 hours after its first use.</li>
         </ul>
       </details>
     </div>
@@ -72,11 +72,11 @@
 <footer class="site-footer">
   <div class="wrap">
     <span>© 2026 LPT Hub</span>
-    <nav aria-label="Liên kết cuối trang">
-      <a href="/about">Giới thiệu</a>
-      <a href="/contact">Liên hệ</a>
-      <a href="/privacy">Quyền riêng tư</a>
-      <a href="/docs">Tài liệu</a>
+    <nav aria-label="Footer links">
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/docs">Docs</a>
     </nav>
   </div>
 </footer>
@@ -85,12 +85,12 @@
 (() => {
   const cv = document.getElementById("bgCanvas");
   const ctx = cv.getContext("2d");
-  const LINK = 170;          // khoảng cách tối đa để nối
-  const R = 120;             // bán kính ảnh hưởng của chuột
-  const MINV = .7, MAXV = 4; // tốc độ nhỏ nhất / lớn nhất
-  const JITTER = .3;        // độ lộn xộn khi di chuyển
-  const FADE_OUT = .04;      // tốc độ mờ khi chuột ở gần
-  const FADE_IN = .004;      // tốc độ hiện lại khi chuột đã đi xa
+  const LINK = 170;          // max distance to draw a link
+  const R = 120;             // mouse influence radius
+  const MINV = .7, MAXV = 4; // min / max speed
+  const JITTER = .3;        // movement jitter
+  const FADE_OUT = .04;      // fade-out speed when the mouse is near
+  const FADE_IN = .004;      // fade-in speed once the mouse moves away
   let W, H, dpr, P = [];
   const mouse = { x: -9999, y: -9999 };
 
@@ -232,7 +232,7 @@ function formatTime(ms) {
 function lockButton() {
   linkList.hidden = true;
   cooldown.hidden = false;
-  statusText.textContent = "Bạn đã nhận key. Có thể lấy key mới khi hết thời gian chờ.";
+  statusText.textContent = "You already got a key. You can get a new one when the wait time ends.";
   showNotice("");
   pulse.classList.remove("ready");
   if (cooldownTimer) clearInterval(cooldownTimer);
@@ -258,7 +258,7 @@ function unlockButton() {
   countdownLabel.textContent = "00:00:00";
   linkList.hidden = false;
   cooldown.hidden = true;
-  statusText.textContent = "Chọn một link, hoàn thành rồi nhận key.";
+  statusText.textContent = "Pick a link, finish it, and get your key.";
   pulse.classList.add("ready");
 }
 
@@ -282,7 +282,7 @@ refreshState();
 
 async function claimKey() {
   linkList.hidden = true;
-  statusText.textContent = "Đang lấy KEY...";
+  statusText.textContent = "Getting your KEY...";
   try {
     const response = await fetch("/api/get-key", {
       method: "GET", headers: { "Accept": "application/json" }
@@ -291,7 +291,7 @@ async function claimKey() {
     try { data = await response.json(); } catch (e) {}
     if (!response.ok || !data.success || !data.key) {
       unlockButton();
-      showNotice(data.error || "Không lấy được KEY. Vui lòng làm lại link.");
+      showNotice(data.error || "Could not get your KEY. Please redo the link.");
       return;
     }
     keyValue.value = data.key;
@@ -302,19 +302,19 @@ async function claimKey() {
   } catch (error) {
     console.error("Get key error:", error);
     unlockButton();
-    showNotice("Lỗi kết nối server, vui lòng thử lại.");
+    showNotice("Server connection error, please try again.");
   }
 }
 
 const params = new URLSearchParams(location.search);
 const ERRORS = {
-  missing: "Bạn chưa hoàn thành link. Hãy bấm một link bên dưới và làm đến hết.",
-  fast: "Bạn hoàn thành link quá nhanh. Hãy bấm lại link và làm đủ các bước.",
-  expired: "Phiên làm link đã hết hạn. Hãy bấm lại link."
+  missing: "You haven't completed a link. Click one of the links below and finish it.",
+  fast: "You finished the link too quickly. Click the link again and complete every step.",
+  expired: "The link session has expired. Click the link again."
 };
 if (params.has("error")) {
   history.replaceState(null, "", location.pathname);
-  showNotice(ERRORS[params.get("error")] || "Không xác minh được. Vui lòng làm lại link.");
+  showNotice(ERRORS[params.get("error")] || "Verification failed. Please redo the link.");
 }
 if (params.has("claim")) {
   history.replaceState(null, "", location.pathname);

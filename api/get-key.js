@@ -1,5 +1,6 @@
 const crypto = require("crypto");
 const { kv } = require("@vercel/kv");
+const { KEY_RE, HWID_RE, getClientIp, rateLimit } = require("../lib/security");
 
 const SECRET = process.env.VERIFY_SECRET;
 const TOKEN_MAX_AGE_MS = 15 * 60 * 1000;
@@ -11,7 +12,7 @@ if (!SECRET) {
 }
 
 // =====================================
-// KEY CHUNG
+// SHARED KEY
 // =====================================
 
 const KEY_SET = "issued-set-lpt";
@@ -51,7 +52,7 @@ async function isIssuedKey(key, type) {
 }
 
 // =====================================
-// KIỂM TRA TOKEN
+// TOKEN CHECK
 // =====================================
 
 function isValidToken(token) {
@@ -66,11 +67,11 @@ function isValidToken(token) {
     }
 
     const [ts, sig] = parts;
-    const timestamp = Number(ts);
-
-    if (!Number.isFinite(timestamp)) {
+    if (!/^\d{10,16}$/.test(ts) || !/^[0-9a-f]{64}$/.test(sig)) {
         return false;
     }
+
+    const timestamp = Number(ts);
 
     const expectedSig = crypto
         .createHmac("sha256", SECRET)
@@ -93,18 +94,8 @@ function isValidToken(token) {
 }
 
 // =====================================
-// IP VÀ COOKIE
+// COOKIE
 // =====================================
-
-function getClientIp(req) {
-    const forwarded = req.headers["x-forwarded-for"] || "";
-
-    return (
-        forwarded.split(",")[0].trim() ||
-        req.socket?.remoteAddress ||
-        "unknown"
-    );
-}
 
 function getCookie(req, name) {
     const cookieHeader = req.headers.cookie;
@@ -129,7 +120,7 @@ function getCookie(req, name) {
 }
 
 // =====================================
-// LPTHUB: KIỂM TRA THỜI HẠN KEY
+// LPTHUB: KEY LIFETIME CHECK
 // =====================================
 
 function parseActivationRecord(value) {
@@ -200,7 +191,7 @@ async function getLptHubKeyLifetime(key) {
 }
 
 // =====================================
-// LPTHUB: XÁC THỰC VÀ LIÊN KẾT HWID
+// LPTHUB: HWID VERIFICATION AND BINDING
 // =====================================
 
 async function verifyLptHubHwid(key, hwid, remainingSeconds) {
@@ -222,7 +213,7 @@ async function verifyLptHubHwid(key, hwid, remainingSeconds) {
         return {
             valid: false,
             hwidBound: false,
-            error: "Key đã được liên kết với thiết bị khác"
+            error: "Key is already bound to another device"
         };
     }
 
@@ -248,7 +239,7 @@ module.exports = async (req, res) => {
         }
 
         // =====================================
-        // 1. KIỂM TRA KEY
+        // 1. VERIFY KEY
         // =====================================
 
         if (typeof req.query?.key !== "undefined") {
@@ -260,7 +251,21 @@ module.exports = async (req, res) => {
             if (!VERIFY_TYPES.includes(typeParam)) {
                 return res.status(400).json({
                     success: false,
-                    error: "Loại key không hợp lệ"
+                    error: "Invalid key type"
+                });
+            }
+
+            res.setHeader("Cache-Control", "no-store");
+
+            const allowed = await rateLimit(kv, "verify", getClientIp(req), 60, 60);
+
+            if (!allowed) {
+                res.setHeader("Retry-After", "60");
+
+                return res.status(429).json({
+                    success: false,
+                    valid: false,
+                    error: "Too many requests, slow down"
                 });
             }
 
@@ -270,7 +275,15 @@ module.exports = async (req, res) => {
                 return res.status(400).json({
                     success: false,
                     valid: false,
-                    error: "Thiếu key"
+                    error: "Missing key"
+                });
+            }
+
+            // Reject malformed keys before touching KV.
+            if (!KEY_RE.test(cleanKey)) {
+                return res.status(200).json({
+                    success: true,
+                    valid: false
                 });
             }
 
@@ -312,11 +325,11 @@ module.exports = async (req, res) => {
 
             const hwid = String(req.query.hwid || "").trim();
 
-            if (!hwid || hwid.length > 200) {
+            if (!HWID_RE.test(hwid)) {
                 return res.status(400).json({
                     success: false,
                     valid: false,
-                    error: "HWID không hợp lệ"
+                    error: "Invalid HWID"
                 });
             }
 
@@ -334,26 +347,23 @@ module.exports = async (req, res) => {
         }
 
         // =====================================
-        // 2. CẤP KEY: KIỂM TRA TOKEN
+        // 2. ISSUE KEY: CHECK TOKEN
         // =====================================
 
         res.setHeader("Cache-Control", "no-store");
 
-        let token = req.query?.token;
-
-        if (!token) {
-            token = getCookie(req, "verify_token");
-        }
+        // Cookie only: a token in the URL would leak into logs and history.
+        const token = getCookie(req, "verify_token");
 
         if (!isValidToken(token)) {
             return res.status(403).json({
                 success: false,
-                error: "Token không hợp lệ hoặc đã hết hạn"
+                error: "Invalid or expired token"
             });
         }
 
         const ip = getClientIp(req);
-        const tokenKey = `used-token:${token}`;
+        const tokenKey = `used-token:${crypto.createHash("sha256").update(token).digest("hex")}`;
         const ipKey = `${IP_PREFIX}:${ip}`;
 
         const gotToken = await kv.set(tokenKey, true, {
@@ -364,7 +374,7 @@ module.exports = async (req, res) => {
         if (!gotToken) {
             return res.status(403).json({
                 success: false,
-                error: "Token này đã được sử dụng"
+                error: "This token has already been used"
             });
         }
 
@@ -378,12 +388,12 @@ module.exports = async (req, res) => {
 
             return res.status(200).json({
                 success: false,
-                error: "Bạn này đã nhận KEY rồi"
+                error: "You have already received a KEY"
             });
         }
 
         // =====================================
-        // 3. CẤP KEY CHUNG
+        // 3. ISSUE SHARED KEY
         // =====================================
 
         let issuedKey = null;
@@ -434,7 +444,7 @@ module.exports = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            error: "Lỗi máy chủ khi xử lý KEY"
+            error: "Server error while processing the KEY"
         });
     }
 };

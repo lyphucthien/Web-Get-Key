@@ -3,7 +3,7 @@ const assert = require("node:assert");
 const fs = require("fs");
 const path = require("path");
 
-test("api/games giữ nguyên kết quả như trước khi tách lib", () => {
+test("api/games returns the same result as before the lib split", () => {
   const handler = require("../api/games");
   let body, status; const headers = {};
   const res = { setHeader(k, v) { headers[k] = v; }, status(c) { status = c; return this; }, json(b) { body = b; return this; } };
@@ -14,7 +14,7 @@ test("api/games giữ nguyên kết quả như trước khi tách lib", () => {
   assert.match(headers["Cache-Control"], /s-maxage=60/);
 });
 
-test("api/games: POST bị từ chối 405", () => {
+test("api/games: POST is rejected with 405", () => {
   const handler = require("../api/games");
   let status; const headers = {};
   const res = { setHeader(k, v) { headers[k] = v; }, status(c) { status = c; return this; }, json() { return this; } };
@@ -23,7 +23,7 @@ test("api/games: POST bị từ chối 405", () => {
   assert.equal(headers.Allow, "GET, HEAD");
 });
 
-test("loadGames: thư mục thiếu, JSON hỏng, sắp xếp, ảnh", () => {
+test("loadGames: missing folder, broken JSON, sorting, images", () => {
   const { loadGames } = require("../lib/games");
   assert.equal(loadGames("/khong/ton/tai").missingDir, true);
   const os = require("os");

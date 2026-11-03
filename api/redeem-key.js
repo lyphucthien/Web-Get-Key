@@ -1,49 +1,55 @@
-const crypto = require("crypto");
 const { kv } = require("@vercel/kv");
+const {
+    KEY_RE, MC_NAME_RE, DISCORD_ID_RE,
+    safeEqual, getClientIp, rateLimit
+} = require("../lib/security");
 
-const SECRET = process.env.VERIFY_SECRET;
+// Use a dedicated secret for the Minecraft plugin. Falling back to
+// VERIFY_SECRET keeps old setups working, but a leaked plugin config
+// would then also let someone forge verify tokens, so set REDEEM_SECRET.
+const SECRET = process.env.REDEEM_SECRET || process.env.VERIFY_SECRET;
 
 if (!SECRET) {
-    throw new Error("VERIFY_SECRET is not configured");
-}
-
-function safeEqual(a, b) {
-    const bufA = Buffer.from(String(a));
-    const bufB = Buffer.from(String(b));
-
-    if (bufA.length !== bufB.length) {
-        return false;
-    }
-
-    return crypto.timingSafeEqual(bufA, bufB);
+    throw new Error("REDEEM_SECRET (or VERIFY_SECRET) is not configured");
 }
 
 module.exports = async (req, res) => {
     try {
+        res.setHeader("Cache-Control", "no-store");
+
+        const ip = getClientIp(req);
+
+        // Limit wrong-secret guesses: 10 per 15 minutes per IP.
+        if (!(await rateLimit(kv, "redeem", ip, 10, 15 * 60))) {
+            res.setHeader("Retry-After", "900");
+
+            return res.status(429).json({
+                success: false,
+                error: "Too many requests"
+            });
+        }
 
         const callerSecret = req.headers["x-redeem-secret"];
 
         if (!callerSecret || !safeEqual(callerSecret, SECRET)) {
             return res.status(403).json({
                 success: false,
-                error: "Không có quyền gọi API này"
+                error: "Not allowed to call this API"
             });
         }
 
         if (req.method === "GET") {
 
-            const { username } = req.query || {};
+            const username = String(req.query?.username || "").trim();
 
-            if (!username) {
+            if (!MC_NAME_RE.test(username)) {
                 return res.status(400).json({
                     success: false,
-                    error: "Thiếu username"
+                    error: "Invalid username"
                 });
             }
 
-            const record = await kv.get(
-                `verified:${String(username).trim().toLowerCase()}`
-            );
+            const record = await kv.get(`verified:${username.toLowerCase()}`);
 
             return res.status(200).json({
                 success: true,
@@ -52,6 +58,8 @@ module.exports = async (req, res) => {
         }
 
         if (req.method !== "POST") {
+            res.setHeader("Allow", "GET, POST");
+
             return res.status(405).json({
                 success: false,
                 error: "Method not allowed"
@@ -63,21 +71,45 @@ module.exports = async (req, res) => {
         if (!key || !minecraftUsername) {
             return res.status(400).json({
                 success: false,
-                error: "Thiếu key hoặc tên Minecraft"
+                error: "Missing key or Minecraft username"
             });
         }
 
         const cleanKey = String(key).trim();
         const username = String(minecraftUsername).trim();
+        const cleanDiscordId = discordId ? String(discordId).trim() : null;
 
-        const isUnifiedKey = await kv.sismember("issued-set-lpt", cleanKey);
-        const isMinecraftKey = await kv.sismember("issued-set-minecraft", cleanKey);
-        const isLpthubKey = await kv.sismember("issued-set-lpthub", cleanKey);
+        if (!KEY_RE.test(cleanKey)) {
+            return res.status(400).json({
+                success: false,
+                error: "Invalid key"
+            });
+        }
+
+        if (!MC_NAME_RE.test(username)) {
+            return res.status(400).json({
+                success: false,
+                error: "Invalid Minecraft username"
+            });
+        }
+
+        if (cleanDiscordId && !DISCORD_ID_RE.test(cleanDiscordId)) {
+            return res.status(400).json({
+                success: false,
+                error: "Invalid Discord ID"
+            });
+        }
+
+        const [isUnifiedKey, isMinecraftKey, isLpthubKey] = await Promise.all([
+            kv.sismember("issued-set-lpt", cleanKey),
+            kv.sismember("issued-set-minecraft", cleanKey),
+            kv.sismember("issued-set-lpthub", cleanKey)
+        ]);
 
         if (!isUnifiedKey && !isMinecraftKey && !isLpthubKey) {
             return res.status(400).json({
                 success: false,
-                error: "Key không hợp lệ"
+                error: "Invalid key"
             });
         }
 
@@ -85,7 +117,7 @@ module.exports = async (req, res) => {
 
         const record = {
             minecraftUsername: username,
-            discordId: discordId || null,
+            discordId: cleanDiscordId,
             redeemedAt: Date.now()
         };
 
@@ -94,7 +126,7 @@ module.exports = async (req, res) => {
         if (!claimed) {
             return res.status(400).json({
                 success: false,
-                error: "Key này đã được kích hoạt trước đó"
+                error: "This key has already been activated"
             });
         }
 
@@ -115,7 +147,7 @@ module.exports = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            error: "Lỗi máy chủ"
+            error: "Server error"
         });
     }
 };

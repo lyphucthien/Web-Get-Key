@@ -1,4 +1,5 @@
 const crypto = require("crypto");
+const { kv } = require("@vercel/kv");
 
 const SECRET = process.env.VERIFY_SECRET;
 
@@ -41,7 +42,7 @@ function checkStart(raw) {
     const [provider, ts, sig] = parts;
     const timestamp = Number(ts);
 
-    if (!provider || !Number.isFinite(timestamp)) {
+    if (!provider || !/^\d{10,16}$/.test(ts) || !/^[0-9a-f]{64}$/.test(sig)) {
         return "missing";
     }
 
@@ -70,7 +71,7 @@ function checkStart(raw) {
         return "fast";
     }
 
-    return "ok";
+    return { ok: true, sig };
 }
 
 const CLEAR_START =
@@ -80,11 +81,19 @@ module.exports = async (req, res) => {
     try {
         const result = checkStart(getCookie(req, "lpt_start"));
 
-        if (result !== "ok") {
+        // Make the start cookie single-use so a captured value cannot be replayed.
+        let replayed = false;
+
+        if (result && result.ok) {
+            const claimed = await kv.set(`used-start:${result.sig}`, 1, { nx: true, ex: 1800 });
+            replayed = !claimed;
+        }
+
+        if (replayed || !(result && result.ok)) {
             res.writeHead(302, {
                 "Set-Cookie": CLEAR_START,
                 "Cache-Control": "no-store",
-                "Location": `/get-key?error=${result}`
+                "Location": `/get-key?error=${replayed ? "expired" : result}`
             });
 
             return res.end();

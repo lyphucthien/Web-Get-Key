@@ -6,7 +6,7 @@ const H = { "Content-Type": "application/json", Accept: "application/json, text/
 const rpc = (get, body, pathname = "/mcp", headers = H) =>
   get({ method: "POST", pathname, headers, body: JSON.stringify(body) });
 
-test("initialize thương lượng phiên bản và trả capabilities.tools", () => withServer(async (_s, get) => {
+test("initialize negotiates the version and returns capabilities.tools", () => withServer(async (_s, get) => {
   let r = await rpc(get, { jsonrpc: "2.0", id: 1, method: "initialize", params: { protocolVersion: "2025-03-26", capabilities: {}, clientInfo: { name: "t", version: "1" } } });
   assert.equal(r.status, 200);
   assert.match(r.headers["content-type"], /application\/json/);
@@ -21,26 +21,26 @@ test("initialize thương lượng phiên bản và trả capabilities.tools", (
   assert.equal(JSON.parse(r.body).result.protocolVersion, "2025-06-18");
 }));
 
-test("hoạt động qua /.well-known/mcp", () => withServer(async (_s, get) => {
+test("works via /.well-known/mcp", () => withServer(async (_s, get) => {
   const r = await rpc(get, { jsonrpc: "2.0", id: 1, method: "initialize", params: { protocolVersion: "2025-06-18" } }, "/.well-known/mcp");
   assert.equal(r.status, 200);
   assert.equal(JSON.parse(r.body).result.serverInfo.title, "LPT Hub");
 }));
 
-test("notification trả 202 không body", () => withServer(async (_s, get) => {
+test("notification returns 202 with no body", () => withServer(async (_s, get) => {
   const r = await rpc(get, { jsonrpc: "2.0", method: "notifications/initialized" });
   assert.equal(r.status, 202);
   assert.equal(r.body, "");
 }));
 
-test("tools/list có list_games và get_key_instructions với inputSchema", () => withServer(async (_s, get) => {
+test("tools/list has list_games and get_key_instructions with inputSchema", () => withServer(async (_s, get) => {
   const r = await rpc(get, { jsonrpc: "2.0", id: 3, method: "tools/list" });
   const tools = JSON.parse(r.body).result.tools;
   assert.deepEqual(tools.map(t => t.name).sort(), ["get_key_instructions", "list_games"]);
   for (const t of tools) { assert.equal(t.inputSchema.type, "object"); assert.ok(t.description.length > 10); }
 }));
 
-test("tools/call list_games trả dữ liệu khớp /api/games và lọc được", () => withServer(async (_s, get) => {
+test("tools/call list_games returns data matching /api/games and can filter", () => withServer(async (_s, get) => {
   const api = JSON.parse((await get({ pathname: "/api/games" })).body);
   let r = await rpc(get, { jsonrpc: "2.0", id: 4, method: "tools/call", params: { name: "list_games", arguments: {} } });
   let res = JSON.parse(r.body).result;
@@ -55,7 +55,7 @@ test("tools/call list_games trả dữ liệu khớp /api/games và lọc đư�
   assert.equal(JSON.parse(r.body).result.isError, true);
 }));
 
-test("tools/call get_key_instructions và tool lạ", () => withServer(async (_s, get) => {
+test("tools/call get_key_instructions and an unknown tool", () => withServer(async (_s, get) => {
   let r = await rpc(get, { jsonrpc: "2.0", id: 7, method: "tools/call", params: { name: "get_key_instructions" } });
   const sc = JSON.parse(r.body).result.structuredContent;
   assert.equal(sc.getKeyUrl, "https://lyphucthien.vercel.app/get-key");
@@ -65,7 +65,7 @@ test("tools/call get_key_instructions và tool lạ", () => withServer(async (_s
   assert.equal(JSON.parse(r.body).error.code, -32602);
 }));
 
-test("ping, method lạ, JSON hỏng, batch", () => withServer(async (_s, get) => {
+test("ping, unknown method, broken JSON, batch", () => withServer(async (_s, get) => {
   let r = await rpc(get, { jsonrpc: "2.0", id: 9, method: "ping" });
   assert.deepEqual(JSON.parse(r.body).result, {});
 
@@ -89,14 +89,14 @@ test("ping, method lạ, JSON hỏng, batch", () => withServer(async (_s, get) =
   assert.equal(r.status, 400);
 }));
 
-test("MCP-Protocol-Version không hỗ trợ bị từ chối, hợp lệ thì qua", () => withServer(async (_s, get) => {
+test("unsupported MCP-Protocol-Version is rejected, a valid one passes", () => withServer(async (_s, get) => {
   let r = await rpc(get, { jsonrpc: "2.0", id: 1, method: "ping" }, "/mcp", { ...H, "MCP-Protocol-Version": "1999-01-01" });
   assert.equal(r.status, 400);
   r = await rpc(get, { jsonrpc: "2.0", id: 1, method: "ping" }, "/mcp", { ...H, "MCP-Protocol-Version": "2025-06-18" });
   assert.equal(r.status, 200);
 }));
 
-test("GET trả server card; GET với text/event-stream trả 405; OPTIONS có CORS; DELETE 405", () => withServer(async (_s, get) => {
+test("GET returns the server card; GET with text/event-stream returns 405; OPTIONS has CORS; DELETE 405", () => withServer(async (_s, get) => {
   for (const p of ["/mcp", "/.well-known/mcp", "/.well-known/mcp/server-card.json"]) {
     const r = await get({ pathname: p, headers: { Accept: "application/json" } });
     assert.equal(r.status, 200, p);

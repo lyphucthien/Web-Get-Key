@@ -2,42 +2,137 @@
   "rewrites": [
     {
       "source": "/",
-      "has": [{ "type": "header", "key": "accept", "value": ".*text/markdown.*" }],
+      "has": [
+        {
+          "type": "header",
+          "key": "accept",
+          "value": ".*text/markdown.*"
+        }
+      ],
       "destination": "/api/site?kind=home"
     },
-    { "source": "/", "destination": "/HTML/index.html" },
-    { "source": "/get-key", "destination": "/HTML/getkey.html" },
-    { "source": "/games", "destination": "/HTML/games.html" },
-    { "source": "/about", "destination": "/HTML/about.html" },
-    { "source": "/contact", "destination": "/HTML/contact.html" },
-    { "source": "/privacy", "destination": "/HTML/privacy.html" },
-    { "source": "/docs", "destination": "/HTML/docs.html" },
-    { "source": "/verify", "destination": "/api/verify-start" },
-    { "source": "/mcp", "destination": "/api/mcp" },
-    { "source": "/.well-known/mcp", "destination": "/api/mcp" },
-    { "source": "/.well-known/mcp/server-card.json", "destination": "/api/mcp" },
-    { "source": "/((?!_vercel).*)", "destination": "/api/site?kind=404" }
+    {
+      "source": "/",
+      "destination": "/HTML/index.html"
+    },
+    {
+      "source": "/get-key",
+      "destination": "/HTML/getkey.html"
+    },
+    {
+      "source": "/games",
+      "destination": "/HTML/games.html"
+    },
+    {
+      "source": "/about",
+      "destination": "/HTML/about.html"
+    },
+    {
+      "source": "/contact",
+      "destination": "/HTML/contact.html"
+    },
+    {
+      "source": "/privacy",
+      "destination": "/HTML/privacy.html"
+    },
+    {
+      "source": "/docs",
+      "destination": "/HTML/docs.html"
+    },
+    {
+      "source": "/verify",
+      "destination": "/api/verify-start"
+    },
+    {
+      "source": "/mcp",
+      "destination": "/api/mcp"
+    },
+    {
+      "source": "/.well-known/mcp",
+      "destination": "/api/mcp"
+    },
+    {
+      "source": "/.well-known/mcp/server-card.json",
+      "destination": "/api/mcp"
+    },
+    {
+      "source": "/((?!_vercel).*)",
+      "destination": "/api/site?kind=404"
+    }
   ],
   "headers": [
     {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=()"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
       "source": "/",
-      "headers": [{ "key": "Vary", "value": "Accept" }]
+      "headers": [
+        {
+          "key": "Vary",
+          "value": "Accept"
+        }
+      ]
     },
     {
       "source": "/llms.txt",
-      "headers": [{ "key": "Content-Type", "value": "text/plain; charset=utf-8" }]
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/plain; charset=utf-8"
+        }
+      ]
     },
     {
       "source": "/sitemap.xml",
-      "headers": [{ "key": "Content-Type", "value": "application/xml; charset=utf-8" }]
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/xml; charset=utf-8"
+        }
+      ]
     },
     {
       "source": "/openapi.json",
-      "headers": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }]
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
     }
   ],
   "functions": {
-    "api/games.js": { "includeFiles": "Games/**" },
-    "api/mcp.js": { "includeFiles": "Games/**" }
+    "api/games.js": {
+      "includeFiles": "Games/**"
+    },
+    "api/mcp.js": {
+      "includeFiles": "Games/**"
+    }
   }
 }

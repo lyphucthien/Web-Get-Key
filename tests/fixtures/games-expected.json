@@ -6,23 +6,23 @@
       "name": "Game-Mau",
       "status": "on",
       "type": "lpthub",
-      "description": "Mô tả ngắn về game này. Bạn xoá file mẫu này rồi tạo file của bạn.",
+      "description": "A short description of this game. Delete this sample file and create your own.",
       "image": "",
       "order": 1,
       "features": [
         {
           "category": "Farm",
           "items": [
-            "Chức năng 1",
-            "Chức năng 2",
-            "Chức năng 3"
+            "Feature 1",
+            "Feature 2",
+            "Feature 3"
           ]
         },
         {
-          "category": "Khác",
+          "category": "Other",
           "items": [
-            "Chức năng 4",
-            "Chức năng 5"
+            "Feature 4",
+            "Feature 5"
           ]
         }
       ]
@@ -32,15 +32,15 @@
       "name": "Game-Mau-2",
       "status": "soon",
       "type": "",
-      "description": "Ví dụ game chưa hỗ trợ, danh sách chức năng viết dạng đơn giản.",
+      "description": "Example of a game that is not supported yet, with the feature list written in the simple format.",
       "image": "",
       "order": 9999,
       "features": [
         {
           "category": "",
           "items": [
-            "Chức năng dự kiến 1",
-            "Chức năng dự kiến 2"
+            "Planned feature 1",
+            "Planned feature 2"
           ]
         }
       ]

@@ -1,11 +1,11 @@
 {
-  "name": "Tên game mẫu",
+  "name": "Sample game name",
   "status": "on",
   "type": "lpthub",
   "order": 1,
-  "description": "Mô tả ngắn về game này. Bạn xoá file mẫu này rồi tạo file của bạn.",
+  "description": "A short description of this game. Delete this sample file and create your own.",
   "features": [
-    { "category": "Farm", "items": ["Chức năng 1", "Chức năng 2", "Chức năng 3"] },
-    { "category": "Khác", "items": ["Chức năng 4", "Chức năng 5"] }
+    { "category": "Farm", "items": ["Feature 1", "Feature 2", "Feature 3"] },
+    { "category": "Other", "items": ["Feature 4", "Feature 5"] }
   ]
 }

@@ -1,6 +1,6 @@
 {
-  "name": "Game sắp có (mẫu)",
+  "name": "Upcoming game (sample)",
   "status": "soon",
-  "description": "Ví dụ game chưa hỗ trợ, danh sách chức năng viết dạng đơn giản.",
-  "features": ["Chức năng dự kiến 1", "Chức năng dự kiến 2"]
+  "description": "Example of a game that is not supported yet, with the feature list written in the simple format.",
+  "features": ["Planned feature 1", "Planned feature 2"]
 }

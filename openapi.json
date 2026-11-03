@@ -3,18 +3,18 @@
   "info": {
     "title": "LPT Hub public API",
     "version": "1.0.0",
-    "description": "API đọc công khai của LPT Hub. Không cần xác thực. Key chỉ được cấp trên trình duyệt của người dùng và không có trong API này. MCP server nằm ở /mcp."
+    "description": "LPT Hub's public read-only API. No authentication required. Keys are only issued in the user's browser and are not part of this API. The MCP server is at /mcp."
   },
   "servers": [{ "url": "https://lyphucthien.vercel.app" }],
   "paths": {
     "/api/games": {
       "get": {
         "operationId": "listGames",
-        "summary": "Danh sách game LPT Hub hỗ trợ",
-        "description": "Trả về các game đang hỗ trợ (status on) và sắp có (status soon), đã sắp xếp. Kết quả được cache ngắn.",
+        "summary": "List of games supported by LPT Hub",
+        "description": "Returns games that are supported (status on) and coming soon (status soon), sorted. The result is cached briefly.",
         "responses": {
           "200": {
-            "description": "Danh sách game",
+            "description": "List of games",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/GamesResponse" }
@@ -22,7 +22,7 @@
             }
           },
           "405": {
-            "description": "Chỉ hỗ trợ GET và HEAD",
+            "description": "Only GET and HEAD are supported",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/Error" }
@@ -41,7 +41,7 @@
         "properties": {
           "success": { "type": "boolean" },
           "games": { "type": "array", "items": { "$ref": "#/components/schemas/Game" } },
-          "errors": { "type": "array", "items": { "type": "string" }, "description": "Các file game bị lỗi khi đọc, nếu có." }
+          "errors": { "type": "array", "items": { "type": "string" }, "description": "Game files that failed to load, if any." }
         }
       },
       "Game": {
@@ -53,7 +53,7 @@
           "status": { "type": "string", "enum": ["on", "soon"] },
           "type": { "type": "string", "enum": ["minecraft", "lpthub", ""] },
           "description": { "type": "string" },
-          "image": { "type": "string", "description": "Đường dẫn ảnh, có thể rỗng." },
+          "image": { "type": "string", "description": "Image path, may be empty." },
           "order": { "type": "number" },
           "features": {
             "type": "array",

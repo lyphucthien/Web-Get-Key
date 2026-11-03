@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quyền riêng tư – LPT Hub</title>
-<meta name="description" content="LPT Hub lưu những dữ liệu nào, dùng để làm gì, lưu bao lâu và cách yêu cầu xóa dữ liệu.">
+<title>Privacy – LPT Hub</title>
+<meta name="description" content="What data LPT Hub stores, what it is used for, how long it is kept, and how to request deletion.">
 <link rel="canonical" href="https://lyphucthien.vercel.app/privacy">
 <link rel="icon" type="image/png" href="https://res.cloudinary.com/dkui88bcf/image/upload/v1786939501/Logo_LPT_vnq390.png">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="LPT Hub">
-<meta property="og:title" content="Quyền riêng tư – LPT Hub">
-<meta property="og:description" content="LPT Hub lưu những dữ liệu nào, dùng để làm gì, lưu bao lâu và cách yêu cầu xóa dữ liệu.">
+<meta property="og:title" content="Privacy – LPT Hub">
+<meta property="og:description" content="What data LPT Hub stores, what it is used for, how long it is kept, and how to request deletion.">
 <meta property="og:url" content="https://lyphucthien.vercel.app/privacy">
 <meta property="og:image" content="https://res.cloudinary.com/dkui88bcf/image/upload/v1786939501/Logo_LPT_vnq390.png">
 <meta name="twitter:card" content="summary">
@@ -20,32 +20,32 @@
 
 <main>
   <article class="wrap prose">
-    <h1>Quyền riêng tư</h1>
-    <p>Trang này giải thích LPT Hub xử lý dữ liệu gì khi bạn lấy và dùng key. LPT Hub không bán dữ liệu và không dùng công cụ phân tích hay quảng cáo riêng.</p>
-    <h2>Dữ liệu chúng tôi lưu</h2>
+    <h1>Privacy</h1>
+    <p>This page explains what data LPT Hub handles when you get and use a key. LPT Hub does not sell data and does not use its own analytics or advertising tools.</p>
+    <h2>Data we store</h2>
     <ul>
-      <li><b>Địa chỉ IP:</b> lưu tối đa 3 giờ để giới hạn mỗi thiết bị một key mỗi 3 giờ.</li>
-      <li><b>Key đã cấp:</b> lưu để kiểm tra key có hợp lệ hay không.</li>
-      <li><b>Mã thiết bị (HWID) và thời điểm dùng đầu tiên:</b> script LPT Hub gửi lên để gắn key với một thiết bị và tính hạn 3 giờ.</li>
-      <li><b>Tên Minecraft và Discord ID:</b> chỉ khi bạn kích hoạt key cho server Minecraft, dùng để xác nhận tài khoản đã được kích hoạt.</li>
+      <li><b>IP address:</b> stored for up to 3 hours to limit each device to one key every 3 hours.</li>
+      <li><b>Issued keys:</b> stored so we can check whether a key is valid.</li>
+      <li><b>Device ID (HWID) and first-use time:</b> sent by the LPT Hub script to tie a key to one device and calculate the 3-hour expiry.</li>
+      <li><b>Minecraft username and Discord ID:</b> only when you activate a key for the Minecraft server, used to confirm the account has been activated.</li>
     </ul>
-    <h2>Cookie và bộ nhớ trình duyệt</h2>
-    <p>Khi bạn bấm một link rút gọn, trang đặt cookie <code>lpt_start</code> (tối đa 30 phút) để kiểm tra bạn đã đi đúng quy trình, và cookie <code>verify_token</code> (tối đa 15 phút) để cấp key. Key vừa nhận và thời điểm nhận được lưu trong bộ nhớ trình duyệt (localStorage) để hiển thị lại và đếm thời gian chờ.</p>
-    <h2>Bên thứ ba</h2>
-    <p>Trang web được lưu trữ trên Vercel, dữ liệu key lưu bằng Vercel KV. Các link rút gọn (Work.ink, Link 4m, Link 4 Sub) do bên thứ ba vận hành, có chính sách quyền riêng tư và quảng cáo riêng mà LPT Hub không kiểm soát.</p>
-    <h2>Yêu cầu xóa dữ liệu</h2>
-    <p>Nếu muốn xóa tên Minecraft, Discord ID hoặc key của bạn khỏi hệ thống, hãy nhắn trên Discord theo hướng dẫn ở trang <a href="/contact">Liên hệ</a>.</p>
+    <h2>Cookies and browser storage</h2>
+    <p>When you click a short link, the site sets a <code>lpt_start</code> cookie (up to 30 minutes) to check that you followed the proper flow, and a <code>verify_token</code> cookie (up to 15 minutes) to issue the key. The key you receive and the time you received it are saved in your browser (localStorage) so it can be shown again and the wait time can be counted down.</p>
+    <h2>Third parties</h2>
+    <p>The site is hosted on Vercel and key data is stored with Vercel KV. The short links (Work.ink, Link 4m, Link 4 Sub) are run by third parties with their own privacy and advertising policies that LPT Hub does not control.</p>
+    <h2>Data deletion requests</h2>
+    <p>If you want your Minecraft username, Discord ID or key removed from the system, message us on Discord as described on the <a href="/contact">Contact</a> page.</p>
   </article>
 </main>
 
 <footer class="site-footer">
   <div class="wrap">
     <span>© 2026 LPT Hub</span>
-    <nav aria-label="Liên kết cuối trang">
-      <a href="/about">Giới thiệu</a>
-      <a href="/contact">Liên hệ</a>
-      <a href="/privacy">Quyền riêng tư</a>
-      <a href="/docs">Tài liệu</a>
+    <nav aria-label="Footer links">
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/docs">Docs</a>
     </nav>
   </div>
 </footer>

@@ -1,5 +1,5 @@
-const crypto = require("crypto");
 const { kv } = require("@vercel/kv");
+const { safeEqual, getClientIp, rateLimit } = require("../lib/security");
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET;
 
@@ -8,17 +8,6 @@ const RESET_TARGETS = {
     minecraft: { kvDel: ["issued-set-minecraft", "remaining-keys"],  ipPattern: "ip:*" },
     lpthub:    { kvDel: ["issued-set-lpthub"],                       ipPattern: "ip-lpthub:*" }
 };
-
-function safeEqual(a, b) {
-    const bufA = Buffer.from(String(a));
-    const bufB = Buffer.from(String(b));
-
-    if (bufA.length !== bufB.length) {
-        return false;
-    }
-
-    return crypto.timingSafeEqual(bufA, bufB);
-}
 
 async function deleteByPattern(pattern) {
     let cursor = 0;
@@ -49,10 +38,11 @@ module.exports = async (req, res) => {
     try {
         res.setHeader("Cache-Control", "no-store");
 
-        if (!ADMIN_SECRET) {
+        // Refuse to run with a missing or weak secret.
+        if (!ADMIN_SECRET || ADMIN_SECRET.length < 24) {
             return res.status(500).json({
                 success: false,
-                error: "ADMIN_SECRET chưa được cấu hình trên server"
+                error: "Server is not configured"
             });
         }
 
@@ -61,7 +51,21 @@ module.exports = async (req, res) => {
 
             return res.status(405).json({
                 success: false,
-                error: "Chỉ chấp nhận POST"
+                error: "POST only"
+            });
+        }
+
+        const ip = getClientIp(req);
+
+        // Brute-force protection: 5 attempts per 15 minutes per IP.
+        const allowed = await rateLimit(kv, "admin", ip, 5, 15 * 60);
+
+        if (!allowed) {
+            res.setHeader("Retry-After", "900");
+
+            return res.status(429).json({
+                success: false,
+                error: "Too many attempts"
             });
         }
 
@@ -70,7 +74,7 @@ module.exports = async (req, res) => {
         if (!secret || !safeEqual(secret, ADMIN_SECRET)) {
             return res.status(403).json({
                 success: false,
-                error: "Sai mật khẩu admin"
+                error: "Forbidden"
             });
         }
 
@@ -82,14 +86,14 @@ module.exports = async (req, res) => {
         if (!target) {
             return res.status(400).json({
                 success: false,
-                error: "type phải là 'lpt', 'minecraft' hoặc 'lpthub'"
+                error: "type must be 'lpt', 'minecraft' or 'lpthub'"
             });
         }
 
         if (req.query?.confirm !== "1") {
             return res.status(400).json({
                 success: false,
-                error: `Sẽ xoá: ${target.kvDel.join(", ")}. Thêm confirm=1 để xác nhận.`
+                error: `This will delete: ${target.kvDel.join(", ")}. Add confirm=1 to confirm.`
             });
         }
 
@@ -97,16 +101,19 @@ module.exports = async (req, res) => {
             await kv.del(name);
         }
 
-        let ipNote = "Không đụng tới khoá IP (thêm resetIp=1 để xoá luôn)";
+        let ipNote = "IP locks were not touched (add resetIp=1 to delete them too)";
 
         if (req.query?.resetIp === "1") {
             const removed = await deleteByPattern(target.ipPattern);
-            ipNote = `Đã xoá ${removed} khoá IP (${target.ipPattern})`;
+            ipNote = `Deleted ${removed} IP locks (${target.ipPattern})`;
         }
+
+        // Audit trail (no secrets).
+        console.warn(`[admin-reset] type=${typeParam} ip=${ip} resetIp=${req.query?.resetIp === "1"}`);
 
         return res.status(200).json({
             success: true,
-            message: `Đã reset dữ liệu key cho loại "${typeParam}"`,
+            message: `Key data reset for type "${typeParam}"`,
             ipNote
         });
 
@@ -115,7 +122,7 @@ module.exports = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            error: "Lỗi máy chủ"
+            error: "Server error"
         });
     }
 };

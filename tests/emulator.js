@@ -1,5 +1,5 @@
-// Giả lập đơn giản cách Vercel xử lý: file tĩnh -> headers -> rewrites -> function.
-// Chỉ phục vụ kiểm thử cục bộ, không phải Vercel thật.
+// Simple emulation of how Vercel handles requests: static file -> headers -> rewrites -> function.
+// For local testing only; this is not the real Vercel.
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
@@ -9,7 +9,7 @@ const CONFIG = JSON.parse(fs.readFileSync(path.join(ROOT, "vercel.json"), "utf8"
 const TYPES = { ".html": "text/html; charset=utf-8", ".css": "text/css", ".js": "text/javascript", ".json": "application/json", ".txt": "text/plain", ".xml": "application/xml", ".png": "image/png" };
 
 function compile(source) {
-  // hỗ trợ đúng các dạng đang dùng: "/path" và "/((?!x).*)"
+  // supports exactly the forms in use: "/path" and "/((?!x).*)"
   const re = source.includes("(") ? source : source.replace(/[.*+?^${}|[\]\\]/g, "\\$&");
   return new RegExp("^" + re + "$");
 }
@@ -50,7 +50,7 @@ function createServer() {
       }
     };
 
-    // 1. file tĩnh
+    // 1. static file
     const file = path.join(ROOT, pathname);
     if (pathname !== "/" && file.startsWith(ROOT) && fs.existsSync(file) && fs.statSync(file).isFile()
         && !pathname.startsWith("/api/")) {
@@ -62,7 +62,7 @@ function createServer() {
       return finish(pathname.slice(5) + ".js");
     }
 
-    // 2. rewrites theo thứ tự
+    // 2. rewrites in order
     for (const r of CONFIG.rewrites) {
       if (!compile(r.source).test(pathname)) continue;
       if (r.has && !r.has.every(c => headerMatches(c, req.headers))) continue;

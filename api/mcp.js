@@ -38,7 +38,7 @@ module.exports = (req, res) => {
     const accept = String((req.headers && req.headers.accept) || "").toLowerCase();
     if (accept.includes("text/event-stream")) {
       res.setHeader("Allow", "POST, OPTIONS");
-      return json(res, 405, rpcError(null, -32000, "Server này không mở luồng SSE. Hãy dùng POST."));
+      return json(res, 405, rpcError(null, -32000, "This server does not open an SSE stream. Use POST."));
     }
     res.setHeader("Cache-Control", "public, max-age=0, s-maxage=300");
     res.statusCode = 200;

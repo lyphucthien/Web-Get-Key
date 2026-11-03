@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Game hỗ trợ – LPT Hub</title>
-<meta name="description" content="Danh sách game LPT Hub đang hỗ trợ cùng chức năng của từng game. Tìm kiếm và xem chi tiết từng game.">
+<title>Supported games – LPT Hub</title>
+<meta name="description" content="The games LPT Hub supports and the features of each. Search and view details for every game.">
 <link rel="canonical" href="https://lyphucthien.vercel.app/games">
 <link rel="icon" type="image/png" href="https://res.cloudinary.com/dkui88bcf/image/upload/v1786939501/Logo_LPT_vnq390.png">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="LPT Hub">
-<meta property="og:title" content="Game hỗ trợ – LPT Hub">
-<meta property="og:description" content="Danh sách game LPT Hub đang hỗ trợ cùng chức năng của từng game. Tìm kiếm và xem chi tiết từng game.">
+<meta property="og:title" content="Supported games – LPT Hub">
+<meta property="og:description" content="The games LPT Hub supports and the features of each. Search and view details for every game.">
 <meta property="og:url" content="https://lyphucthien.vercel.app/games">
 <meta property="og:image" content="https://res.cloudinary.com/dkui88bcf/image/upload/v1786939501/Logo_LPT_vnq390.png">
 <meta name="twitter:card" content="summary">
@@ -22,19 +22,19 @@
 <main>
   <div class="wrap gl-page">
     <div class="gl-head">
-      <h1>Game hỗ trợ</h1>
-      <p>Bấm vào một game để xem chi tiết chức năng.</p>
+      <h1>Supported games</h1>
+      <p>Click a game to see its features in detail.</p>
     </div>
 
     <div class="gl-toolbar">
       <label class="gl-search">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-        <input type="search" id="search" placeholder="Tìm game..." autocomplete="off" aria-label="Tìm game">
+        <input type="search" id="search" placeholder="Search games..." autocomplete="off" aria-label="Search games">
       </label>
-      <div class="gl-count"><b id="totalNum">0</b> đang hỗ trợ</div>
+      <div class="gl-count"><b id="totalNum">0</b> supported</div>
     </div>
 
-    <div class="gl-msg" id="msg">Đang tải danh sách game...</div>
+    <div class="gl-msg" id="msg">Loading games...</div>
     <div class="gl-grid" id="grid"></div>
   </div>
 </main>
@@ -42,24 +42,24 @@
 <footer class="site-footer">
   <div class="wrap">
     <span>© 2026 LPT Hub</span>
-    <nav aria-label="Liên kết cuối trang">
-      <a href="/about">Giới thiệu</a>
-      <a href="/contact">Liên hệ</a>
-      <a href="/privacy">Quyền riêng tư</a>
-      <a href="/docs">Tài liệu</a>
+    <nav aria-label="Footer links">
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/docs">Docs</a>
     </nav>
   </div>
 </footer>
 
 <dialog class="gl-dialog" id="dialog" aria-labelledby="dName">
-  <button type="button" class="gl-close" id="dClose" aria-label="Đóng">&times;</button>
+  <button type="button" class="gl-close" id="dClose" aria-label="Close">&times;</button>
   <div class="gl-d-img" id="dImg"></div>
   <div class="gl-d-body">
     <span class="tag" id="dTag"></span>
     <h2 id="dName"></h2>
     <p class="gl-d-desc" id="dDesc"></p>
     <div class="gl-d-feat" id="dFeat"></div>
-    <a class="gl-d-btn" id="dBtn" href="/get-key" hidden>Lấy key cho game này</a>
+    <a class="gl-d-btn" id="dBtn" href="/get-key" hidden>Get a key for this game</a>
   </div>
 </dialog>
 
@@ -101,7 +101,7 @@ function renderCard(g) {
   const card = el("button", "gl-card"); card.type = "button";
   const thumb = el("div", "gl-thumb");
   cover(g, thumb);
-  thumb.append(el("span", "gl-badge" + (g.status === "on" ? " on" : ""), g.status === "on" ? "Đang hỗ trợ" : "Sắp có"));
+  thumb.append(el("span", "gl-badge" + (g.status === "on" ? " on" : ""), g.status === "on" ? "Supported" : "Coming soon"));
   card.append(thumb, el("div", "gl-name", g.name));
   card.addEventListener("click", () => openGame(g));
   const name = norm(g.name);
@@ -114,15 +114,15 @@ function renderCard(g) {
 
 function openGame(g) {
   const dImg = $("dImg"); dImg.replaceChildren(); cover(g, dImg);
-  const tag = $("dTag"); tag.className = "tag" + (g.status === "on" ? " on" : ""); tag.textContent = g.status === "on" ? "Đang hỗ trợ" : "Sắp có";
+  const tag = $("dTag"); tag.className = "tag" + (g.status === "on" ? " on" : ""); tag.textContent = g.status === "on" ? "Supported" : "Coming soon";
   $("dName").textContent = g.name;
-  $("dDesc").textContent = g.description || "Chưa có mô tả.";
+  $("dDesc").textContent = g.description || "No description yet.";
 
   const total = g.features.reduce((n, grp) => n + grp.items.length, 0);
   const feat = $("dFeat"); feat.replaceChildren();
-  const head = el("div", "gl-d-head"); head.append(el("span", "", "Chức năng"), el("span", "", String(total)));
+  const head = el("div", "gl-d-head"); head.append(el("span", "", "Features"), el("span", "", String(total)));
   feat.append(head);
-  if (!total) feat.append(el("p", "gl-empty", "Chưa có danh sách chức năng."));
+  if (!total) feat.append(el("p", "gl-empty", "No feature list yet."));
   g.features.forEach(grp => {
     if (grp.category) feat.append(el("div", "gl-cat", grp.category));
     const ul = el("ul", "gl-list");
@@ -164,7 +164,7 @@ function applyFilter() {
   scored.forEach(x => { x.card.hidden = x.score === 0; });
   const shown = scored.filter(x => x.score > 0);
   msg.hidden = shown.length > 0;
-  if (!shown.length) msg.textContent = "Không tìm thấy game nào.";
+  if (!shown.length) msg.textContent = "No games found.";
 }
 search.addEventListener("input", applyFilter);
 
@@ -175,12 +175,12 @@ async function loadGames() {
     const data = await res.json();
     GAMES = Array.isArray(data.games) ? data.games : [];
     totalNum.textContent = GAMES.filter(g => g.status === "on").length;
-    if (!GAMES.length) { msg.textContent = "Chưa có game nào."; return; }
+    if (!GAMES.length) { msg.textContent = "No games yet."; return; }
     msg.hidden = true;
     grid.replaceChildren(...GAMES.map(renderCard));
   } catch (e) {
     console.error("Load games error:", e);
-    msg.textContent = "Không tải được danh sách game. Vui lòng thử lại sau.";
+    msg.textContent = "Could not load the games list. Please try again later.";
   }
 }
 loadGames();
