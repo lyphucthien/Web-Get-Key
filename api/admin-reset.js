@@ -1,4 +1,5 @@
 const { kv } = require("@vercel/kv");
+const { enrichErrors, applyRateLimit } = require("../lib/api");
 const { safeEqual, getClientIp, rateLimit } = require("../lib/security");
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET;
@@ -36,6 +37,7 @@ async function deleteByPattern(pattern) {
 
 module.exports = async (req, res) => {
     try {
+        enrichErrors(res);
         res.setHeader("Cache-Control", "no-store");
 
         // Refuse to run with a missing or weak secret.
@@ -58,7 +60,7 @@ module.exports = async (req, res) => {
         const ip = getClientIp(req);
 
         // Brute-force protection: 5 attempts per 15 minutes per IP.
-        const allowed = await rateLimit(kv, "admin", ip, 5, 15 * 60);
+        const allowed = (await rateLimit(kv, "admin", ip, 5, 15 * 60)).allowed;
 
         if (!allowed) {
             res.setHeader("Retry-After", "900");

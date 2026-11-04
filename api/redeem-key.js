@@ -1,4 +1,5 @@
 const { kv } = require("@vercel/kv");
+const { enrichErrors, applyRateLimit } = require("../lib/api");
 const {
     KEY_RE, MC_NAME_RE, DISCORD_ID_RE,
     safeEqual, getClientIp, rateLimit
@@ -15,12 +16,13 @@ if (!SECRET) {
 
 module.exports = async (req, res) => {
     try {
+        enrichErrors(res);
         res.setHeader("Cache-Control", "no-store");
 
         const ip = getClientIp(req);
 
         // Limit wrong-secret guesses: 10 per 15 minutes per IP.
-        if (!(await rateLimit(kv, "redeem", ip, 10, 15 * 60))) {
+        if (!(await rateLimit(kv, "redeem", ip, 10, 15 * 60)).allowed) {
             res.setHeader("Retry-After", "900");
 
             return res.status(429).json({

@@ -48,6 +48,8 @@ test("home page JSON-LD is valid: Organization (contactPoint), SoftwareApplicati
   assert.deepEqual(types.sort(), ["Organization", "SoftwareApplication", "WebSite"]);
   const org = ld["@graph"].find(x => x["@type"] === "Organization");
   assert.equal(org.contactPoint.contactType, "customer support");
+  assert.equal(org.address["@type"], "PostalAddress");
+  assert.ok(org.address.addressCountry);
   const app = ld["@graph"].find(x => x["@type"] === "SoftwareApplication");
   assert.ok(app.name && app.description && app.url && app.offers);
 });
@@ -93,18 +95,47 @@ test("llms.txt follows the llmstxt.org format + has a when-to-use section", () =
   assert.ok(t.includes("/mcp") && t.includes("/openapi.json") && t.includes("/docs"));
 });
 
-test("openapi.json is valid and matches the real /api/games response", () => withServer(async (_s, get) => {
+test("openapi.json is valid, typed, and matches the real /api/v1/games response", () => withServer(async (_s, get) => {
   const spec = JSON.parse(read("openapi.json"));
   assert.equal(spec.openapi, "3.1.0");
-  assert.ok(spec.paths["/api/games"].get);
+  const op = spec.paths["/api/v1/games"].get;
+  assert.equal(op.operationId, "listGames");
+  assert.ok(op.description && op.summary);
+  // every operation has a unique operationId and typed parameters
+  const ids = Object.values(spec.paths).flatMap(p => Object.values(p).map(o => o.operationId));
+  assert.equal(new Set(ids).size, ids.length);
+  for (const p of op.parameters) assert.ok(p.name && p.schema && p.schema.type && p.description, p.name);
+  for (const status of ["200", "400", "404", "405", "429"]) assert.ok(op.responses[status], status);
+  assert.ok(op.responses["200"].headers["RateLimit-Limit"] && op.responses["429"].headers["Retry-After"]);
+  assert.ok(spec.info["x-api-versioning"].deprecation);
   const game = spec.components.schemas.Game;
-  const live = JSON.parse((await get({ pathname: "/api/games" })).body);
+  const live = JSON.parse((await get({ pathname: "/api/v1/games" })).body);
   for (const g of live.games) {
     for (const key of game.required) assert.ok(key in g, key);
     for (const key of Object.keys(g)) assert.ok(key in game.properties, "schema missing " + key);
   }
   for (const key of spec.components.schemas.GamesResponse.required) assert.ok(key in live);
+  const error = spec.components.schemas.Error;
+  const bad = JSON.parse((await get({ pathname: "/api/v1/games?status=nope" })).body);
+  for (const key of error.required) assert.ok(key in bad, key);
+  assert.ok(error.properties.code.enum.includes(bad.code));
 }));
+
+test("docs page covers auth, endpoints, examples, errors, rate limits, versioning and the CLI", () => {
+  const text = textOf(main(read("HTML/docs.html")));
+  assert.ok(text.length >= 1500, "only " + text.length);
+  for (const word of ["Authentication", "curl", "INVALID_PARAMETER", "Retry-After", "RateLimit-Remaining", "Deprecation", "Sunset", "/api/v1", "lpthub-cli"]) {
+    assert.ok(text.includes(word), word);
+  }
+});
+
+test("llms.txt lists the developer resources with the product name", () => {
+  const t = read("llms.txt");
+  assert.match(t, /\[LPT Hub API and MCP docs\]/);
+  assert.match(t, /\[LPT Hub OpenAPI 3.1 spec\]/);
+  assert.match(t, /\.well-known\/api-catalog/);
+  assert.match(t, /\/api\/v1\/games/);
+});
 
 test("static files are served with the correct Content-Type", () => withServer(async (_s, get) => {
   const cases = [["/llms.txt", /text\/plain; charset=utf-8/], ["/sitemap.xml", /application\/xml/], ["/openapi.json", /application\/json/], ["/robots.txt", /text\/plain/]];

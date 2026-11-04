@@ -3,25 +3,25 @@ const assert = require("node:assert");
 const fs = require("fs");
 const path = require("path");
 
-test("api/games returns the same result as before the lib split", () => {
-  const handler = require("../api/games");
-  let body, status; const headers = {};
-  const res = { setHeader(k, v) { headers[k] = v; }, status(c) { status = c; return this; }, json(b) { body = b; return this; } };
-  handler({ method: "GET" }, res);
-  const expected = JSON.parse(fs.readFileSync(path.join(__dirname, "fixtures", "games-expected.json"), "utf8"));
-  assert.equal(status, 200);
-  assert.deepEqual(body, expected);
-  assert.match(headers["Cache-Control"], /s-maxage=60/);
-});
+const { withServer } = require("./helpers");
 
-test("api/games: POST is rejected with 405", () => {
-  const handler = require("../api/games");
-  let status; const headers = {};
-  const res = { setHeader(k, v) { headers[k] = v; }, status(c) { status = c; return this; }, json() { return this; } };
-  handler({ method: "POST" }, res);
-  assert.equal(status, 405);
-  assert.equal(headers.Allow, "GET, HEAD");
-});
+test("api/games returns the same result as before the lib split", () => withServer(async (_s, get) => {
+  const r = await get({ pathname: "/api/games" });
+  const expected = JSON.parse(fs.readFileSync(path.join(__dirname, "fixtures", "games-expected.json"), "utf8"));
+  assert.equal(r.status, 200);
+  assert.deepEqual(JSON.parse(r.body), expected);
+  assert.match(r.headers["cache-control"], /s-maxage=60/);
+}));
+
+test("api/games: POST is rejected with 405 and a structured JSON error", () => withServer(async (_s, get) => {
+  const r = await get({ method: "POST", pathname: "/api/games" });
+  assert.equal(r.status, 405);
+  assert.equal(r.headers.allow, "GET, HEAD");
+  const body = JSON.parse(r.body);
+  assert.equal(body.success, false);
+  assert.equal(body.code, "METHOD_NOT_ALLOWED");
+  assert.ok(body.error && body.hint);
+}));
 
 test("loadGames: missing folder, broken JSON, sorting, images", () => {
   const { loadGames } = require("../lib/games");

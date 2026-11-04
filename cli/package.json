@@ -1,0 +1,12 @@
+{
+  "name": "lpthub-cli",
+  "version": "1.0.0",
+  "description": "Command-line client for the LPT Hub public API: list supported games and read key instructions.",
+  "license": "MIT",
+  "bin": { "lpthub": "bin/lpthub.js" },
+  "main": "src/index.js",
+  "files": ["bin", "src", "README.md"],
+  "engines": { "node": ">=18" },
+  "keywords": ["lpt-hub", "minecraft", "cli"],
+  "homepage": "https://lyphucthien.vercel.app/docs"
+}

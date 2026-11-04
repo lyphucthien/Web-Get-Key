@@ -1,5 +1,6 @@
 const crypto = require("crypto");
 const { kv } = require("@vercel/kv");
+const { enrichErrors, applyRateLimit } = require("../lib/api");
 const { KEY_RE, HWID_RE, getClientIp, rateLimit } = require("../lib/security");
 
 const SECRET = process.env.VERIFY_SECRET;
@@ -229,6 +230,13 @@ async function verifyLptHubHwid(key, hwid, remainingSeconds) {
 
 module.exports = async (req, res) => {
     try {
+        enrichErrors(res);
+
+        // General per-IP limit; also advertises the RateLimit headers to clients.
+        if (!(await applyRateLimit(req, res, { name: "api", limit: 120, window: 60 }))) {
+            return;
+        }
+
         if (req.method !== "GET") {
             res.setHeader("Allow", "GET");
 
@@ -257,7 +265,7 @@ module.exports = async (req, res) => {
 
             res.setHeader("Cache-Control", "no-store");
 
-            const allowed = await rateLimit(kv, "verify", getClientIp(req), 60, 60);
+            const allowed = (await rateLimit(kv, "verify", getClientIp(req), 60, 60)).allowed;
 
             if (!allowed) {
                 res.setHeader("Retry-After", "60");

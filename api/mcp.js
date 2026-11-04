@@ -1,10 +1,11 @@
+const { checkRateLimit } = require("../lib/api");
 const { SUPPORTED_VERSIONS, handleMessage, serverCard, rpcError } = require("../lib/mcp");
 
 function cors(res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, MCP-Protocol-Version, Mcp-Session-Id, Authorization");
-  res.setHeader("Access-Control-Expose-Headers", "Mcp-Session-Id");
+  res.setHeader("Access-Control-Expose-Headers", "Mcp-Session-Id, RateLimit-Limit, RateLimit-Remaining, RateLimit-Reset, RateLimit-Policy, RateLimit, Retry-After");
   res.setHeader("Access-Control-Max-Age", "86400");
 }
 
@@ -26,12 +27,17 @@ function readBody(req) {
   return { value: body };
 }
 
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
   cors(res);
 
   if (req.method === "OPTIONS") {
     res.statusCode = 204;
     return res.end();
+  }
+
+  const limit = await checkRateLimit(req, res, { name: "mcp", limit: 120, window: 60 });
+  if (!limit.allowed) {
+    return json(res, 429, rpcError(null, -32000, `Too many requests. Retry in ${limit.reset} seconds.`));
   }
 
   if (req.method === "GET" || req.method === "HEAD") {

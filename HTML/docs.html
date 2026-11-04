@@ -22,10 +22,60 @@
   <article class="wrap prose">
     <h1>LPT Hub API and MCP documentation</h1>
     <p>LPT Hub has a public read-only API for the game list and an MCP server so AI agents can query the same data. No API key or login is needed.</p>
-    <h2>Game list API</h2>
-    <p><code>GET https://lyphucthien.vercel.app/api/games</code> returns JSON with <code>success</code>, <code>games</code> and <code>errors</code>. Each game has <code>id</code>, <code>name</code>, <code>status</code> (<code>on</code> or <code>soon</code>), <code>type</code>, <code>description</code>, <code>image</code>, <code>order</code> and <code>features</code> (feature groups).</p>
-    <pre><code>curl -s https://lyphucthien.vercel.app/api/games</code></pre>
-    <p>The full specification is at <a href="/openapi.json">/openapi.json</a> (OpenAPI 3.1).</p>
+
+    <h2>Overview</h2>
+    <p>Base URL: <code>https://lyphucthien.vercel.app/api/v1</code>. All responses are JSON (<code>application/json; charset=utf-8</code>) and every response carries an <code>API-Version</code> header. The machine-readable specification is <a href="/openapi.json">/openapi.json</a> (OpenAPI 3.1) and the API catalog is at <a href="/.well-known/api-catalog">/.well-known/api-catalog</a>.</p>
+
+    <h2>Authentication</h2>
+    <p>None. The public endpoints are read-only and open. Do not send credentials. Keys are never issued through the API: a user has to complete the short link in their own browser, so an agent cannot get a key for them. The key-check API is reserved for the LPT Hub script and is not part of the public API.</p>
+
+    <h2>List games</h2>
+    <p><code>GET /api/v1/games</code> (alias: <code>/api/games</code>) returns the games LPT Hub supports or will support soon.</p>
+    <table>
+      <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>status</code></td><td>string</td><td>Optional. <code>all</code> (default), <code>on</code> (supported) or <code>soon</code> (coming soon).</td></tr>
+        <tr><td><code>query</code></td><td>string</td><td>Optional. Keyword, up to 100 characters, matched against the game name and description.</td></tr>
+      </tbody>
+    </table>
+    <pre><code>curl -s "https://lyphucthien.vercel.app/api/v1/games?status=on&amp;query=minecraft"</code></pre>
+    <p>Example response:</p>
+    <pre><code>{
+  "success": true,
+  "games": [
+    {
+      "id": "Game-Mau",
+      "name": "Game-Mau",
+      "status": "on",
+      "type": "",
+      "description": "A short description.",
+      "image": "",
+      "order": 9999,
+      "features": [{ "category": "Other", "items": ["Feature 1"] }]
+    }
+  ],
+  "errors": []
+}</code></pre>
+    <p>Each game has <code>id</code>, <code>name</code>, <code>status</code> (<code>on</code> or <code>soon</code>), <code>type</code> (<code>minecraft</code>, <code>lpthub</code> or empty), <code>description</code>, <code>image</code>, <code>order</code> and <code>features</code> (groups with a <code>category</code> and a list of <code>items</code>).</p>
+
+    <h2>Errors</h2>
+    <p>Errors are always JSON, never an HTML page, with the matching HTTP status:</p>
+    <pre><code>{
+  "success": false,
+  "error": "status must be all, on or soon",
+  "code": "INVALID_PARAMETER",
+  "hint": "Send ?status=on, ?status=soon or omit it.",
+  "status": 400,
+  "parameter": "status"
+}</code></pre>
+    <p><code>error</code> is a human-readable message, <code>code</code> is a stable identifier to branch on, and <code>hint</code> says how to fix it. Codes: <code>INVALID_PARAMETER</code> and <code>INVALID_REQUEST</code> (400), <code>FORBIDDEN</code> (403), <code>NOT_FOUND</code> (404, also returned for unknown <code>/api/*</code> paths), <code>METHOD_NOT_ALLOWED</code> (405, with an <code>Allow</code> header), <code>RATE_LIMITED</code> (429) and <code>SERVER_ERROR</code> (500).</p>
+
+    <h2>Rate limits</h2>
+    <p>Each IP address may make 120 requests per 60 seconds to the API and to the MCP server. Responses include <code>RateLimit-Limit</code>, <code>RateLimit-Remaining</code> and <code>RateLimit-Reset</code> (seconds until the window resets), plus the structured <code>RateLimit-Policy</code> and <code>RateLimit</code> fields. When the limit is exceeded the API answers <code>429</code> with a <code>Retry-After</code> header and the <code>RATE_LIMITED</code> error. Responses may be cached for up to a minute, so the header values are advisory.</p>
+
+    <h2>Versioning and deprecation policy</h2>
+    <p>The API version is in the URL path (<code>/api/v1</code>) and in the <code>API-Version</code> response header. Within a major version, changes only add optional fields, parameters or endpoints, so clients should ignore fields they do not know. A breaking change ships under a new path such as <code>/api/v2</code>. A deprecated version stays available for at least 90 days after it is announced on this page; during that time its responses carry the <code>Deprecation</code> and <code>Sunset</code> headers (RFC 9745 and RFC 8594) with the removal date.</p>
+
     <h2>MCP server</h2>
     <p>Endpoint: <code>https://lyphucthien.vercel.app/mcp</code> (also available at <code>/.well-known/mcp</code>). Streamable HTTP transport; send JSON-RPC with POST; no authentication. There are two read-only tools:</p>
     <ul>
@@ -36,10 +86,15 @@
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json, text/event-stream' \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'</code></pre>
-    <h2>About keys</h2>
-    <p>Keys are only issued in the user's browser after they complete the short link, so an agent cannot get a key for them. The key-check API is reserved for the LPT Hub script and is not part of the public API.</p>
+
+    <h2>Command-line tool</h2>
+    <p>The <code>lpthub-cli</code> package wraps the API for scripts and terminals. It has no dependencies and needs Node 18 or newer:</p>
+    <pre><code>npx lpthub-cli games --status on --json
+npx lpthub-cli key-info</code></pre>
+    <p>Exit codes: <code>0</code> success, <code>1</code> request or API error, <code>2</code> invalid usage.</p>
+
     <h2>Files for agents</h2>
-    <p><a href="/llms.txt">/llms.txt</a> describes when to use LPT Hub, <a href="/sitemap.xml">/sitemap.xml</a> lists the pages, and the home page returns Markdown when you send <code>Accept: text/markdown</code>.</p>
+    <p><a href="/llms.txt">/llms.txt</a> describes when to use LPT Hub, <a href="/sitemap.xml">/sitemap.xml</a> lists the pages, <a href="/openapi.json">/openapi.json</a> is the API specification, and the home page returns Markdown when you send <code>Accept: text/markdown</code>.</p>
   </article>
 </main>
 

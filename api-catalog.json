@@ -1,0 +1,34 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://lyphucthien.vercel.app/api/v1",
+      "service-desc": [
+        {
+          "href": "https://lyphucthien.vercel.app/openapi.json",
+          "type": "application/json"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://lyphucthien.vercel.app/docs",
+          "type": "text/html"
+        }
+      ]
+    },
+    {
+      "anchor": "https://lyphucthien.vercel.app/mcp",
+      "service-desc": [
+        {
+          "href": "https://lyphucthien.vercel.app/.well-known/mcp/server-card.json",
+          "type": "application/json"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://lyphucthien.vercel.app/docs",
+          "type": "text/html"
+        }
+      ]
+    }
+  ]
+}

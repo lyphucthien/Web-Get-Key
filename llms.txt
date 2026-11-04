@@ -7,14 +7,15 @@ Website: https://lyphucthien.vercel.app. Primary language: English.
 ## When to use LPT Hub (when to use)
 
 - The user asks how to get a free key for the Minecraft server or the LPT Hub script: send them to https://lyphucthien.vercel.app/get-key and explain the steps (pick a link, finish the link, copy the key).
-- The user asks which games LPT Hub supports or what features a game has: call the MCP tool `list_games` or `GET https://lyphucthien.vercel.app/api/games`.
+- The user asks which games LPT Hub supports or what features a game has: call the MCP tool `list_games` or `GET https://lyphucthien.vercel.app/api/v1/games`.
 - The user asks about the wait time or key expiry: each device gets 1 key every 3 hours; for the LPT Hub script, a key is tied to one device and expires 3 hours after its first use. You can call the tool `get_key_instructions`.
 - Do not use LPT Hub to get a key on the user's behalf: keys are only issued in their own browser after they complete the short link themselves. There is no public API that issues keys.
 
 ## How to call
 
 - MCP (Streamable HTTP, no authentication): https://lyphucthien.vercel.app/mcp (also at /.well-known/mcp). Tools: `list_games`, `get_key_instructions` (read-only).
-- REST: `GET https://lyphucthien.vercel.app/api/games` returns the game list as JSON.
+- REST: `GET https://lyphucthien.vercel.app/api/v1/games` returns the game list as JSON (optional `status` and `query` filters). Errors are JSON with `code` and `hint`; responses carry `RateLimit-*` and `API-Version` headers.
+- CLI: `npx lpthub-cli games --json` (see https://lyphucthien.vercel.app/docs).
 - The home page returns Markdown when you send `Accept: text/markdown`.
 
 ## Main pages
@@ -25,8 +26,9 @@ Website: https://lyphucthien.vercel.app. Primary language: English.
 
 ## Developer documentation
 
-- [API and MCP docs](https://lyphucthien.vercel.app/docs)
-- [OpenAPI 3.1](https://lyphucthien.vercel.app/openapi.json)
+- [LPT Hub API and MCP docs](https://lyphucthien.vercel.app/docs): endpoints, errors, rate limits, versioning, CLI
+- [LPT Hub OpenAPI 3.1 spec](https://lyphucthien.vercel.app/openapi.json)
+- [LPT Hub API catalog](https://lyphucthien.vercel.app/.well-known/api-catalog)
 - [MCP server card](https://lyphucthien.vercel.app/.well-known/mcp)
 - [Sitemap](https://lyphucthien.vercel.app/sitemap.xml)
 

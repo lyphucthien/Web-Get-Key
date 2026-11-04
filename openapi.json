@@ -3,29 +3,257 @@
   "info": {
     "title": "LPT Hub public API",
     "version": "1.0.0",
-    "description": "LPT Hub's public read-only API. No authentication required. Keys are only issued in the user's browser and are not part of this API. The MCP server is at /mcp."
+    "summary": "Read-only list of games supported by LPT Hub.",
+    "description": "LPT Hub's public read-only API. No authentication required. Keys are only issued in the user's browser and are not part of this API. The MCP server is at /mcp.",
+    "contact": {
+      "name": "LPT Hub support (Discord)",
+      "url": "https://discord.gg/gyZ27Hw9qu"
+    },
+    "x-api-versioning": {
+      "scheme": "URL path (/api/v1). The response header API-Version carries the major version.",
+      "current": "v1",
+      "compatibility": "Within a major version, changes only add optional fields, parameters or endpoints. Breaking changes ship under a new path (/api/v2).",
+      "deprecation": "A deprecated version stays available for at least 90 days after the announcement. During that time responses carry Deprecation (RFC 9745) and Sunset (RFC 8594) headers, and the change is announced at https://lyphucthien.vercel.app/docs.",
+      "alias": "/api/games is a stable alias of /api/v1/games."
+    }
   },
-  "servers": [{ "url": "https://lyphucthien.vercel.app" }],
+  "servers": [
+    {
+      "url": "https://lyphucthien.vercel.app"
+    }
+  ],
+  "tags": [
+    {
+      "name": "games",
+      "description": "Games supported by LPT Hub."
+    }
+  ],
+  "security": [],
   "paths": {
-    "/api/games": {
+    "/api/v1/games": {
       "get": {
         "operationId": "listGames",
+        "tags": [
+          "games"
+        ],
         "summary": "List of games supported by LPT Hub",
-        "description": "Returns games that are supported (status on) and coming soon (status soon), sorted. The result is cached briefly.",
+        "description": "Returns games that are supported (status on) and coming soon (status soon), sorted. Optional filters narrow the list. The result is cached briefly, so rate-limit header values may reflect the last uncached request.",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "Filter by status: on = supported, soon = coming soon, all = both.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "all",
+                "on",
+                "soon"
+              ],
+              "default": "all"
+            }
+          },
+          {
+            "name": "query",
+            "in": "query",
+            "required": false,
+            "description": "Case-insensitive keyword matched against the game name and description.",
+            "schema": {
+              "type": "string",
+              "maxLength": 100,
+              "examples": [
+                "minecraft"
+              ]
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "List of games",
+            "headers": {
+              "RateLimit-Limit": {
+                "description": "Requests allowed per window.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Requests left in the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Policy": {
+                "description": "Structured policy, for example \"default\";q=120;w=60.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "RateLimit": {
+                "description": "Structured state, for example \"default\";r=119;t=42.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "API-Version": {
+                "description": "Major version of the API that answered.",
+                "schema": {
+                  "type": "string",
+                  "examples": [
+                    "1"
+                  ]
+                }
+              }
+            },
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/GamesResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/GamesResponse"
+                },
+                "example": {
+                  "success": true,
+                  "games": [
+                    {
+                      "id": "Game-Mau",
+                      "name": "Game-Mau",
+                      "status": "on",
+                      "type": "",
+                      "description": "A short description.",
+                      "image": "",
+                      "order": 9999,
+                      "features": [
+                        {
+                          "category": "Other",
+                          "items": [
+                            "Feature 1"
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "errors": []
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query parameter (code INVALID_PARAMETER)",
+            "headers": {
+              "API-Version": {
+                "description": "Major version of the API that answered.",
+                "schema": {
+                  "type": "string",
+                  "examples": [
+                    "1"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown endpoint (code NOT_FOUND)",
+            "headers": {
+              "API-Version": {
+                "description": "Major version of the API that answered.",
+                "schema": {
+                  "type": "string",
+                  "examples": [
+                    "1"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
               }
             }
           },
           "405": {
-            "description": "Only GET and HEAD are supported",
+            "description": "Only GET and HEAD are supported (code METHOD_NOT_ALLOWED)",
+            "headers": {
+              "Allow": {
+                "description": "Supported methods.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "API-Version": {
+                "description": "Major version of the API that answered.",
+                "schema": {
+                  "type": "string",
+                  "examples": [
+                    "1"
+                  ]
+                }
+              }
+            },
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Error" }
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded (code RATE_LIMITED)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Requests allowed per window.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Requests left in the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "API-Version": {
+                "description": "Major version of the API that answered.",
+                "schema": {
+                  "type": "string",
+                  "examples": [
+                    "1"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
               }
             }
           }
@@ -37,42 +265,155 @@
     "schemas": {
       "GamesResponse": {
         "type": "object",
-        "required": ["success", "games", "errors"],
+        "required": [
+          "success",
+          "games",
+          "errors"
+        ],
         "properties": {
-          "success": { "type": "boolean" },
-          "games": { "type": "array", "items": { "$ref": "#/components/schemas/Game" } },
-          "errors": { "type": "array", "items": { "type": "string" }, "description": "Game files that failed to load, if any." }
+          "success": {
+            "type": "boolean",
+            "const": true
+          },
+          "games": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Game"
+            }
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Game files that failed to load, if any."
+          }
         }
       },
       "Game": {
         "type": "object",
-        "required": ["id", "name", "status", "type", "description", "image", "order", "features"],
+        "required": [
+          "id",
+          "name",
+          "status",
+          "type",
+          "description",
+          "image",
+          "order",
+          "features"
+        ],
         "properties": {
-          "id": { "type": "string" },
-          "name": { "type": "string" },
-          "status": { "type": "string", "enum": ["on", "soon"] },
-          "type": { "type": "string", "enum": ["minecraft", "lpthub", ""] },
-          "description": { "type": "string" },
-          "image": { "type": "string", "description": "Image path, may be empty." },
-          "order": { "type": "number" },
+          "id": {
+            "type": "string",
+            "description": "Game identifier (the file name in the Games folder)."
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "on",
+              "soon"
+            ],
+            "description": "on = supported, soon = coming soon."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "minecraft",
+              "lpthub",
+              ""
+            ],
+            "description": "Key type the game uses, or empty."
+          },
+          "description": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string",
+            "description": "Image path, may be empty."
+          },
+          "order": {
+            "type": "number",
+            "description": "Sort order, lower first."
+          },
           "features": {
             "type": "array",
             "items": {
-              "type": "object",
-              "required": ["category", "items"],
-              "properties": {
-                "category": { "type": "string" },
-                "items": { "type": "array", "items": { "type": "string" } }
-              }
+              "$ref": "#/components/schemas/FeatureGroup"
+            }
+          }
+        }
+      },
+      "FeatureGroup": {
+        "type": "object",
+        "required": [
+          "category",
+          "items"
+        ],
+        "properties": {
+          "category": {
+            "type": "string",
+            "description": "Group name, may be empty."
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
             }
           }
         }
       },
       "Error": {
         "type": "object",
+        "required": [
+          "success",
+          "error",
+          "code",
+          "hint",
+          "status"
+        ],
         "properties": {
-          "success": { "type": "boolean", "const": false },
-          "error": { "type": "string" }
+          "success": {
+            "type": "boolean",
+            "const": false
+          },
+          "error": {
+            "type": "string",
+            "description": "Human-readable message."
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "INVALID_PARAMETER",
+              "INVALID_REQUEST",
+              "FORBIDDEN",
+              "NOT_FOUND",
+              "METHOD_NOT_ALLOWED",
+              "CONFLICT",
+              "RATE_LIMITED",
+              "SERVER_ERROR",
+              "ERROR"
+            ],
+            "description": "Stable machine-readable error code."
+          },
+          "hint": {
+            "type": "string",
+            "description": "How to resolve the error."
+          },
+          "status": {
+            "type": "integer",
+            "description": "HTTP status code."
+          },
+          "parameter": {
+            "type": "string",
+            "description": "Name of the invalid parameter, when relevant."
+          },
+          "retryAfter": {
+            "type": "integer",
+            "description": "Seconds to wait (429 only)."
+          }
         }
       }
     }

@@ -71,7 +71,7 @@ function createServer() {
       const extra = Object.fromEntries(dest.searchParams);
       if (destPath.startsWith("/api/")) return finish(destPath.slice(5) + ".js", extra);
       applyHeaders(pathname, res);
-      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      if (!res.getHeader("Content-Type")) res.setHeader("Content-Type", TYPES[path.extname(destPath)] || "text/html; charset=utf-8");
       return res.end(fs.readFileSync(path.join(ROOT, destPath)));
     }
     res.statusCode = 404;

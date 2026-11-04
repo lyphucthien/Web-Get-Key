@@ -21,7 +21,7 @@
     },
     {
       "source": "/games",
-      "destination": "/HTML/games.html"
+      "destination": "/api/site?kind=games"
     },
     {
       "source": "/about",
@@ -54,6 +54,18 @@
     {
       "source": "/.well-known/mcp/server-card.json",
       "destination": "/api/mcp"
+    },
+    {
+      "source": "/api/v1/games",
+      "destination": "/api/games"
+    },
+    {
+      "source": "/.well-known/api-catalog",
+      "destination": "/api-catalog.json"
+    },
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/site?kind=api404"
     },
     {
       "source": "/((?!_vercel).*)",
@@ -125,6 +137,24 @@
           "value": "application/json; charset=utf-8"
         }
       ]
+    },
+    {
+      "source": "/",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "</openapi.json>; rel=\"service-desc\"; type=\"application/json\", </docs>; rel=\"service-doc\"; type=\"text/html\", </.well-known/api-catalog>; rel=\"api-catalog\", </llms.txt>; rel=\"describedby\"; type=\"text/plain\""
+        }
+      ]
+    },
+    {
+      "source": "/.well-known/api-catalog",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/linkset+json; profile=\"https://www.rfc-editor.org/info/rfc9727\""
+        }
+      ]
     }
   ],
   "functions": {
@@ -133,6 +163,9 @@
     },
     "api/mcp.js": {
       "includeFiles": "Games/**"
+    },
+    "api/site.js": {
+      "includeFiles": "{Games/**,HTML/games.html}"
     }
   }
 }

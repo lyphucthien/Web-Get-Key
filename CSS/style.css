@@ -69,6 +69,10 @@ body[data-page="home"] main{padding:56px 0 72px}
 .prose pre{margin:0 0 14px;padding:14px;overflow-x:auto;background:var(--panel2);border:1px solid var(--line);border-radius:12px}
 .prose pre code{padding:0;border:0;background:none}
 .prose .btns{margin:20px 0}
+.prose h3{margin:18px 0 6px;font-family:var(--mono);font-size:16px}
+.prose table{display:block;max-width:100%;overflow-x:auto;margin:0 0 14px;border-collapse:collapse}
+.prose th,.prose td{padding:8px 12px;border:1px solid var(--line);text-align:left;vertical-align:top;font-size:14px;color:var(--dim)}
+.prose th{color:var(--text);background:var(--panel2);font-family:var(--mono);font-weight:600}
 .muted{color:var(--dim);font-size:13px}
 
 .site-footer{border-top:1px solid var(--line);background:rgba(17,17,17,.88)}

@@ -42,11 +42,18 @@ test("404: HTML for browsers, does not reflect the path", () => withServer(async
   assert.match(r.body, /404/);
 }));
 
-test("404 also applies to nested paths and a non-existent /api", () => withServer(async (_s, get) => {
-  for (const p of ["/a/b/c", "/api/khong-co"]) {
-    const r = await get({ pathname: p, headers: { Accept: "text/markdown" } });
-    assert.equal(r.status, 404, p);
-    assert.match(r.headers["content-type"], /^text\/markdown/);
+test("404 also applies to nested paths; unknown /api paths always get a JSON error", () => withServer(async (_s, get) => {
+  const page = await get({ pathname: "/a/b/c", headers: { Accept: "text/markdown" } });
+  assert.equal(page.status, 404);
+  assert.match(page.headers["content-type"], /^text\/markdown/);
+  for (const accept of ["text/markdown", "text/html", "*/*"]) {
+    const r = await get({ pathname: "/api/khong-co", headers: { Accept: accept } });
+    assert.equal(r.status, 404, accept);
+    assert.match(r.headers["content-type"], /^application\/json/, accept);
+    const body = JSON.parse(r.body);
+    assert.equal(body.success, false);
+    assert.equal(body.code, "NOT_FOUND");
+    assert.ok(body.hint);
   }
 }));
 

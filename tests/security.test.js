@@ -24,11 +24,19 @@ test("getClientIp prefers Vercel headers and ignores a spoofed first x-forwarded
   assert.equal(getClientIp({ headers: { "x-forwarded-for": "9.9.9.9, 2.2.2.2" } }), "2.2.2.2");
 });
 
-test("rateLimit blocks after the limit and fails open on KV errors", async () => {
+test("rateLimit reports remaining/reset, blocks after the limit and fails open on KV errors", async () => {
   const store = new Map();
   const kv = { incr: async k => { const n = (store.get(k) || 0) + 1; store.set(k, n); return n; }, expire: async () => {} };
-  assert.equal(await rateLimit(kv, "t", "ip", 2, 60), true);
-  assert.equal(await rateLimit(kv, "t", "ip", 2, 60), true);
-  assert.equal(await rateLimit(kv, "t", "ip", 2, 60), false);
-  assert.equal(await rateLimit({ incr: async () => { throw new Error("down"); } }, "t", "ip", 1, 60), true);
+  const now = 1_000_000_000_000;
+  const a = await rateLimit(kv, "t", "ip", 2, 60, now);
+  assert.deepEqual([a.allowed, a.limit, a.remaining, a.window], [true, 2, 1, 60]);
+  assert.ok(a.reset >= 1 && a.reset <= 60);
+  assert.equal((await rateLimit(kv, "t", "ip", 2, 60, now)).remaining, 0);
+  const c = await rateLimit(kv, "t", "ip", 2, 60, now);
+  assert.equal(c.allowed, false);
+  assert.equal(c.remaining, 0);
+  // next window starts a fresh counter
+  assert.equal((await rateLimit(kv, "t", "ip", 2, 60, now + 61_000)).allowed, true);
+  const down = await rateLimit({ incr: async () => { throw new Error("down"); } }, "t", "ip", 1, 60, now);
+  assert.equal(down.allowed, true);
 });
