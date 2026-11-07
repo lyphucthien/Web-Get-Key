@@ -3,6 +3,7 @@ const { prefersMarkdown, prefersJson } = require("../lib/negotiate");
 const { loadGames } = require("../lib/games");
 const { renderGamesPage, readTemplate } = require("../lib/games-page");
 const { sendError } = require("../lib/api");
+const { countryFromRequest, langFromCountry } = require("../lib/lang");
 
 const MD = "text/markdown; charset=utf-8";
 const HTML = "text/html; charset=utf-8";
@@ -33,6 +34,15 @@ module.exports = (req, res) => {
 
   if (kind === "home") {
     return send(req, res, 200, MD, homeMarkdown(), "public, s-maxage=300, stale-while-revalidate=600");
+  }
+
+  if (kind === "lang") {
+    // Picks the page language from the visitor's country. Nothing is stored; the answer is never cached.
+    const country = countryFromRequest(req);
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    res.setHeader("Cache-Control", "private, no-store");
+    return res.end(req.method === "HEAD" ? undefined : JSON.stringify({ success: true, country, lang: langFromCountry(country) }));
   }
 
   if (kind === "games") {

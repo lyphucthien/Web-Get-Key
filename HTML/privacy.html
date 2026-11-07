@@ -15,6 +15,8 @@
 <meta property="og:image" content="https://res.cloudinary.com/dkui88bcf/image/upload/v1786939501/Logo_LPT_vnq390.png">
 <meta name="twitter:card" content="summary">
 <link rel="stylesheet" href="/CSS/style.css">
+<style>html.lang-pending body{visibility:hidden}</style>
+<script>try{if(!localStorage.getItem("lpt_lang")&&!sessionStorage.getItem("lpt_lang_geo")){document.documentElement.classList.add("lang-pending");setTimeout(function(){document.documentElement.classList.remove("lang-pending")},2500)}}catch(e){}</script>
 </head>
 <body data-page="privacy">
 
@@ -27,6 +29,7 @@
       <li><b>IP address:</b> stored for up to 3 hours to limit each device to one key every 3 hours.</li>
       <li><b>Issued keys:</b> stored so we can check whether a key is valid.</li>
       <li><b>Device ID (HWID) and first-use time:</b> sent by the LPT Hub script to tie a key to one device and calculate the 3-hour expiry.</li>
+      <li><b>Language:</b> detected once from your IP address by Vercel to choose English or Vietnamese (only Vietnam gets Vietnamese). The IP address is not stored, and your choice is kept in your browser.</li>
       <li><b>Minecraft username and Discord ID:</b> only when you activate a key for the Minecraft server, used to confirm the account has been activated.</li>
     </ul>
     <h2>Cookies and browser storage</h2>
@@ -51,5 +54,6 @@
 </footer>
 
 <script src="/JS/layout.js"></script>
+<script src="/JS/i18n.js"></script>
 </body>
 </html>

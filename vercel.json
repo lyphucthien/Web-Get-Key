@@ -64,6 +64,10 @@
       "destination": "/api-catalog.json"
     },
     {
+      "source": "/api/lang",
+      "destination": "/api/site?kind=lang"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/site?kind=api404"
     },
