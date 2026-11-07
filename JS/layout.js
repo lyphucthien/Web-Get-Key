@@ -48,6 +48,13 @@
       </div>
     </header>`);
 
+  document.addEventListener("DOMContentLoaded", function () {
+    if (window.LPT_I18N) return;
+    const s = document.createElement("script");
+    s.src = "/JS/i18n.js";
+    document.body.appendChild(s);
+  });
+
   const canvas = document.getElementById("bg-canvas"), ctx = canvas.getContext("2d");
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const GAP = 18, DOT = 1.3, MAX_ALPHA = 0.5;
